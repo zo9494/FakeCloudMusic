@@ -1,0 +1,52 @@
+@font-face {
+  font-family: FluentIcon;
+  src: url("./assets/fonts/Segoe Fluent Icons.ttf");
+}
+.icons {
+  font-family: "FluentIcon";
+}
+* {
+  cursor: default;
+  user-select: none;
+  box-sizing: border-box;
+}
+body {
+  box-sizing: border-box;
+
+  background-color: #f5f5f5;
+}
+ul {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+a {
+  text-decoration: none;
+}
+#app {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 25px auto;
+}
+.scrollbar {
+  overflow: auto;
+  // height: 100%;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 7px;
+    height: 7px;
+  }
+  &:hover {
+    &::-webkit-scrollbar {
+      display: block;
+    }
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #d1d1d1;
+  }
+}
+
+/* https://learn.microsoft.com/zh-cn/windows/apps/design/style/segoe-fluent-icons-font */

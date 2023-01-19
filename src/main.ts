@@ -1,0 +1,10 @@
+import { createApp } from 'vue'
+import App from './App.vue'
+import "./main.scss"
+import "./normalize.css"
+import { router } from "./router/index"
+createApp(App).use(router)
+  .mount('#app')
+  .$nextTick(() => {
+    postMessage({ payload: 'removeLoading' }, '*')
+  })
