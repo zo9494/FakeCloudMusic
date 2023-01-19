@@ -37,11 +37,9 @@ function handleClose() {
 
 <style lang="scss" scoped>
 .appHeader {
-  // background-color: rgba(#e1e1e1, 0.5);
-  backdrop-filter: blur(5px);
   display: grid;
   grid-template-columns: auto 120px;
-  height: 25px;
+  height: variables.$appBarHeight;
   position: fixed;
   top: 0;
   left: 0;

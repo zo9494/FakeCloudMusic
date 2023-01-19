@@ -30,8 +30,9 @@ a {
   width: 100vw;
   overflow: hidden;
   display: grid;
-  grid-template-rows: 25px auto;
+  grid-template-rows: variables.$appBarHeight auto;
 }
+
 .scrollbar {
   overflow: auto;
   // height: 100%;

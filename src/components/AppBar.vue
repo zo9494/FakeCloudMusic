@@ -1,4 +1,8 @@
 <template>
+  <div class="container" style=" grid-template-rows:none">
+    <div style="background-color: #ededed;"></div>
+    <div></div>
+  </div>
   <component :is="appBar" />
 </template>
 

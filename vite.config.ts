@@ -1,26 +1,25 @@
-import { rmSync } from 'node:fs'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import electron from 'vite-plugin-electron'
-import renderer from 'vite-plugin-electron-renderer'
-import pkg from './package.json'
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
-import path from 'path'
-
+import { rmSync } from 'node:fs';
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import electron from 'vite-plugin-electron';
+import renderer from 'vite-plugin-electron-renderer';
+import pkg from './package.json';
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
-  rmSync('dist-electron', { recursive: true, force: true })
+  rmSync('dist-electron', { recursive: true, force: true });
 
-  const isServe = command === 'serve'
-  const isBuild = command === 'build'
-  const sourcemap = isServe || !!process.env.VSCODE_DEBUG
+  const isServe = command === 'serve';
+  const isBuild = command === 'build';
+  const sourcemap = isServe || !!process.env.VSCODE_DEBUG;
 
   return {
     define: {
       process: {
-        platform: process.platform
-      }
+        platform: process.platform,
+      },
     },
     plugins: [
       vue(),
@@ -30,9 +29,11 @@ export default defineConfig(({ command }) => {
           entry: 'electron/main/index.ts',
           onstart(options) {
             if (process.env.VSCODE_DEBUG) {
-              console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Electron App')
+              console.log(
+                /* For `.vscode/.debug.script.mjs` */ '[startup] Electron App'
+              );
             } else {
-              options.startup()
+              options.startup();
             }
           },
           vite: {
@@ -41,7 +42,9 @@ export default defineConfig(({ command }) => {
               minify: isBuild,
               outDir: 'dist-electron/main',
               rollupOptions: {
-                external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+                external: Object.keys(
+                  'dependencies' in pkg ? pkg.dependencies : {}
+                ),
               },
             },
           },
@@ -49,9 +52,9 @@ export default defineConfig(({ command }) => {
         {
           entry: 'electron/preload/index.ts',
           onstart(options) {
-            // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete, 
+            // Notify the Renderer-Process to reload the page when the Preload-Scripts build is complete,
             // instead of restarting the entire Electron App.
-            options.reload()
+            options.reload();
           },
           vite: {
             build: {
@@ -59,17 +62,19 @@ export default defineConfig(({ command }) => {
               minify: isBuild,
               outDir: 'dist-electron/preload',
               rollupOptions: {
-                external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+                external: Object.keys(
+                  'dependencies' in pkg ? pkg.dependencies : {}
+                ),
               },
             },
           },
-        }
+        },
       ]),
       // Use Node.js API in the Renderer-process
       renderer({
         nodeIntegration: true,
       }),
-      // 
+      //
       createSvgIconsPlugin({
         // 指定需要缓存的图标文件夹
         iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
@@ -77,13 +82,22 @@ export default defineConfig(({ command }) => {
         symbolId: 'icon-[dir]-[name]',
       }),
     ],
-    server: process.env.VSCODE_DEBUG && (() => {
-      const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL)
-      return {
-        host: url.hostname,
-        port: +url.port,
-      }
-    })(),
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@use "./src/style/variables.scss";',
+        },
+      },
+    },
+    server:
+      process.env.VSCODE_DEBUG &&
+      (() => {
+        const url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL);
+        return {
+          host: url.hostname,
+          port: +url.port,
+        };
+      })(),
     clearScreen: false,
-  }
-})
+  };
+});
