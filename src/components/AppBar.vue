@@ -1,6 +1,6 @@
 <template>
-  <div class="container" style=" grid-template-rows:none">
-    <div style="background-color: #ededed;"></div>
+  <div class="app_bar_place">
+    <div></div>
     <div></div>
   </div>
   <component :is="appBar" />
@@ -8,16 +8,20 @@
 
 <script lang="ts" setup>
 import WinTitleBar from './WinTitleBar.vue';
-import { h, defineComponent } from 'vue';
-let appBar = defineComponent({
-  render() {
-    return h('div', {
-      style: '-webkit-app-region: drag;background-color: transparent;',
-    });
-  },
-});
+let appBar;
 if (process.platform === 'win32') {
   appBar = WinTitleBar;
 }
 console.log(process);
 </script>
+<style lang="scss" scoped>
+.app_bar_place {
+  display: grid;
+  grid-template-columns: 160px auto;
+  -webkit-app-region: drag;
+
+  >div:nth-of-type(1) {
+    background-color: #ededed;
+  }
+}
+</style>

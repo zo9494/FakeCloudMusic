@@ -34,6 +34,7 @@ export default {
     border: 1px solid #bfbfbf;
     display: grid;
     place-items: center;
+    background-color: #e0e0e0;
 
     >svg {
       height: 30px;
