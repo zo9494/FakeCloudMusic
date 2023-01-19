@@ -3,13 +3,16 @@ import AppBar from "./components/AppBar.vue"
 import ScrollBar from "./components/ScrollBar.vue"
 import Menu from "./components/Menu.vue"
 import { RouterView } from "vue-router"
+import UserLogin from "./components/UserLogin.vue"
 </script>
 
 <template>
   <AppBar></AppBar>
   <div class="container">
     <div className="container-left-nav">
-      <div className="user">user</div>
+      <div className="user">
+        <UserLogin />
+      </div>
       <ScrollBar>
         <Menu></Menu>
       </ScrollBar>
@@ -38,27 +41,9 @@ import { RouterView } from "vue-router"
     overflow: hidden;
     display: grid;
     grid-template-rows: 50px auto;
+    background-color: #ededed;
 
-    .nav-item {
-      &-title {
-        color: #999999;
-        font-size: 10px;
-      }
-    }
 
-    li {
-      &:hover {
-        background-color: rgba($color: #dddddd, $alpha: 0.5);
-      }
-
-      a {
-        padding: 8px 0;
-        display: block;
-        width: 100%;
-        height: 100%;
-        color: black;
-      }
-    }
   }
 
   // &-right-view {}
@@ -71,8 +56,7 @@ import { RouterView } from "vue-router"
   }
 
   .user {
-    height: 50px;
-    background-color: gainsboro;
+    background-color: #ebebeb;
   }
 }
 </style>
