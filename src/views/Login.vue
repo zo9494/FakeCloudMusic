@@ -82,10 +82,6 @@ function close() {
       text-align: center;
     }
 
-    .qr-code {
-      border: 1px solid red;
-    }
-
     .tip {
       font-size: 14px;
       text-align: center;
