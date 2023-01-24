@@ -22,20 +22,48 @@
 </template>
 
 <script setup lang="ts">
-import { getQR } from '@/api/user'
+import { getQR, checkStatus } from '@/api/user'
 import { onBeforeMount, ref } from 'vue'
 
 const qrimg = ref()
+
+
+
 onBeforeMount(() => {
-  getQR().then(data => {
-    qrimg.value = data.qrimg
-  })
+  getQR()
+    .then(data => {
+      qrimg.value = data.qrimg
+      return data.key
+    })
+    .then(key => {
+      checkQRStatus(key)
+    })
 })
 
 function close() {
   console.log(window);
   window.electron.window.closeLoginWin()
   window.close()
+}
+
+async function checkQRStatus(key: string) {
+  let timer = 0
+  const func = () => {
+    timer = window.setTimeout(async () => {
+      const { code, cookie } = await checkStatus(key)
+      if (code === 803) {
+        localStorage.cookie = cookie;
+        window.clearTimeout(timer)
+        return
+      }
+      if (code === 802) {
+
+      }
+      func()
+
+    }, 2000)
+  }
+  func()
 }
 </script>
 
@@ -82,9 +110,6 @@ function close() {
       text-align: center;
     }
 
-    .qr-code {
-      border: 1px solid red;
-    }
 
     .tip {
       font-size: 14px;
