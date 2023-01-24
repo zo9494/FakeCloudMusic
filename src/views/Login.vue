@@ -13,23 +13,58 @@
     <main class="main">
       <p class="title">扫码登录</p>
       <div class="qr-code">
-        <img v-if="qrimg" :src="qrimg">
+        <div>
+          <img v-if="qrimg && stepCode !== '2'" :src="qrimg">
+          <img v-else-if="stepCode === '2'" class="scanned" :src="img" />
+          <div class="out-date" v-show="stepCode === '0'">
+            <p>二维码已过期</p>
+            <button class="refresh">点击刷新</button>
+          </div>
+        </div>
+        <p class="qr-code-msg">{{ steps[stepCode].msg }}</p>
       </div>
-      <p class="tip">使用网易云音乐app扫码登录</p>
+      <p class="tip">{{ steps[stepCode].tip }}</p>
     </main>
-    <div class="other">选择其它登录模式</div>
+    <div class="other" v-show="stepCode !== '2'">选择其它登录模式</div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { getQR, checkStatus } from '@/api/user'
-import { onBeforeMount, ref } from 'vue'
-
+import { onBeforeMount, Ref, ref, } from 'vue'
+import img from '@/assets/img/login.png'
 const qrimg = ref()
+/**
+ * 0 - 二维码过期
+ * 1 - 等待扫码
+ * 2 - 待确认
+ */
+const steps = {
+  0: {
+    msg: '',
+    tip: '使用网易云音乐app扫码登录'
+  },
+  1: {
+    msg: '',
+    tip: '使用网易云音乐app扫码登录'
+  },
+  2: {
+    msg: '扫描成功',
+    tip: '请在手机上确认登录'
+  }
+}
+/**
+ * 0 - 二维码过期
+ * 1 - 等待扫码
+ * 2 - 待确认
+ */
+const stepCode: Ref<'0' | '1' | '2'> = ref('1')
 
 
 
-onBeforeMount(() => {
+onBeforeMount(init)
+
+function init() {
   getQR()
     .then(data => {
       qrimg.value = data.qrimg
@@ -38,7 +73,7 @@ onBeforeMount(() => {
     .then(key => {
       checkQRStatus(key)
     })
-})
+}
 
 function close() {
   console.log(window);
@@ -56,14 +91,24 @@ async function checkQRStatus(key: string) {
         window.clearTimeout(timer)
         return
       }
-      if (code === 802) {
-
+      if (code === 800) {
+        stepCode.value = '0'
+        return
       }
+      if (code === 802) {
+        stepCode.value = '2'
+      }
+
       func()
 
     }, 2000)
   }
   func()
+}
+
+function refresh() {
+  init()
+  stepCode.value = '1'
 }
 </script>
 
@@ -99,15 +144,51 @@ async function checkQRStatus(key: string) {
   color: #666666;
 
   .main {
-    width: 185px;
+    width: 190px;
     display: grid;
-    grid-template-rows: 50px 185px 40px;
-    gap: 20px;
+    grid-template-rows: 50px 190px 30px;
+    gap: 30px;
+    overflow: hidden;
 
     .title {
       font-size: 28px;
       color: #333333;
       text-align: center;
+    }
+
+    .qr-code {
+      >div {
+        width: 180px;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .out-date {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: grid;
+        place-items: center;
+        color: #fff;
+      }
+
+      &-msg {
+        font-size: 13px;
+        margin-top: -20px;
+        text-align: center;
+      }
+
+      .refresh {
+        color: #fff;
+        background-color: #e40029;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 20px;
+      }
     }
 
     .tip {
@@ -134,5 +215,9 @@ async function checkQRStatus(key: string) {
 
 .drag {
   -webkit-app-region: drag;
+}
+
+.scanned {
+  transform: translateX(-430px);
 }
 </style>
