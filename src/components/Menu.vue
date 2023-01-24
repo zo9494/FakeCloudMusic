@@ -65,7 +65,7 @@
       <li v-for="sub_menu_item in item.children" :key="sub_menu_item.key">
 
         <RouterLink draggable="false" :to="`/id/${sub_menu_item.title}`">
-          <SvgIcon class="icon-bootstrap" :name="sub_menu_item.iconName" />
+          <SvgIcon v-if="sub_menu_item.iconName" class="icon-bootstrap" :name="sub_menu_item.iconName" />
           <span>{{ sub_menu_item.title }}</span>
         </RouterLink>
       </li>
@@ -98,6 +98,8 @@ const menu: menuType[] = [
   {
     title: '收藏的歌单',
     key: 4,
+    iconName: 'music-note-list'
+
   },
 ]
 
@@ -129,21 +131,22 @@ const menu: menuType[] = [
     }
 
     &:hover {
-      background-color: #e1e1e1;
+      background-color: variables.$menuHover;
     }
 
     a {
       display: grid;
-      grid-template-columns: 30px auto;
+      grid-template-columns: 35px auto;
       align-items: center;
       padding-left: 15px;
       font-size: 13px;
-      line-height: 30px;
+      line-height: 35px;
     }
   }
 }
 
 .router-link-exact-active {
   color: #e40029;
+  background-color: variables.$menuActive;
 }
 </style>

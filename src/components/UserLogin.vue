@@ -1,5 +1,5 @@
 <template>
-  <div class="user">
+  <div class="user" @click="open">
     <div class="avatar">
       <SvgIcon name="user_90"></SvgIcon>
     </div>
@@ -10,13 +10,11 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  setup() {
+<script lang="ts" setup>
+function open() {
+  console.log(window.electron);
+  window.electron.window.createLoginWin()
 
-
-    return {}
-  }
 }
 </script>
 

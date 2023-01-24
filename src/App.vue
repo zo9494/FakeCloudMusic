@@ -9,21 +9,26 @@ import UserLogin from "./components/UserLogin.vue"
 <template>
   <AppBar></AppBar>
   <div class="container">
-    <div className="container-left-nav">
-      <div className="user">
+    <div class="container-left-nav">
+      <div class="history">
+        <button class="history-back history-button disabled">
+          <SvgIcon class="icon-chevron" name="chevron-left" />
+        </button>
+        <button class="history-forward history-button">
+          <SvgIcon class="icon-chevron" name="chevron-right" />
+        </button>
+      </div>
+      <div class="user">
         <UserLogin />
       </div>
       <ScrollBar>
         <Menu></Menu>
       </ScrollBar>
     </div>
-
-
-
-    <div className="container-right-view">
+    <div class="container-right-view">
       <RouterView></RouterView>
     </div>
-    <div className="container-player">
+    <div class="container-player">
 
     </div>
   </div>
@@ -34,16 +39,40 @@ import UserLogin from "./components/UserLogin.vue"
   height: 100%;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 160px auto;
+  grid-template-columns: 200px auto;
   grid-template-rows: auto 50px;
 
   &-left-nav {
     overflow: hidden;
     display: grid;
-    grid-template-rows: 50px auto;
+    grid-template-rows: 25px 50px auto;
     background-color: #ededed;
 
+    .history {
+      display: grid;
+      grid-template-columns: 25px 25px;
+      justify-content: flex-end;
+      gap: 20px;
+      align-items: center;
 
+      .history-button {
+        display: grid;
+        justify-items: center;
+        align-items: center;
+        border-radius: 50%;
+        height: 100%;
+
+        &:not(.disabled):hover {
+          background-color: rgba(46, 50, 56, 0.05);
+
+        }
+      }
+
+      .icon-chevron {
+        width: 16px;
+        height: 16px;
+      }
+    }
   }
 
   // &-right-view {}

@@ -6,6 +6,8 @@ import renderer from 'vite-plugin-electron-renderer';
 import pkg from './package.json';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import path from 'path';
+console.log(process.cwd());
+console.log(__dirname);
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
@@ -16,10 +18,14 @@ export default defineConfig(({ command }) => {
   const sourcemap = isServe || !!process.env.VSCODE_DEBUG;
 
   return {
-    define: {
-      process: {
-        platform: process.platform,
+    // root: __dirname + '/pages/',
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
       },
+    },
+    define: {
+      'process.platform': `'${process.platform}'`,
     },
     plugins: [
       vue(),
@@ -69,6 +75,21 @@ export default defineConfig(({ command }) => {
             },
           },
         },
+        {
+          entry: 'electron/preload/login.ts',
+          vite: {
+            build: {
+              sourcemap,
+              minify: isBuild,
+              outDir: 'dist-electron/preload',
+              rollupOptions: {
+                external: Object.keys(
+                  'dependencies' in pkg ? pkg.dependencies : {}
+                ),
+              },
+            },
+          },
+        },
       ]),
       // Use Node.js API in the Renderer-process
       renderer({
@@ -82,6 +103,14 @@ export default defineConfig(({ command }) => {
         symbolId: 'icon-[dir]-[name]',
       }),
     ],
+    build: {
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, '/index.html'),
+          login: path.resolve(__dirname, '/login/index.html'),
+        },
+      },
+    },
     css: {
       preprocessorOptions: {
         scss: {

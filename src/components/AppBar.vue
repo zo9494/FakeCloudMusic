@@ -8,7 +8,8 @@
 
 <script lang="ts" setup>
 import WinTitleBar from './WinTitleBar.vue';
-let appBar;
+import type { DefineComponent } from "vue";
+let appBar: undefined | DefineComponent<{}, {}, any>
 if (process.platform === 'win32') {
   appBar = WinTitleBar;
 }
@@ -17,7 +18,7 @@ console.log(process);
 <style lang="scss" scoped>
 .app_bar_place {
   display: grid;
-  grid-template-columns: 160px auto;
+  grid-template-columns: 200px auto;
   -webkit-app-region: drag;
 
   >div:nth-of-type(1) {

@@ -25,6 +25,12 @@ a {
   color: #2e2e2e;
   text-decoration: none;
 }
+button {
+  border: none;
+}
+.disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
 #app {
   height: 100vh;
   width: 100vw;

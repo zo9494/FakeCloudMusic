@@ -5,6 +5,9 @@ import server = require('NeteaseCloudMusicApi/server');
 import { chalk } from '../utils/chalk';
 import { EVENT } from '../utils/eventTypes';
 import { isDevelopment, isLinux, isMac, isWin } from '../utils/platform';
+
+console.log(`__dirname:${chalk.red(__dirname)}`);
+
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -89,8 +92,12 @@ let win: BrowserWindow | null = null;
 let serverApp;
 // Here, you can also use other preload
 const preload = join(__dirname, '../preload/index.js');
+const preloadLogin = join(__dirname, '../preload/login.js');
+
 const url = process.env.VITE_DEV_SERVER_URL;
+
 const indexHtml = join(process.env.DIST, 'index.html');
+const loginHtml = join(process.env.DIST, '/login/index.html');
 
 async function createWindow() {
   win = new BrowserWindow({
@@ -99,6 +106,10 @@ async function createWindow() {
       nodeIntegration: true,
     },
     frame: isMac,
+    width: 900,
+    height: 600,
+    minWidth: 900,
+    minHeight: 600,
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 5, y: 5 },
   });
@@ -198,4 +209,33 @@ ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
 
 ipcMain.handle(EVENT.WINDOW_MIN, () => {
   win.minimize();
+});
+
+let loginWin: null | BrowserWindow = null;
+ipcMain.handle(EVENT.LOGIN, async () => {
+  if (loginWin) {
+    loginWin.focus();
+  } else {
+    loginWin = new BrowserWindow({
+      width: 350,
+      height: 530,
+      title: '登录',
+      resizable: false,
+      frame: false,
+      parent: win,
+      webPreferences: {
+        preload: preloadLogin,
+      },
+    });
+    if (process.env.VITE_DEV_SERVER_URL) {
+      await loginWin.loadURL(url + '/login/');
+      loginWin.webContents.openDevTools();
+    } else {
+      loginWin.loadFile(loginHtml);
+    }
+  }
+});
+ipcMain.handle(EVENT.LOGIN_CLOSE, () => {
+  loginWin.close();
+  loginWin = null;
 });

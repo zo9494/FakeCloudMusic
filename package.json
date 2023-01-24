@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "version": "",
+  "name": "orange-music",
+  "version": "0.0.1",
   "main": "dist-electron/main/index.js",
   "description": "",
   "author": "",
@@ -10,7 +10,8 @@
     "electron",
     "vite",
     "vue3",
-    "vue"
+    "vue",
+    "typescript"
   ],
   "debug": {
     "env": {
