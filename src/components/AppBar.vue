@@ -20,11 +20,9 @@ console.log(process);
 <style lang="scss" scoped>
 .app_bar_place {
   display: grid;
-  <<<<<<< HEAD grid-template-columns: 200px auto;
-  -webkit-app-region: drag;
-  =======grid-template-columns: 160px auto;
+  grid-template-columns: 200px auto;
 
-  >>>>>>>550f8eaa331e307ff9abb3363a54521165f4b26f>div:nth-of-type(1) {
+  >div:nth-of-type(1) {
     background-color: #ededed;
   }
 }
