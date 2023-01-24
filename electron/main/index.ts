@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, globalShortcut } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
 import server = require('NeteaseCloudMusicApi/server');
@@ -115,10 +115,7 @@ async function createWindow() {
   });
 
   if (process.env.VITE_DEV_SERVER_URL) {
-    // electron-vite-vue#298
-    await win.loadURL(url);
-    // Open devTool if the app is not packaged
-    win.webContents.openDevTools();
+    win.loadURL(url);
   } else {
     win.loadFile(indexHtml);
   }
@@ -148,6 +145,11 @@ app.whenReady().then(() => {
     serverApp = expressApp;
   });
   createWindow();
+  // open devtools
+  globalShortcut.register('F10', () => {
+    win && win.webContents.openDevTools();
+    loginWin && loginWin.webContents.openDevTools();
+  });
 });
 
 app.on('window-all-closed', () => {
@@ -217,11 +219,13 @@ ipcMain.handle(EVENT.LOGIN, async () => {
     loginWin.focus();
   } else {
     loginWin = new BrowserWindow({
-      width: 350,
-      height: 530,
+      width: 320,
+      height: 520,
       title: '登录',
       resizable: false,
       frame: false,
+      minimizable: false,
+      maximizable: false,
       parent: win,
       webPreferences: {
         preload: preloadLogin,
@@ -233,6 +237,9 @@ ipcMain.handle(EVENT.LOGIN, async () => {
     } else {
       loginWin.loadFile(loginHtml);
     }
+    loginWin.on('closed', () => {
+      loginWin = null;
+    });
   }
 });
 ipcMain.handle(EVENT.LOGIN_CLOSE, () => {
