@@ -18,7 +18,7 @@
           <img v-else-if="stepCode === '2'" class="scanned" :src="img" />
           <div class="out-date" v-show="stepCode === '0'">
             <p>二维码已过期</p>
-            <button class="refresh">点击刷新</button>
+            <button class="refresh" @click="refresh">点击刷新</button>
           </div>
         </div>
         <p class="qr-code-msg">{{ steps[stepCode].msg }}</p>
@@ -88,7 +88,9 @@ async function checkQRStatus(key: string) {
       const { code, cookie } = await checkStatus(key)
       if (code === 803) {
         localStorage.cookie = cookie;
+        document.cookie = cookie
         window.clearTimeout(timer)
+        close()
         return
       }
       if (code === 800) {

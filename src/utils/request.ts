@@ -1,9 +1,9 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-type Result<T> = {
+type Result<T, D> = T & {
   code: number;
-  data: T;
+  data: D;
 };
 
 type RequestConfig = Omit<AxiosRequestConfig, 'headers'> & {
@@ -16,17 +16,25 @@ export class Service {
     this.instance = axios.create({
       baseURL: 'http://localhost:35011',
       timeout: 1000 * 10,
+      withCredentials: true,
       ...config,
+    });
+    this.instance.interceptors.request.use(config => {
+      config.params = {
+        ...config.params,
+        // cookie: localStorage.cookie,
+      };
+      return config;
     });
   }
 
   public request(config: RequestConfig): Promise<AxiosResponse> {
     return this.instance.request(config);
   }
-  public get<T = any>(
+  public get<T = undefined, D = undefined>(
     url: string,
     config?: RequestConfig
-  ): Promise<AxiosResponse<Result<T>>> {
+  ): Promise<AxiosResponse<Result<T, D>>> {
     return this.instance.get(url, config);
   }
 }

@@ -59,14 +59,24 @@
       </li>
     </ul>
   </div>
-  <div class="nav-item" v-for="item in menu" :key="item.key">
-    <div class="nav-item-title " v-text="item.title"></div>
+  <div class="nav-item">
+    <div class="nav-item-title">创建的歌单</div>
     <ul>
-      <li v-for="sub_menu_item in item.children" :key="sub_menu_item.key">
-
-        <RouterLink draggable="false" :to="`/id/${sub_menu_item.title}`">
-          <SvgIcon v-if="sub_menu_item.iconName" class="icon-bootstrap" :name="sub_menu_item.iconName" />
-          <span>{{ sub_menu_item.title }}</span>
+      <li v-for="item in order.myCreate" :key="item.id">
+        <RouterLink draggable="false" :to="`/id/${item.id}`">
+          <SvgIcon class="icon-bootstrap" name="music-note-list" />
+          <span>{{ item.name }}</span>
+        </RouterLink>
+      </li>
+    </ul>
+  </div>
+  <div class="nav-item">
+    <div class="nav-item-title">收藏的歌单</div>
+    <ul>
+      <li v-for="item in order.myCollect" :key="item.id">
+        <RouterLink draggable="false" :to="`/id/${item.id}`">
+          <SvgIcon class="icon-bootstrap" name="music-note-list" />
+          <span>{{ item.name }}</span>
         </RouterLink>
       </li>
     </ul>
@@ -75,7 +85,10 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router"
-
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/store/user";
+const userStore = useUserStore();
+const { order } = storeToRefs(userStore)
 interface menuType {
   key: number | string,
   title?: string,
@@ -135,12 +148,20 @@ const menu: menuType[] = [
     }
 
     a {
+      height: 35px;
       display: grid;
       grid-template-columns: 35px auto;
       align-items: center;
       padding-left: 15px;
       font-size: 13px;
       line-height: 35px;
+      overflow: hidden;
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap
+      }
     }
   }
 }

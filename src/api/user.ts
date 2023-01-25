@@ -7,7 +7,7 @@ interface QRKeyType {
 export async function getQRKey() {
   const {
     data: { data },
-  } = await service.get<QRKeyType>('login/qr/key', {
+  } = await service.get<{}, QRKeyType>('login/qr/key', {
     params: {
       timestamp: Date.now(),
     },
@@ -22,7 +22,7 @@ export async function getQR() {
   const { unikey: key } = await getQRKey();
   const {
     data: { data },
-  } = await service.get<QRType>('login/qr/create', {
+  } = await service.get<{}, QRType>('login/qr/create', {
     params: {
       key,
       qrimg: true,
@@ -40,12 +40,46 @@ interface QRCheckType {
   message: string;
 }
 export async function checkStatus(key: string) {
-  const { data } = await service.get('login/qr/check', {
+  const { data } = await service.get<QRCheckType>('login/qr/check', {
     params: {
       key,
       timestamp: Date.now(),
     },
   });
 
-  return data as any as QRCheckType;
+  return data;
+}
+interface UserAccount {
+  code: number;
+  account: {
+    id: number;
+  };
+  profile: {
+    nickname: string;
+    avatarUrl: string;
+    userId: number;
+  };
+}
+
+export async function getUserAccount() {
+  const { data } = await service.get<UserAccount>('/user/account');
+  return data;
+}
+
+interface UserPlaylistParams {
+  uid: number;
+  limit?: number;
+  offset?: number;
+}
+
+interface UserPlaylist {
+  more: boolean;
+  playlist: Playlist[];
+}
+
+export async function getSubCount(params: UserPlaylistParams) {
+  const { data } = await service.get<UserPlaylist>('/user/playlist', {
+    params,
+  });
+  return data.playlist;
 }

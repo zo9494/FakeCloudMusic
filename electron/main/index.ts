@@ -1,4 +1,11 @@
-import { app, BrowserWindow, shell, ipcMain, globalShortcut } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  globalShortcut,
+  session,
+} from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
 import server = require('NeteaseCloudMusicApi/server');
@@ -99,6 +106,8 @@ const url = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, 'index.html');
 const loginHtml = join(process.env.DIST, '/login/index.html');
 
+const vue_dev = join(process.cwd(), '/vue_devtools/');
+
 async function createWindow() {
   win = new BrowserWindow({
     webPreferences: {
@@ -115,7 +124,11 @@ async function createWindow() {
   });
 
   if (process.env.VITE_DEV_SERVER_URL) {
-    win.loadURL(url);
+    await win.loadURL(url);
+    // open devtools
+    if (isDevelopment) {
+      win.webContents.openDevTools();
+    }
   } else {
     win.loadFile(indexHtml);
   }
@@ -145,7 +158,7 @@ app.whenReady().then(() => {
     serverApp = expressApp;
   });
   createWindow();
-  // open devtools
+
   globalShortcut.register('F10', () => {
     win && win.webContents.openDevTools();
     loginWin && loginWin.webContents.openDevTools();
@@ -176,6 +189,17 @@ app.on('activate', () => {
     allWindows[0].focus();
   } else {
     createWindow();
+  }
+});
+
+app.on('ready', async () => {
+  if (isDevelopment) {
+    try {
+      await session.defaultSession.loadExtension(vue_dev);
+      console.log(vue_dev);
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e.toString());
+    }
   }
 });
 
