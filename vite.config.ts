@@ -106,8 +106,8 @@ export default defineConfig(({ command }) => {
     build: {
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, '/index.html'),
-          login: path.resolve(__dirname, '/login/index.html'),
+          main: path.join(__dirname, '/index.html'),
+          login: path.join(__dirname, '/login/index.html'),
         },
       },
     },

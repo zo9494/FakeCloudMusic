@@ -10,9 +10,9 @@ interface userState {
     id?: number;
   };
   order: {
-    myLike: Playlist;
-    myCreate: Playlist[];
-    myCollect: Playlist[];
+    myLike: Playlist | {};
+    myCreate: Playlist[] | [];
+    myCollect: Playlist[] | [];
   };
 }
 interface userActions {

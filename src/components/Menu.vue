@@ -62,7 +62,7 @@
   <div class="nav-item">
     <div class="nav-item-title">创建的歌单</div>
     <ul>
-      <li v-for="item in order.myCreate" :key="item.id">
+      <li v-for="item in menu.myCreate" :key="item.id">
         <RouterLink draggable="false" :to="`/id/${item.id}`">
           <SvgIcon class="icon-bootstrap" name="music-note-list" />
           <span>{{ item.name }}</span>
@@ -73,7 +73,7 @@
   <div class="nav-item">
     <div class="nav-item-title">收藏的歌单</div>
     <ul>
-      <li v-for="item in order.myCollect" :key="item.id">
+      <li v-for="item in menu.myCollect" :key="item.id">
         <RouterLink draggable="false" :to="`/id/${item.id}`">
           <SvgIcon class="icon-bootstrap" name="music-note-list" />
           <span>{{ item.name }}</span>
@@ -84,37 +84,29 @@
 </template>
 
 <script setup lang="ts">
+import { defineProps, withDefaults } from "vue";
 import { RouterLink } from "vue-router"
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/store/user";
-const userStore = useUserStore();
-const { order } = storeToRefs(userStore)
+
 interface menuType {
-  key: number | string,
-  title?: string,
-  children?: menuType[],
-  iconName?: string
+  menu: {
+    myLike: Playlist | {};
+    myCreate: Playlist[] | [];
+    myCollect: Playlist[] | [];
+  }
 }
-const menu: menuType[] = [
+const { menu } = withDefaults(defineProps<menuType>(), {
+  menu: () => ({
+    myLike: {},
+    myCreate: [],
+    myCollect: []
+  })
+})
 
-  {
-    title: '创建的歌单',
-    key: 3,
-    children: [
-      {
-        title: "2222",
-        key: 1,
-        iconName: 'music-note-list'
-      }
-    ]
-  },
-  {
-    title: '收藏的歌单',
-    key: 4,
-    iconName: 'music-note-list'
 
-  },
-]
+
+
+console.log(menu);
+
 
 </script>
 <style lang="scss" scoped>

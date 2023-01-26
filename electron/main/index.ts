@@ -12,7 +12,6 @@ import server = require('NeteaseCloudMusicApi/server');
 import { chalk } from '../utils/chalk';
 import { EVENT } from '../utils/eventTypes';
 import { isDevelopment, isLinux, isMac, isWin } from '../utils/platform';
-
 console.log(`__dirname:${chalk.red(__dirname)}`);
 
 // The built directory structure
@@ -269,4 +268,8 @@ ipcMain.handle(EVENT.LOGIN, async () => {
 ipcMain.handle(EVENT.LOGIN_CLOSE, () => {
   loginWin.close();
   loginWin = null;
+});
+
+ipcMain.handle(EVENT.RELOAD_USER, (_, args) => {
+  return win.webContents.executeJavaScript('window.loadUser()');
 });

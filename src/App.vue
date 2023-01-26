@@ -4,6 +4,15 @@ import ScrollBar from "./components/ScrollBar.vue"
 import Menu from "./components/Menu.vue"
 import { RouterView } from "vue-router"
 import UserLogin from "./components/UserLogin.vue"
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/store/user";
+const userStore = useUserStore();
+const { order } = storeToRefs(userStore)
+
+window.loadUser = () => {
+  console.log('loadUser');
+  userStore.getUserAccount()
+}
 </script>
 
 <template>
@@ -22,7 +31,7 @@ import UserLogin from "./components/UserLogin.vue"
         <UserLogin />
       </div>
       <ScrollBar>
-        <Menu></Menu>
+        <Menu :menu="order"></Menu>
       </ScrollBar>
     </div>
     <div class="container-right-view">

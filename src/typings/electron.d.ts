@@ -5,20 +5,22 @@ import * as Electron from 'electron';
  */
 
 interface window {
-  close: () => void;
+  close: () => Promise<any>;
   resizable: () => Promise<boolean>;
-  minimize: () => void;
-  createLoginWin: () => void;
-  closeLoginWin: () => void;
+  minimize: () => Promise<any>;
+  createLoginWin: () => Promise<any>;
+  closeLoginWin: () => Promise<any>;
 }
 
 export default interface ElectronApi {
   ipcRenderer: Electron.IpcRenderer;
   window: window;
+  reloadUser: () => void;
 }
 
 declare global {
   interface Window {
     electron: ElectronApi;
+    loadUser: () => void;
   }
 }
