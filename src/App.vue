@@ -34,7 +34,7 @@ window.loadUser = () => {
         <Menu :menu="order"></Menu>
       </ScrollBar>
     </div>
-    <div class="container-right-view">
+    <div class="container-right-view scrollbar">
       <RouterView></RouterView>
     </div>
     <div class="container-player">

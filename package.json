@@ -44,6 +44,7 @@
     "howler": "^2.2.3",
     "music-metadata": "^7.13.0",
     "pinia": "^2.0.29",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "vue-slider-component": "^3.2.24"
   }
 }

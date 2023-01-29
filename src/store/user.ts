@@ -35,6 +35,8 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
       async getUserAccount() {
         const { profile, account } = await getUserAccount();
         getSubCount({ uid: profile.userId }).then(data => {
+          const myCollect = data.filter(item => item.userId !== profile.userId);
+
           const myLike = data.find(
             item =>
               item.name.indexOf('喜欢的音乐') !== -1 &&
@@ -45,7 +47,6 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
               item.name.indexOf('喜欢的音乐') === -1 &&
               item.userId === profile.userId
           );
-          const myCollect = data.filter(item => item.userId !== profile.userId);
 
           this.$patch({
             order: {

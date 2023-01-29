@@ -63,7 +63,7 @@
     <div class="nav-item-title">创建的歌单</div>
     <ul>
       <li v-for="item in menu.myCreate" :key="item.id">
-        <RouterLink draggable="false" :to="`/id/${item.id}`">
+        <RouterLink draggable="false" :to="`/playlist/${item.id}`">
           <SvgIcon class="icon-bootstrap" name="music-note-list" />
           <span>{{ item.name }}</span>
         </RouterLink>
@@ -74,7 +74,7 @@
     <div class="nav-item-title">收藏的歌单</div>
     <ul>
       <li v-for="item in menu.myCollect" :key="item.id">
-        <RouterLink draggable="false" :to="`/id/${item.id}`">
+        <RouterLink draggable="false" :to="`/playlist/${item.id}`">
           <SvgIcon class="icon-bootstrap" name="music-note-list" />
           <span>{{ item.name }}</span>
         </RouterLink>

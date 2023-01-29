@@ -1,10 +1,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import { defineComponent, h } from 'vue';
-const PlayList = defineComponent({
-  render() {
-    return h('div', this.$route.params.id);
-  },
-});
+import Playlist from '@/views/Playlist.vue';
+
 const Home = defineComponent({
   render() {
     return h('div', 'def');
@@ -17,8 +14,8 @@ const routes: RouteRecordRaw[] = [
     component: Home,
   },
   {
-    path: '/id/:id',
-    component: PlayList,
+    path: '/playlist/:id',
+    component: Playlist,
   },
 ];
 
