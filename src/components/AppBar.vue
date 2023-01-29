@@ -15,7 +15,8 @@ if (process.platform === 'win32') {
   appBar = WinTitleBar;
   dragClassName = ''
 }
-console.log(process);
+
+
 </script>
 <style lang="scss" scoped>
 .app_bar_place {

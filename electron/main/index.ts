@@ -9,10 +9,15 @@ import {
 import { release } from 'node:os';
 import { join } from 'node:path';
 import server = require('NeteaseCloudMusicApi/server');
-import { chalk } from '../utils/chalk';
 import { EVENT } from '../utils/eventTypes';
 import { isDevelopment, isLinux, isMac, isWin } from '../utils/platform';
-console.log(`__dirname:${chalk.red(__dirname)}`);
+import type { Chalk } from 'chalk';
+let chalk: Chalk | undefined;
+if (isDevelopment) {
+  import('../utils/chalk').then(({ chalk }) => {
+    chalk = chalk;
+  });
+}
 
 // The built directory structure
 //
@@ -88,7 +93,7 @@ class Main {
     const { server: expressApp } = await server.serveNcmApi({
       port: 35011,
     });
-    console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
+    chalk && console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
 
     return expressApp;
   }
@@ -147,7 +152,7 @@ async function createServer() {
   const { server: expressApp } = await server.serveNcmApi({
     port: 35011,
   });
-  console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
+  chalk && console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
 
   return expressApp;
 }
@@ -169,7 +174,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
     serverApp.close(() => {
-      console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
+      chalk && console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
     });
   }
 });

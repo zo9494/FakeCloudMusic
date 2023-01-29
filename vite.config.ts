@@ -2,7 +2,6 @@ import { rmSync } from 'node:fs';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import electron from 'vite-plugin-electron';
-import renderer from 'vite-plugin-electron-renderer';
 import pkg from './package.json';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import path from 'path';
@@ -92,9 +91,9 @@ export default defineConfig(({ command }) => {
         },
       ]),
       // Use Node.js API in the Renderer-process
-      renderer({
-        nodeIntegration: true,
-      }),
+      // renderer({
+      //   nodeIntegration: true,
+      // }),
       //
       createSvgIconsPlugin({
         // 指定需要缓存的图标文件夹
@@ -110,6 +109,9 @@ export default defineConfig(({ command }) => {
           login: path.join(__dirname, '/login/index.html'),
         },
       },
+    },
+    esbuild: {
+      drop: ['console', 'debugger'],
     },
     css: {
       preprocessorOptions: {
