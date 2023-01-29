@@ -11,13 +11,6 @@ import { join } from 'node:path';
 import server = require('NeteaseCloudMusicApi/server');
 import { EVENT } from '../utils/eventTypes';
 import { isDevelopment, isLinux, isMac, isWin } from '../utils/platform';
-import type { Chalk } from 'chalk';
-let chalk: Chalk | undefined;
-if (isDevelopment) {
-  import('../utils/chalk').then(({ chalk }) => {
-    chalk = chalk;
-  });
-}
 
 // The built directory structure
 //
@@ -152,8 +145,7 @@ async function createServer() {
   const { server: expressApp } = await server.serveNcmApi({
     port: 35011,
   });
-  chalk && console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
-
+  console.log('[NeteaseCloudMusicApi]: started');
   return expressApp;
 }
 
@@ -174,7 +166,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
     serverApp.close(() => {
-      chalk && console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
+      console.log('[NeteaseCloudMusicApi]: closed');
     });
   }
 });

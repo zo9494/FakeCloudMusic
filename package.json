@@ -40,8 +40,9 @@
     "NeteaseCloudMusicApi": "^4.8.9",
     "axios": "^1.2.3",
     "dayjs": "^1.11.7",
+    "fast-glob": "^3.2.12",
     "howler": "^2.2.3",
-    "music-metadata": "^8.1.3",
+    "music-metadata": "^7.13.0",
     "pinia": "^2.0.29",
     "vue-router": "^4.1.6"
   }
