@@ -16,13 +16,12 @@ export class Service {
     this.instance = axios.create({
       baseURL: 'http://localhost:35011',
       timeout: 1000 * 10,
-      withCredentials: true,
       ...config,
     });
     this.instance.interceptors.request.use(config => {
       config.params = {
         ...config.params,
-        // cookie: localStorage.cookie,
+        cookie: localStorage.cookie,
       };
       return config;
     });
