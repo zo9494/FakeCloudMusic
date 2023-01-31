@@ -3,1071 +3,432 @@
 
     <div class="playlist-header">
       <div class="playlist-header-left">
-        {{ $route.params.id }}
+        <Image :src="data.playlist.coverImgUrl" class="cover" />
       </div>
       <div class="playlist-header-right">
-        <div>今天从《April Encounter》听起|私人雷达</div>
-        <div>创建</div>
-        <div>标签</div>
-        <div></div>
-        <div>歌曲</div>
-        <div>简介</div>
+        <div class="title">{{ data.playlist.name }}</div>
+        <div class="create-info">
+          <div class="creator">
+            <img :src="data.playlist.creator?.avatarUrl" alt="">
+            <span>{{ data.playlist.creator?.nickname }}</span>
+          </div>
+          <span class="create-time">{{ formatDate(data.playlist.createTime) }}创建</span>
+        </div>
+        <div class="options">
+          <button class="options-all">
+            <div class="options-all-left">
+              <SvgIcon name="play-circle" class="icon-bootstrap" />
+              <span>播放全部</span>
+            </div>
+            <div class="options-all-right">
+              <SvgIcon name="plus" class="icon-bootstrap plus" />
+            </div>
+          </button>
+          <button :class="`options-collect ${profile.userId === data.playlist.userId ? 'disable' : null}`">
+            <SvgIcon name="folder-check" class="icon-bootstrap" />
+
+            <span v-if="data.playlist.subscribed">已收藏({{ formatNumber(data.playlist.subscribedCount) }})</span>
+            <span v-else>收藏({{ formatNumber(data.playlist.subscribedCount) }})</span>
+          </button>
+          <button class="optins-share">
+            <SvgIcon name="share" class="icon-bootstrap" />
+            <span>分享 ({{ formatNumber(data.playlist.shareCount) }})</span>
+          </button>
+          <button class="options-download">
+            <SvgIcon name="download" class="icon-bootstrap" />
+            <span>下载全部</span>
+          </button>
+        </div>
+        <div class="tags">标签:
+          <span class="tags-item" v-for="item in data.playlist.tags" :key="item">{{ item }}</span>
+        </div>
+        <div class="count">
+          歌曲数：<span>{{ data.playlist.trackCount }}</span>
+          播放数：<span>{{ formatNumber(data.playlist.playCount) }}</span>
+        </div>
+        <div class="desc text-overflow">简介：
+          <span>{{ data.playlist.description }}</span>
+        </div>
       </div>
     </div>
 
+    <div class="playlist-opt">
+      <OgInput v-model="searchVal" placeholder="搜索歌单歌曲" />
+    </div>
+
     <div class="playlist-list">
-      <div class="playlist-list-item">item-1</div>
-      <div class="playlist-list-item">item-2</div>
-      <div class="playlist-list-item">item-3</div>
-      <div class="playlist-list-item">item-4</div>
-      <div class="playlist-list-item">item-5</div>
-      <div class="playlist-list-item">item-6</div>
-      <div class="playlist-list-item">item-7</div>
-      <div class="playlist-list-item">item-8</div>
-      <div class="playlist-list-item">item-9</div>
-      <div class="playlist-list-item">item-10</div>
-      <div class="playlist-list-item">item-11</div>
-      <div class="playlist-list-item">item-12</div>
-      <div class="playlist-list-item">item-13</div>
-      <div class="playlist-list-item">item-14</div>
-      <div class="playlist-list-item">item-15</div>
-      <div class="playlist-list-item">item-16</div>
-      <div class="playlist-list-item">item-17</div>
-      <div class="playlist-list-item">item-18</div>
-      <div class="playlist-list-item">item-19</div>
-      <div class="playlist-list-item">item-20</div>
-      <div class="playlist-list-item">item-21</div>
-      <div class="playlist-list-item">item-22</div>
-      <div class="playlist-list-item">item-23</div>
-      <div class="playlist-list-item">item-24</div>
-      <div class="playlist-list-item">item-25</div>
-      <div class="playlist-list-item">item-26</div>
-      <div class="playlist-list-item">item-27</div>
-      <div class="playlist-list-item">item-28</div>
-      <div class="playlist-list-item">item-29</div>
-      <div class="playlist-list-item">item-30</div>
-      <div class="playlist-list-item">item-31</div>
-      <div class="playlist-list-item">item-32</div>
-      <div class="playlist-list-item">item-33</div>
-      <div class="playlist-list-item">item-34</div>
-      <div class="playlist-list-item">item-35</div>
-      <div class="playlist-list-item">item-36</div>
-      <div class="playlist-list-item">item-37</div>
-      <div class="playlist-list-item">item-38</div>
-      <div class="playlist-list-item">item-39</div>
-      <div class="playlist-list-item">item-40</div>
-      <div class="playlist-list-item">item-41</div>
-      <div class="playlist-list-item">item-42</div>
-      <div class="playlist-list-item">item-43</div>
-      <div class="playlist-list-item">item-44</div>
-      <div class="playlist-list-item">item-45</div>
-      <div class="playlist-list-item">item-46</div>
-      <div class="playlist-list-item">item-47</div>
-      <div class="playlist-list-item">item-48</div>
-      <div class="playlist-list-item">item-49</div>
-      <div class="playlist-list-item">item-50</div>
-      <div class="playlist-list-item">item-51</div>
-      <div class="playlist-list-item">item-52</div>
-      <div class="playlist-list-item">item-53</div>
-      <div class="playlist-list-item">item-54</div>
-      <div class="playlist-list-item">item-55</div>
-      <div class="playlist-list-item">item-56</div>
-      <div class="playlist-list-item">item-57</div>
-      <div class="playlist-list-item">item-58</div>
-      <div class="playlist-list-item">item-59</div>
-      <div class="playlist-list-item">item-60</div>
-      <div class="playlist-list-item">item-61</div>
-      <div class="playlist-list-item">item-62</div>
-      <div class="playlist-list-item">item-63</div>
-      <div class="playlist-list-item">item-64</div>
-      <div class="playlist-list-item">item-65</div>
-      <div class="playlist-list-item">item-66</div>
-      <div class="playlist-list-item">item-67</div>
-      <div class="playlist-list-item">item-68</div>
-      <div class="playlist-list-item">item-69</div>
-      <div class="playlist-list-item">item-70</div>
-      <div class="playlist-list-item">item-71</div>
-      <div class="playlist-list-item">item-72</div>
-      <div class="playlist-list-item">item-73</div>
-      <div class="playlist-list-item">item-74</div>
-      <div class="playlist-list-item">item-75</div>
-      <div class="playlist-list-item">item-76</div>
-      <div class="playlist-list-item">item-77</div>
-      <div class="playlist-list-item">item-78</div>
-      <div class="playlist-list-item">item-79</div>
-      <div class="playlist-list-item">item-80</div>
-      <div class="playlist-list-item">item-81</div>
-      <div class="playlist-list-item">item-82</div>
-      <div class="playlist-list-item">item-83</div>
-      <div class="playlist-list-item">item-84</div>
-      <div class="playlist-list-item">item-85</div>
-      <div class="playlist-list-item">item-86</div>
-      <div class="playlist-list-item">item-87</div>
-      <div class="playlist-list-item">item-88</div>
-      <div class="playlist-list-item">item-89</div>
-      <div class="playlist-list-item">item-90</div>
-      <div class="playlist-list-item">item-91</div>
-      <div class="playlist-list-item">item-92</div>
-      <div class="playlist-list-item">item-93</div>
-      <div class="playlist-list-item">item-94</div>
-      <div class="playlist-list-item">item-95</div>
-      <div class="playlist-list-item">item-96</div>
-      <div class="playlist-list-item">item-97</div>
-      <div class="playlist-list-item">item-98</div>
-      <div class="playlist-list-item">item-99</div>
-      <div class="playlist-list-item">item-100</div>
-      <div class="playlist-list-item">item-101</div>
-      <div class="playlist-list-item">item-102</div>
-      <div class="playlist-list-item">item-103</div>
-      <div class="playlist-list-item">item-104</div>
-      <div class="playlist-list-item">item-105</div>
-      <div class="playlist-list-item">item-106</div>
-      <div class="playlist-list-item">item-107</div>
-      <div class="playlist-list-item">item-108</div>
-      <div class="playlist-list-item">item-109</div>
-      <div class="playlist-list-item">item-110</div>
-      <div class="playlist-list-item">item-111</div>
-      <div class="playlist-list-item">item-112</div>
-      <div class="playlist-list-item">item-113</div>
-      <div class="playlist-list-item">item-114</div>
-      <div class="playlist-list-item">item-115</div>
-      <div class="playlist-list-item">item-116</div>
-      <div class="playlist-list-item">item-117</div>
-      <div class="playlist-list-item">item-118</div>
-      <div class="playlist-list-item">item-119</div>
-      <div class="playlist-list-item">item-120</div>
-      <div class="playlist-list-item">item-121</div>
-      <div class="playlist-list-item">item-122</div>
-      <div class="playlist-list-item">item-123</div>
-      <div class="playlist-list-item">item-124</div>
-      <div class="playlist-list-item">item-125</div>
-      <div class="playlist-list-item">item-126</div>
-      <div class="playlist-list-item">item-127</div>
-      <div class="playlist-list-item">item-128</div>
-      <div class="playlist-list-item">item-129</div>
-      <div class="playlist-list-item">item-130</div>
-      <div class="playlist-list-item">item-131</div>
-      <div class="playlist-list-item">item-132</div>
-      <div class="playlist-list-item">item-133</div>
-      <div class="playlist-list-item">item-134</div>
-      <div class="playlist-list-item">item-135</div>
-      <div class="playlist-list-item">item-136</div>
-      <div class="playlist-list-item">item-137</div>
-      <div class="playlist-list-item">item-138</div>
-      <div class="playlist-list-item">item-139</div>
-      <div class="playlist-list-item">item-140</div>
-      <div class="playlist-list-item">item-141</div>
-      <div class="playlist-list-item">item-142</div>
-      <div class="playlist-list-item">item-143</div>
-      <div class="playlist-list-item">item-144</div>
-      <div class="playlist-list-item">item-145</div>
-      <div class="playlist-list-item">item-146</div>
-      <div class="playlist-list-item">item-147</div>
-      <div class="playlist-list-item">item-148</div>
-      <div class="playlist-list-item">item-149</div>
-      <div class="playlist-list-item">item-150</div>
-      <div class="playlist-list-item">item-151</div>
-      <div class="playlist-list-item">item-152</div>
-      <div class="playlist-list-item">item-153</div>
-      <div class="playlist-list-item">item-154</div>
-      <div class="playlist-list-item">item-155</div>
-      <div class="playlist-list-item">item-156</div>
-      <div class="playlist-list-item">item-157</div>
-      <div class="playlist-list-item">item-158</div>
-      <div class="playlist-list-item">item-159</div>
-      <div class="playlist-list-item">item-160</div>
-      <div class="playlist-list-item">item-161</div>
-      <div class="playlist-list-item">item-162</div>
-      <div class="playlist-list-item">item-163</div>
-      <div class="playlist-list-item">item-164</div>
-      <div class="playlist-list-item">item-165</div>
-      <div class="playlist-list-item">item-166</div>
-      <div class="playlist-list-item">item-167</div>
-      <div class="playlist-list-item">item-168</div>
-      <div class="playlist-list-item">item-169</div>
-      <div class="playlist-list-item">item-170</div>
-      <div class="playlist-list-item">item-171</div>
-      <div class="playlist-list-item">item-172</div>
-      <div class="playlist-list-item">item-173</div>
-      <div class="playlist-list-item">item-174</div>
-      <div class="playlist-list-item">item-175</div>
-      <div class="playlist-list-item">item-176</div>
-      <div class="playlist-list-item">item-177</div>
-      <div class="playlist-list-item">item-178</div>
-      <div class="playlist-list-item">item-179</div>
-      <div class="playlist-list-item">item-180</div>
-      <div class="playlist-list-item">item-181</div>
-      <div class="playlist-list-item">item-182</div>
-      <div class="playlist-list-item">item-183</div>
-      <div class="playlist-list-item">item-184</div>
-      <div class="playlist-list-item">item-185</div>
-      <div class="playlist-list-item">item-186</div>
-      <div class="playlist-list-item">item-187</div>
-      <div class="playlist-list-item">item-188</div>
-      <div class="playlist-list-item">item-189</div>
-      <div class="playlist-list-item">item-190</div>
-      <div class="playlist-list-item">item-191</div>
-      <div class="playlist-list-item">item-192</div>
-      <div class="playlist-list-item">item-193</div>
-      <div class="playlist-list-item">item-194</div>
-      <div class="playlist-list-item">item-195</div>
-      <div class="playlist-list-item">item-196</div>
-      <div class="playlist-list-item">item-197</div>
-      <div class="playlist-list-item">item-198</div>
-      <div class="playlist-list-item">item-199</div>
-      <div class="playlist-list-item">item-200</div>
-      <div class="playlist-list-item">item-201</div>
-      <div class="playlist-list-item">item-202</div>
-      <div class="playlist-list-item">item-203</div>
-      <div class="playlist-list-item">item-204</div>
-      <div class="playlist-list-item">item-205</div>
-      <div class="playlist-list-item">item-206</div>
-      <div class="playlist-list-item">item-207</div>
-      <div class="playlist-list-item">item-208</div>
-      <div class="playlist-list-item">item-209</div>
-      <div class="playlist-list-item">item-210</div>
-      <div class="playlist-list-item">item-211</div>
-      <div class="playlist-list-item">item-212</div>
-      <div class="playlist-list-item">item-213</div>
-      <div class="playlist-list-item">item-214</div>
-      <div class="playlist-list-item">item-215</div>
-      <div class="playlist-list-item">item-216</div>
-      <div class="playlist-list-item">item-217</div>
-      <div class="playlist-list-item">item-218</div>
-      <div class="playlist-list-item">item-219</div>
-      <div class="playlist-list-item">item-220</div>
-      <div class="playlist-list-item">item-221</div>
-      <div class="playlist-list-item">item-222</div>
-      <div class="playlist-list-item">item-223</div>
-      <div class="playlist-list-item">item-224</div>
-      <div class="playlist-list-item">item-225</div>
-      <div class="playlist-list-item">item-226</div>
-      <div class="playlist-list-item">item-227</div>
-      <div class="playlist-list-item">item-228</div>
-      <div class="playlist-list-item">item-229</div>
-      <div class="playlist-list-item">item-230</div>
-      <div class="playlist-list-item">item-231</div>
-      <div class="playlist-list-item">item-232</div>
-      <div class="playlist-list-item">item-233</div>
-      <div class="playlist-list-item">item-234</div>
-      <div class="playlist-list-item">item-235</div>
-      <div class="playlist-list-item">item-236</div>
-      <div class="playlist-list-item">item-237</div>
-      <div class="playlist-list-item">item-238</div>
-      <div class="playlist-list-item">item-239</div>
-      <div class="playlist-list-item">item-240</div>
-      <div class="playlist-list-item">item-241</div>
-      <div class="playlist-list-item">item-242</div>
-      <div class="playlist-list-item">item-243</div>
-      <div class="playlist-list-item">item-244</div>
-      <div class="playlist-list-item">item-245</div>
-      <div class="playlist-list-item">item-246</div>
-      <div class="playlist-list-item">item-247</div>
-      <div class="playlist-list-item">item-248</div>
-      <div class="playlist-list-item">item-249</div>
-      <div class="playlist-list-item">item-250</div>
-      <div class="playlist-list-item">item-251</div>
-      <div class="playlist-list-item">item-252</div>
-      <div class="playlist-list-item">item-253</div>
-      <div class="playlist-list-item">item-254</div>
-      <div class="playlist-list-item">item-255</div>
-      <div class="playlist-list-item">item-256</div>
-      <div class="playlist-list-item">item-257</div>
-      <div class="playlist-list-item">item-258</div>
-      <div class="playlist-list-item">item-259</div>
-      <div class="playlist-list-item">item-260</div>
-      <div class="playlist-list-item">item-261</div>
-      <div class="playlist-list-item">item-262</div>
-      <div class="playlist-list-item">item-263</div>
-      <div class="playlist-list-item">item-264</div>
-      <div class="playlist-list-item">item-265</div>
-      <div class="playlist-list-item">item-266</div>
-      <div class="playlist-list-item">item-267</div>
-      <div class="playlist-list-item">item-268</div>
-      <div class="playlist-list-item">item-269</div>
-      <div class="playlist-list-item">item-270</div>
-      <div class="playlist-list-item">item-271</div>
-      <div class="playlist-list-item">item-272</div>
-      <div class="playlist-list-item">item-273</div>
-      <div class="playlist-list-item">item-274</div>
-      <div class="playlist-list-item">item-275</div>
-      <div class="playlist-list-item">item-276</div>
-      <div class="playlist-list-item">item-277</div>
-      <div class="playlist-list-item">item-278</div>
-      <div class="playlist-list-item">item-279</div>
-      <div class="playlist-list-item">item-280</div>
-      <div class="playlist-list-item">item-281</div>
-      <div class="playlist-list-item">item-282</div>
-      <div class="playlist-list-item">item-283</div>
-      <div class="playlist-list-item">item-284</div>
-      <div class="playlist-list-item">item-285</div>
-      <div class="playlist-list-item">item-286</div>
-      <div class="playlist-list-item">item-287</div>
-      <div class="playlist-list-item">item-288</div>
-      <div class="playlist-list-item">item-289</div>
-      <div class="playlist-list-item">item-290</div>
-      <div class="playlist-list-item">item-291</div>
-      <div class="playlist-list-item">item-292</div>
-      <div class="playlist-list-item">item-293</div>
-      <div class="playlist-list-item">item-294</div>
-      <div class="playlist-list-item">item-295</div>
-      <div class="playlist-list-item">item-296</div>
-      <div class="playlist-list-item">item-297</div>
-      <div class="playlist-list-item">item-298</div>
-      <div class="playlist-list-item">item-299</div>
-      <div class="playlist-list-item">item-300</div>
-      <div class="playlist-list-item">item-301</div>
-      <div class="playlist-list-item">item-302</div>
-      <div class="playlist-list-item">item-303</div>
-      <div class="playlist-list-item">item-304</div>
-      <div class="playlist-list-item">item-305</div>
-      <div class="playlist-list-item">item-306</div>
-      <div class="playlist-list-item">item-307</div>
-      <div class="playlist-list-item">item-308</div>
-      <div class="playlist-list-item">item-309</div>
-      <div class="playlist-list-item">item-310</div>
-      <div class="playlist-list-item">item-311</div>
-      <div class="playlist-list-item">item-312</div>
-      <div class="playlist-list-item">item-313</div>
-      <div class="playlist-list-item">item-314</div>
-      <div class="playlist-list-item">item-315</div>
-      <div class="playlist-list-item">item-316</div>
-      <div class="playlist-list-item">item-317</div>
-      <div class="playlist-list-item">item-318</div>
-      <div class="playlist-list-item">item-319</div>
-      <div class="playlist-list-item">item-320</div>
-      <div class="playlist-list-item">item-321</div>
-      <div class="playlist-list-item">item-322</div>
-      <div class="playlist-list-item">item-323</div>
-      <div class="playlist-list-item">item-324</div>
-      <div class="playlist-list-item">item-325</div>
-      <div class="playlist-list-item">item-326</div>
-      <div class="playlist-list-item">item-327</div>
-      <div class="playlist-list-item">item-328</div>
-      <div class="playlist-list-item">item-329</div>
-      <div class="playlist-list-item">item-330</div>
-      <div class="playlist-list-item">item-331</div>
-      <div class="playlist-list-item">item-332</div>
-      <div class="playlist-list-item">item-333</div>
-      <div class="playlist-list-item">item-334</div>
-      <div class="playlist-list-item">item-335</div>
-      <div class="playlist-list-item">item-336</div>
-      <div class="playlist-list-item">item-337</div>
-      <div class="playlist-list-item">item-338</div>
-      <div class="playlist-list-item">item-339</div>
-      <div class="playlist-list-item">item-340</div>
-      <div class="playlist-list-item">item-341</div>
-      <div class="playlist-list-item">item-342</div>
-      <div class="playlist-list-item">item-343</div>
-      <div class="playlist-list-item">item-344</div>
-      <div class="playlist-list-item">item-345</div>
-      <div class="playlist-list-item">item-346</div>
-      <div class="playlist-list-item">item-347</div>
-      <div class="playlist-list-item">item-348</div>
-      <div class="playlist-list-item">item-349</div>
-      <div class="playlist-list-item">item-350</div>
-      <div class="playlist-list-item">item-351</div>
-      <div class="playlist-list-item">item-352</div>
-      <div class="playlist-list-item">item-353</div>
-      <div class="playlist-list-item">item-354</div>
-      <div class="playlist-list-item">item-355</div>
-      <div class="playlist-list-item">item-356</div>
-      <div class="playlist-list-item">item-357</div>
-      <div class="playlist-list-item">item-358</div>
-      <div class="playlist-list-item">item-359</div>
-      <div class="playlist-list-item">item-360</div>
-      <div class="playlist-list-item">item-361</div>
-      <div class="playlist-list-item">item-362</div>
-      <div class="playlist-list-item">item-363</div>
-      <div class="playlist-list-item">item-364</div>
-      <div class="playlist-list-item">item-365</div>
-      <div class="playlist-list-item">item-366</div>
-      <div class="playlist-list-item">item-367</div>
-      <div class="playlist-list-item">item-368</div>
-      <div class="playlist-list-item">item-369</div>
-      <div class="playlist-list-item">item-370</div>
-      <div class="playlist-list-item">item-371</div>
-      <div class="playlist-list-item">item-372</div>
-      <div class="playlist-list-item">item-373</div>
-      <div class="playlist-list-item">item-374</div>
-      <div class="playlist-list-item">item-375</div>
-      <div class="playlist-list-item">item-376</div>
-      <div class="playlist-list-item">item-377</div>
-      <div class="playlist-list-item">item-378</div>
-      <div class="playlist-list-item">item-379</div>
-      <div class="playlist-list-item">item-380</div>
-      <div class="playlist-list-item">item-381</div>
-      <div class="playlist-list-item">item-382</div>
-      <div class="playlist-list-item">item-383</div>
-      <div class="playlist-list-item">item-384</div>
-      <div class="playlist-list-item">item-385</div>
-      <div class="playlist-list-item">item-386</div>
-      <div class="playlist-list-item">item-387</div>
-      <div class="playlist-list-item">item-388</div>
-      <div class="playlist-list-item">item-389</div>
-      <div class="playlist-list-item">item-390</div>
-      <div class="playlist-list-item">item-391</div>
-      <div class="playlist-list-item">item-392</div>
-      <div class="playlist-list-item">item-393</div>
-      <div class="playlist-list-item">item-394</div>
-      <div class="playlist-list-item">item-395</div>
-      <div class="playlist-list-item">item-396</div>
-      <div class="playlist-list-item">item-397</div>
-      <div class="playlist-list-item">item-398</div>
-      <div class="playlist-list-item">item-399</div>
-      <div class="playlist-list-item">item-400</div>
-      <div class="playlist-list-item">item-401</div>
-      <div class="playlist-list-item">item-402</div>
-      <div class="playlist-list-item">item-403</div>
-      <div class="playlist-list-item">item-404</div>
-      <div class="playlist-list-item">item-405</div>
-      <div class="playlist-list-item">item-406</div>
-      <div class="playlist-list-item">item-407</div>
-      <div class="playlist-list-item">item-408</div>
-      <div class="playlist-list-item">item-409</div>
-      <div class="playlist-list-item">item-410</div>
-      <div class="playlist-list-item">item-411</div>
-      <div class="playlist-list-item">item-412</div>
-      <div class="playlist-list-item">item-413</div>
-      <div class="playlist-list-item">item-414</div>
-      <div class="playlist-list-item">item-415</div>
-      <div class="playlist-list-item">item-416</div>
-      <div class="playlist-list-item">item-417</div>
-      <div class="playlist-list-item">item-418</div>
-      <div class="playlist-list-item">item-419</div>
-      <div class="playlist-list-item">item-420</div>
-      <div class="playlist-list-item">item-421</div>
-      <div class="playlist-list-item">item-422</div>
-      <div class="playlist-list-item">item-423</div>
-      <div class="playlist-list-item">item-424</div>
-      <div class="playlist-list-item">item-425</div>
-      <div class="playlist-list-item">item-426</div>
-      <div class="playlist-list-item">item-427</div>
-      <div class="playlist-list-item">item-428</div>
-      <div class="playlist-list-item">item-429</div>
-      <div class="playlist-list-item">item-430</div>
-      <div class="playlist-list-item">item-431</div>
-      <div class="playlist-list-item">item-432</div>
-      <div class="playlist-list-item">item-433</div>
-      <div class="playlist-list-item">item-434</div>
-      <div class="playlist-list-item">item-435</div>
-      <div class="playlist-list-item">item-436</div>
-      <div class="playlist-list-item">item-437</div>
-      <div class="playlist-list-item">item-438</div>
-      <div class="playlist-list-item">item-439</div>
-      <div class="playlist-list-item">item-440</div>
-      <div class="playlist-list-item">item-441</div>
-      <div class="playlist-list-item">item-442</div>
-      <div class="playlist-list-item">item-443</div>
-      <div class="playlist-list-item">item-444</div>
-      <div class="playlist-list-item">item-445</div>
-      <div class="playlist-list-item">item-446</div>
-      <div class="playlist-list-item">item-447</div>
-      <div class="playlist-list-item">item-448</div>
-      <div class="playlist-list-item">item-449</div>
-      <div class="playlist-list-item">item-450</div>
-      <div class="playlist-list-item">item-451</div>
-      <div class="playlist-list-item">item-452</div>
-      <div class="playlist-list-item">item-453</div>
-      <div class="playlist-list-item">item-454</div>
-      <div class="playlist-list-item">item-455</div>
-      <div class="playlist-list-item">item-456</div>
-      <div class="playlist-list-item">item-457</div>
-      <div class="playlist-list-item">item-458</div>
-      <div class="playlist-list-item">item-459</div>
-      <div class="playlist-list-item">item-460</div>
-      <div class="playlist-list-item">item-461</div>
-      <div class="playlist-list-item">item-462</div>
-      <div class="playlist-list-item">item-463</div>
-      <div class="playlist-list-item">item-464</div>
-      <div class="playlist-list-item">item-465</div>
-      <div class="playlist-list-item">item-466</div>
-      <div class="playlist-list-item">item-467</div>
-      <div class="playlist-list-item">item-468</div>
-      <div class="playlist-list-item">item-469</div>
-      <div class="playlist-list-item">item-470</div>
-      <div class="playlist-list-item">item-471</div>
-      <div class="playlist-list-item">item-472</div>
-      <div class="playlist-list-item">item-473</div>
-      <div class="playlist-list-item">item-474</div>
-      <div class="playlist-list-item">item-475</div>
-      <div class="playlist-list-item">item-476</div>
-      <div class="playlist-list-item">item-477</div>
-      <div class="playlist-list-item">item-478</div>
-      <div class="playlist-list-item">item-479</div>
-      <div class="playlist-list-item">item-480</div>
-      <div class="playlist-list-item">item-481</div>
-      <div class="playlist-list-item">item-482</div>
-      <div class="playlist-list-item">item-483</div>
-      <div class="playlist-list-item">item-484</div>
-      <div class="playlist-list-item">item-485</div>
-      <div class="playlist-list-item">item-486</div>
-      <div class="playlist-list-item">item-487</div>
-      <div class="playlist-list-item">item-488</div>
-      <div class="playlist-list-item">item-489</div>
-      <div class="playlist-list-item">item-490</div>
-      <div class="playlist-list-item">item-491</div>
-      <div class="playlist-list-item">item-492</div>
-      <div class="playlist-list-item">item-493</div>
-      <div class="playlist-list-item">item-494</div>
-      <div class="playlist-list-item">item-495</div>
-      <div class="playlist-list-item">item-496</div>
-      <div class="playlist-list-item">item-497</div>
-      <div class="playlist-list-item">item-498</div>
-      <div class="playlist-list-item">item-499</div>
-      <div class="playlist-list-item">item-500</div>
-      <div class="playlist-list-item">item-501</div>
-      <div class="playlist-list-item">item-502</div>
-      <div class="playlist-list-item">item-503</div>
-      <div class="playlist-list-item">item-504</div>
-      <div class="playlist-list-item">item-505</div>
-      <div class="playlist-list-item">item-506</div>
-      <div class="playlist-list-item">item-507</div>
-      <div class="playlist-list-item">item-508</div>
-      <div class="playlist-list-item">item-509</div>
-      <div class="playlist-list-item">item-510</div>
-      <div class="playlist-list-item">item-511</div>
-      <div class="playlist-list-item">item-512</div>
-      <div class="playlist-list-item">item-513</div>
-      <div class="playlist-list-item">item-514</div>
-      <div class="playlist-list-item">item-515</div>
-      <div class="playlist-list-item">item-516</div>
-      <div class="playlist-list-item">item-517</div>
-      <div class="playlist-list-item">item-518</div>
-      <div class="playlist-list-item">item-519</div>
-      <div class="playlist-list-item">item-520</div>
-      <div class="playlist-list-item">item-521</div>
-      <div class="playlist-list-item">item-522</div>
-      <div class="playlist-list-item">item-523</div>
-      <div class="playlist-list-item">item-524</div>
-      <div class="playlist-list-item">item-525</div>
-      <div class="playlist-list-item">item-526</div>
-      <div class="playlist-list-item">item-527</div>
-      <div class="playlist-list-item">item-528</div>
-      <div class="playlist-list-item">item-529</div>
-      <div class="playlist-list-item">item-530</div>
-      <div class="playlist-list-item">item-531</div>
-      <div class="playlist-list-item">item-532</div>
-      <div class="playlist-list-item">item-533</div>
-      <div class="playlist-list-item">item-534</div>
-      <div class="playlist-list-item">item-535</div>
-      <div class="playlist-list-item">item-536</div>
-      <div class="playlist-list-item">item-537</div>
-      <div class="playlist-list-item">item-538</div>
-      <div class="playlist-list-item">item-539</div>
-      <div class="playlist-list-item">item-540</div>
-      <div class="playlist-list-item">item-541</div>
-      <div class="playlist-list-item">item-542</div>
-      <div class="playlist-list-item">item-543</div>
-      <div class="playlist-list-item">item-544</div>
-      <div class="playlist-list-item">item-545</div>
-      <div class="playlist-list-item">item-546</div>
-      <div class="playlist-list-item">item-547</div>
-      <div class="playlist-list-item">item-548</div>
-      <div class="playlist-list-item">item-549</div>
-      <div class="playlist-list-item">item-550</div>
-      <div class="playlist-list-item">item-551</div>
-      <div class="playlist-list-item">item-552</div>
-      <div class="playlist-list-item">item-553</div>
-      <div class="playlist-list-item">item-554</div>
-      <div class="playlist-list-item">item-555</div>
-      <div class="playlist-list-item">item-556</div>
-      <div class="playlist-list-item">item-557</div>
-      <div class="playlist-list-item">item-558</div>
-      <div class="playlist-list-item">item-559</div>
-      <div class="playlist-list-item">item-560</div>
-      <div class="playlist-list-item">item-561</div>
-      <div class="playlist-list-item">item-562</div>
-      <div class="playlist-list-item">item-563</div>
-      <div class="playlist-list-item">item-564</div>
-      <div class="playlist-list-item">item-565</div>
-      <div class="playlist-list-item">item-566</div>
-      <div class="playlist-list-item">item-567</div>
-      <div class="playlist-list-item">item-568</div>
-      <div class="playlist-list-item">item-569</div>
-      <div class="playlist-list-item">item-570</div>
-      <div class="playlist-list-item">item-571</div>
-      <div class="playlist-list-item">item-572</div>
-      <div class="playlist-list-item">item-573</div>
-      <div class="playlist-list-item">item-574</div>
-      <div class="playlist-list-item">item-575</div>
-      <div class="playlist-list-item">item-576</div>
-      <div class="playlist-list-item">item-577</div>
-      <div class="playlist-list-item">item-578</div>
-      <div class="playlist-list-item">item-579</div>
-      <div class="playlist-list-item">item-580</div>
-      <div class="playlist-list-item">item-581</div>
-      <div class="playlist-list-item">item-582</div>
-      <div class="playlist-list-item">item-583</div>
-      <div class="playlist-list-item">item-584</div>
-      <div class="playlist-list-item">item-585</div>
-      <div class="playlist-list-item">item-586</div>
-      <div class="playlist-list-item">item-587</div>
-      <div class="playlist-list-item">item-588</div>
-      <div class="playlist-list-item">item-589</div>
-      <div class="playlist-list-item">item-590</div>
-      <div class="playlist-list-item">item-591</div>
-      <div class="playlist-list-item">item-592</div>
-      <div class="playlist-list-item">item-593</div>
-      <div class="playlist-list-item">item-594</div>
-      <div class="playlist-list-item">item-595</div>
-      <div class="playlist-list-item">item-596</div>
-      <div class="playlist-list-item">item-597</div>
-      <div class="playlist-list-item">item-598</div>
-      <div class="playlist-list-item">item-599</div>
-      <div class="playlist-list-item">item-600</div>
-      <div class="playlist-list-item">item-601</div>
-      <div class="playlist-list-item">item-602</div>
-      <div class="playlist-list-item">item-603</div>
-      <div class="playlist-list-item">item-604</div>
-      <div class="playlist-list-item">item-605</div>
-      <div class="playlist-list-item">item-606</div>
-      <div class="playlist-list-item">item-607</div>
-      <div class="playlist-list-item">item-608</div>
-      <div class="playlist-list-item">item-609</div>
-      <div class="playlist-list-item">item-610</div>
-      <div class="playlist-list-item">item-611</div>
-      <div class="playlist-list-item">item-612</div>
-      <div class="playlist-list-item">item-613</div>
-      <div class="playlist-list-item">item-614</div>
-      <div class="playlist-list-item">item-615</div>
-      <div class="playlist-list-item">item-616</div>
-      <div class="playlist-list-item">item-617</div>
-      <div class="playlist-list-item">item-618</div>
-      <div class="playlist-list-item">item-619</div>
-      <div class="playlist-list-item">item-620</div>
-      <div class="playlist-list-item">item-621</div>
-      <div class="playlist-list-item">item-622</div>
-      <div class="playlist-list-item">item-623</div>
-      <div class="playlist-list-item">item-624</div>
-      <div class="playlist-list-item">item-625</div>
-      <div class="playlist-list-item">item-626</div>
-      <div class="playlist-list-item">item-627</div>
-      <div class="playlist-list-item">item-628</div>
-      <div class="playlist-list-item">item-629</div>
-      <div class="playlist-list-item">item-630</div>
-      <div class="playlist-list-item">item-631</div>
-      <div class="playlist-list-item">item-632</div>
-      <div class="playlist-list-item">item-633</div>
-      <div class="playlist-list-item">item-634</div>
-      <div class="playlist-list-item">item-635</div>
-      <div class="playlist-list-item">item-636</div>
-      <div class="playlist-list-item">item-637</div>
-      <div class="playlist-list-item">item-638</div>
-      <div class="playlist-list-item">item-639</div>
-      <div class="playlist-list-item">item-640</div>
-      <div class="playlist-list-item">item-641</div>
-      <div class="playlist-list-item">item-642</div>
-      <div class="playlist-list-item">item-643</div>
-      <div class="playlist-list-item">item-644</div>
-      <div class="playlist-list-item">item-645</div>
-      <div class="playlist-list-item">item-646</div>
-      <div class="playlist-list-item">item-647</div>
-      <div class="playlist-list-item">item-648</div>
-      <div class="playlist-list-item">item-649</div>
-      <div class="playlist-list-item">item-650</div>
-      <div class="playlist-list-item">item-651</div>
-      <div class="playlist-list-item">item-652</div>
-      <div class="playlist-list-item">item-653</div>
-      <div class="playlist-list-item">item-654</div>
-      <div class="playlist-list-item">item-655</div>
-      <div class="playlist-list-item">item-656</div>
-      <div class="playlist-list-item">item-657</div>
-      <div class="playlist-list-item">item-658</div>
-      <div class="playlist-list-item">item-659</div>
-      <div class="playlist-list-item">item-660</div>
-      <div class="playlist-list-item">item-661</div>
-      <div class="playlist-list-item">item-662</div>
-      <div class="playlist-list-item">item-663</div>
-      <div class="playlist-list-item">item-664</div>
-      <div class="playlist-list-item">item-665</div>
-      <div class="playlist-list-item">item-666</div>
-      <div class="playlist-list-item">item-667</div>
-      <div class="playlist-list-item">item-668</div>
-      <div class="playlist-list-item">item-669</div>
-      <div class="playlist-list-item">item-670</div>
-      <div class="playlist-list-item">item-671</div>
-      <div class="playlist-list-item">item-672</div>
-      <div class="playlist-list-item">item-673</div>
-      <div class="playlist-list-item">item-674</div>
-      <div class="playlist-list-item">item-675</div>
-      <div class="playlist-list-item">item-676</div>
-      <div class="playlist-list-item">item-677</div>
-      <div class="playlist-list-item">item-678</div>
-      <div class="playlist-list-item">item-679</div>
-      <div class="playlist-list-item">item-680</div>
-      <div class="playlist-list-item">item-681</div>
-      <div class="playlist-list-item">item-682</div>
-      <div class="playlist-list-item">item-683</div>
-      <div class="playlist-list-item">item-684</div>
-      <div class="playlist-list-item">item-685</div>
-      <div class="playlist-list-item">item-686</div>
-      <div class="playlist-list-item">item-687</div>
-      <div class="playlist-list-item">item-688</div>
-      <div class="playlist-list-item">item-689</div>
-      <div class="playlist-list-item">item-690</div>
-      <div class="playlist-list-item">item-691</div>
-      <div class="playlist-list-item">item-692</div>
-      <div class="playlist-list-item">item-693</div>
-      <div class="playlist-list-item">item-694</div>
-      <div class="playlist-list-item">item-695</div>
-      <div class="playlist-list-item">item-696</div>
-      <div class="playlist-list-item">item-697</div>
-      <div class="playlist-list-item">item-698</div>
-      <div class="playlist-list-item">item-699</div>
-      <div class="playlist-list-item">item-700</div>
-      <div class="playlist-list-item">item-701</div>
-      <div class="playlist-list-item">item-702</div>
-      <div class="playlist-list-item">item-703</div>
-      <div class="playlist-list-item">item-704</div>
-      <div class="playlist-list-item">item-705</div>
-      <div class="playlist-list-item">item-706</div>
-      <div class="playlist-list-item">item-707</div>
-      <div class="playlist-list-item">item-708</div>
-      <div class="playlist-list-item">item-709</div>
-      <div class="playlist-list-item">item-710</div>
-      <div class="playlist-list-item">item-711</div>
-      <div class="playlist-list-item">item-712</div>
-      <div class="playlist-list-item">item-713</div>
-      <div class="playlist-list-item">item-714</div>
-      <div class="playlist-list-item">item-715</div>
-      <div class="playlist-list-item">item-716</div>
-      <div class="playlist-list-item">item-717</div>
-      <div class="playlist-list-item">item-718</div>
-      <div class="playlist-list-item">item-719</div>
-      <div class="playlist-list-item">item-720</div>
-      <div class="playlist-list-item">item-721</div>
-      <div class="playlist-list-item">item-722</div>
-      <div class="playlist-list-item">item-723</div>
-      <div class="playlist-list-item">item-724</div>
-      <div class="playlist-list-item">item-725</div>
-      <div class="playlist-list-item">item-726</div>
-      <div class="playlist-list-item">item-727</div>
-      <div class="playlist-list-item">item-728</div>
-      <div class="playlist-list-item">item-729</div>
-      <div class="playlist-list-item">item-730</div>
-      <div class="playlist-list-item">item-731</div>
-      <div class="playlist-list-item">item-732</div>
-      <div class="playlist-list-item">item-733</div>
-      <div class="playlist-list-item">item-734</div>
-      <div class="playlist-list-item">item-735</div>
-      <div class="playlist-list-item">item-736</div>
-      <div class="playlist-list-item">item-737</div>
-      <div class="playlist-list-item">item-738</div>
-      <div class="playlist-list-item">item-739</div>
-      <div class="playlist-list-item">item-740</div>
-      <div class="playlist-list-item">item-741</div>
-      <div class="playlist-list-item">item-742</div>
-      <div class="playlist-list-item">item-743</div>
-      <div class="playlist-list-item">item-744</div>
-      <div class="playlist-list-item">item-745</div>
-      <div class="playlist-list-item">item-746</div>
-      <div class="playlist-list-item">item-747</div>
-      <div class="playlist-list-item">item-748</div>
-      <div class="playlist-list-item">item-749</div>
-      <div class="playlist-list-item">item-750</div>
-      <div class="playlist-list-item">item-751</div>
-      <div class="playlist-list-item">item-752</div>
-      <div class="playlist-list-item">item-753</div>
-      <div class="playlist-list-item">item-754</div>
-      <div class="playlist-list-item">item-755</div>
-      <div class="playlist-list-item">item-756</div>
-      <div class="playlist-list-item">item-757</div>
-      <div class="playlist-list-item">item-758</div>
-      <div class="playlist-list-item">item-759</div>
-      <div class="playlist-list-item">item-760</div>
-      <div class="playlist-list-item">item-761</div>
-      <div class="playlist-list-item">item-762</div>
-      <div class="playlist-list-item">item-763</div>
-      <div class="playlist-list-item">item-764</div>
-      <div class="playlist-list-item">item-765</div>
-      <div class="playlist-list-item">item-766</div>
-      <div class="playlist-list-item">item-767</div>
-      <div class="playlist-list-item">item-768</div>
-      <div class="playlist-list-item">item-769</div>
-      <div class="playlist-list-item">item-770</div>
-      <div class="playlist-list-item">item-771</div>
-      <div class="playlist-list-item">item-772</div>
-      <div class="playlist-list-item">item-773</div>
-      <div class="playlist-list-item">item-774</div>
-      <div class="playlist-list-item">item-775</div>
-      <div class="playlist-list-item">item-776</div>
-      <div class="playlist-list-item">item-777</div>
-      <div class="playlist-list-item">item-778</div>
-      <div class="playlist-list-item">item-779</div>
-      <div class="playlist-list-item">item-780</div>
-      <div class="playlist-list-item">item-781</div>
-      <div class="playlist-list-item">item-782</div>
-      <div class="playlist-list-item">item-783</div>
-      <div class="playlist-list-item">item-784</div>
-      <div class="playlist-list-item">item-785</div>
-      <div class="playlist-list-item">item-786</div>
-      <div class="playlist-list-item">item-787</div>
-      <div class="playlist-list-item">item-788</div>
-      <div class="playlist-list-item">item-789</div>
-      <div class="playlist-list-item">item-790</div>
-      <div class="playlist-list-item">item-791</div>
-      <div class="playlist-list-item">item-792</div>
-      <div class="playlist-list-item">item-793</div>
-      <div class="playlist-list-item">item-794</div>
-      <div class="playlist-list-item">item-795</div>
-      <div class="playlist-list-item">item-796</div>
-      <div class="playlist-list-item">item-797</div>
-      <div class="playlist-list-item">item-798</div>
-      <div class="playlist-list-item">item-799</div>
-      <div class="playlist-list-item">item-800</div>
-      <div class="playlist-list-item">item-801</div>
-      <div class="playlist-list-item">item-802</div>
-      <div class="playlist-list-item">item-803</div>
-      <div class="playlist-list-item">item-804</div>
-      <div class="playlist-list-item">item-805</div>
-      <div class="playlist-list-item">item-806</div>
-      <div class="playlist-list-item">item-807</div>
-      <div class="playlist-list-item">item-808</div>
-      <div class="playlist-list-item">item-809</div>
-      <div class="playlist-list-item">item-810</div>
-      <div class="playlist-list-item">item-811</div>
-      <div class="playlist-list-item">item-812</div>
-      <div class="playlist-list-item">item-813</div>
-      <div class="playlist-list-item">item-814</div>
-      <div class="playlist-list-item">item-815</div>
-      <div class="playlist-list-item">item-816</div>
-      <div class="playlist-list-item">item-817</div>
-      <div class="playlist-list-item">item-818</div>
-      <div class="playlist-list-item">item-819</div>
-      <div class="playlist-list-item">item-820</div>
-      <div class="playlist-list-item">item-821</div>
-      <div class="playlist-list-item">item-822</div>
-      <div class="playlist-list-item">item-823</div>
-      <div class="playlist-list-item">item-824</div>
-      <div class="playlist-list-item">item-825</div>
-      <div class="playlist-list-item">item-826</div>
-      <div class="playlist-list-item">item-827</div>
-      <div class="playlist-list-item">item-828</div>
-      <div class="playlist-list-item">item-829</div>
-      <div class="playlist-list-item">item-830</div>
-      <div class="playlist-list-item">item-831</div>
-      <div class="playlist-list-item">item-832</div>
-      <div class="playlist-list-item">item-833</div>
-      <div class="playlist-list-item">item-834</div>
-      <div class="playlist-list-item">item-835</div>
-      <div class="playlist-list-item">item-836</div>
-      <div class="playlist-list-item">item-837</div>
-      <div class="playlist-list-item">item-838</div>
-      <div class="playlist-list-item">item-839</div>
-      <div class="playlist-list-item">item-840</div>
-      <div class="playlist-list-item">item-841</div>
-      <div class="playlist-list-item">item-842</div>
-      <div class="playlist-list-item">item-843</div>
-      <div class="playlist-list-item">item-844</div>
-      <div class="playlist-list-item">item-845</div>
-      <div class="playlist-list-item">item-846</div>
-      <div class="playlist-list-item">item-847</div>
-      <div class="playlist-list-item">item-848</div>
-      <div class="playlist-list-item">item-849</div>
-      <div class="playlist-list-item">item-850</div>
-      <div class="playlist-list-item">item-851</div>
-      <div class="playlist-list-item">item-852</div>
-      <div class="playlist-list-item">item-853</div>
-      <div class="playlist-list-item">item-854</div>
-      <div class="playlist-list-item">item-855</div>
-      <div class="playlist-list-item">item-856</div>
-      <div class="playlist-list-item">item-857</div>
-      <div class="playlist-list-item">item-858</div>
-      <div class="playlist-list-item">item-859</div>
-      <div class="playlist-list-item">item-860</div>
-      <div class="playlist-list-item">item-861</div>
-      <div class="playlist-list-item">item-862</div>
-      <div class="playlist-list-item">item-863</div>
-      <div class="playlist-list-item">item-864</div>
-      <div class="playlist-list-item">item-865</div>
-      <div class="playlist-list-item">item-866</div>
-      <div class="playlist-list-item">item-867</div>
-      <div class="playlist-list-item">item-868</div>
-      <div class="playlist-list-item">item-869</div>
-      <div class="playlist-list-item">item-870</div>
-      <div class="playlist-list-item">item-871</div>
-      <div class="playlist-list-item">item-872</div>
-      <div class="playlist-list-item">item-873</div>
-      <div class="playlist-list-item">item-874</div>
-      <div class="playlist-list-item">item-875</div>
-      <div class="playlist-list-item">item-876</div>
-      <div class="playlist-list-item">item-877</div>
-      <div class="playlist-list-item">item-878</div>
-      <div class="playlist-list-item">item-879</div>
-      <div class="playlist-list-item">item-880</div>
-      <div class="playlist-list-item">item-881</div>
-      <div class="playlist-list-item">item-882</div>
-      <div class="playlist-list-item">item-883</div>
-      <div class="playlist-list-item">item-884</div>
-      <div class="playlist-list-item">item-885</div>
-      <div class="playlist-list-item">item-886</div>
-      <div class="playlist-list-item">item-887</div>
-      <div class="playlist-list-item">item-888</div>
-      <div class="playlist-list-item">item-889</div>
-      <div class="playlist-list-item">item-890</div>
-      <div class="playlist-list-item">item-891</div>
-      <div class="playlist-list-item">item-892</div>
-      <div class="playlist-list-item">item-893</div>
-      <div class="playlist-list-item">item-894</div>
-      <div class="playlist-list-item">item-895</div>
-      <div class="playlist-list-item">item-896</div>
-      <div class="playlist-list-item">item-897</div>
-      <div class="playlist-list-item">item-898</div>
-      <div class="playlist-list-item">item-899</div>
-      <div class="playlist-list-item">item-900</div>
-      <div class="playlist-list-item">item-901</div>
-      <div class="playlist-list-item">item-902</div>
-      <div class="playlist-list-item">item-903</div>
-      <div class="playlist-list-item">item-904</div>
-      <div class="playlist-list-item">item-905</div>
-      <div class="playlist-list-item">item-906</div>
-      <div class="playlist-list-item">item-907</div>
-      <div class="playlist-list-item">item-908</div>
-      <div class="playlist-list-item">item-909</div>
-      <div class="playlist-list-item">item-910</div>
-      <div class="playlist-list-item">item-911</div>
-      <div class="playlist-list-item">item-912</div>
-      <div class="playlist-list-item">item-913</div>
-      <div class="playlist-list-item">item-914</div>
-      <div class="playlist-list-item">item-915</div>
-      <div class="playlist-list-item">item-916</div>
-      <div class="playlist-list-item">item-917</div>
-      <div class="playlist-list-item">item-918</div>
-      <div class="playlist-list-item">item-919</div>
-      <div class="playlist-list-item">item-920</div>
-      <div class="playlist-list-item">item-921</div>
-      <div class="playlist-list-item">item-922</div>
-      <div class="playlist-list-item">item-923</div>
-      <div class="playlist-list-item">item-924</div>
-      <div class="playlist-list-item">item-925</div>
-      <div class="playlist-list-item">item-926</div>
-      <div class="playlist-list-item">item-927</div>
-      <div class="playlist-list-item">item-928</div>
-      <div class="playlist-list-item">item-929</div>
-      <div class="playlist-list-item">item-930</div>
-      <div class="playlist-list-item">item-931</div>
-      <div class="playlist-list-item">item-932</div>
-      <div class="playlist-list-item">item-933</div>
-      <div class="playlist-list-item">item-934</div>
-      <div class="playlist-list-item">item-935</div>
-      <div class="playlist-list-item">item-936</div>
-      <div class="playlist-list-item">item-937</div>
-      <div class="playlist-list-item">item-938</div>
-      <div class="playlist-list-item">item-939</div>
-      <div class="playlist-list-item">item-940</div>
-      <div class="playlist-list-item">item-941</div>
-      <div class="playlist-list-item">item-942</div>
-      <div class="playlist-list-item">item-943</div>
-      <div class="playlist-list-item">item-944</div>
-      <div class="playlist-list-item">item-945</div>
-      <div class="playlist-list-item">item-946</div>
-      <div class="playlist-list-item">item-947</div>
-      <div class="playlist-list-item">item-948</div>
-      <div class="playlist-list-item">item-949</div>
-      <div class="playlist-list-item">item-950</div>
-      <div class="playlist-list-item">item-951</div>
-      <div class="playlist-list-item">item-952</div>
-      <div class="playlist-list-item">item-953</div>
-      <div class="playlist-list-item">item-954</div>
-      <div class="playlist-list-item">item-955</div>
-      <div class="playlist-list-item">item-956</div>
-      <div class="playlist-list-item">item-957</div>
-      <div class="playlist-list-item">item-958</div>
-      <div class="playlist-list-item">item-959</div>
-      <div class="playlist-list-item">item-960</div>
-      <div class="playlist-list-item">item-961</div>
-      <div class="playlist-list-item">item-962</div>
-      <div class="playlist-list-item">item-963</div>
-      <div class="playlist-list-item">item-964</div>
-      <div class="playlist-list-item">item-965</div>
-      <div class="playlist-list-item">item-966</div>
-      <div class="playlist-list-item">item-967</div>
-      <div class="playlist-list-item">item-968</div>
-      <div class="playlist-list-item">item-969</div>
-      <div class="playlist-list-item">item-970</div>
-      <div class="playlist-list-item">item-971</div>
-      <div class="playlist-list-item">item-972</div>
-      <div class="playlist-list-item">item-973</div>
-      <div class="playlist-list-item">item-974</div>
-      <div class="playlist-list-item">item-975</div>
-      <div class="playlist-list-item">item-976</div>
-      <div class="playlist-list-item">item-977</div>
-      <div class="playlist-list-item">item-978</div>
-      <div class="playlist-list-item">item-979</div>
-      <div class="playlist-list-item">item-980</div>
-      <div class="playlist-list-item">item-981</div>
-      <div class="playlist-list-item">item-982</div>
-      <div class="playlist-list-item">item-983</div>
-      <div class="playlist-list-item">item-984</div>
-      <div class="playlist-list-item">item-985</div>
-      <div class="playlist-list-item">item-986</div>
-      <div class="playlist-list-item">item-987</div>
-      <div class="playlist-list-item">item-988</div>
-      <div class="playlist-list-item">item-989</div>
-      <div class="playlist-list-item">item-990</div>
-      <div class="playlist-list-item">item-991</div>
-      <div class="playlist-list-item">item-992</div>
-      <div class="playlist-list-item">item-993</div>
-      <div class="playlist-list-item">item-994</div>
-      <div class="playlist-list-item">item-995</div>
-      <div class="playlist-list-item">item-996</div>
-      <div class="playlist-list-item">item-997</div>
-      <div class="playlist-list-item">item-998</div>
-      <div class="playlist-list-item">item-999</div>
-      <div class="playlist-list-item">item-1000</div>
+      <div class="playlist-list-header">
+        <div class="playlist-list-item">
+          <div></div>
+          <div></div>
+          <div>音乐标题</div>
+          <div>歌手</div>
+          <div>专辑</div>
+          <div>时长</div>
+        </div>
+      </div>
+      <div class="playlist-list-body">
+        <div class="playlist-list-item" v-for="song, index in data.playlist.tracks" :key="song.id">
+          <div class="index">{{ index+ 1 }}</div>
+          <div class="opt">
+            <SvgIcon name="heart" class="icon-bootstrap" />
+            <SvgIcon name="download" class="icon-bootstrap" />
+          </div>
+          <div class="text-overflow name" :title="song.origin_name" v-html="song.name" />
+          <div class="text-overflow ar" :title="song.ar.map(it => it.origin_name).join('/')">
+            <span v-for="ar in song.ar" :key="ar.id" v-html="ar.name" />
+          </div>
+          <div class="text-overflow al">
+            <span v-html="song.al.name" :title="song.al.origin_name" />
+          </div>
+          <div class="text-overflow dt">{{ formatDuring(song.dt) }}</div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import Image from '@/components/Playlist_Image.vue'
+import { onBeforeMount, watch, reactive, ref } from "vue";
+import { getPlaylistDetail } from '@/api/playlist'
+import { useRouter, useRoute } from 'vue-router'
+import OgInput from '@/components/Input.vue'
+import { formatDate, formatDuring } from '@/utils/time'
+import { formatNumber } from '@/utils/number'
+import { cloneDeep, throttle } from "lodash";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/store/user";
+const userStore = useUserStore();
+const { profile } = storeToRefs(userStore)
+const router = useRouter()
+const route = useRoute()
 
+interface PlaylistDetail {
+  playlist: Partial<Playlist>
+}
+
+let origin: Track[] = []
+
+const data = reactive<PlaylistDetail>({
+  playlist: {
+    tracks: []
+  }
+})
+const searchVal = ref('')
+async function loadPlaylist(params: { id: string }) {
+  const { playlist } = await getPlaylistDetail(params)
+  playlist.tracks.forEach(song => {
+    song.origin_name = song.name
+    // ar
+    song.ar.forEach(it => { it.origin_name = it.name })
+    // al
+    song.al.origin_name = song.al.name
+  })
+  data.playlist = playlist
+  origin = playlist.tracks
+  console.log(data.playlist.tracks);
+}
+
+function search() {
+  if (!searchVal.value) {
+    data.playlist.tracks = origin
+    console.log('re', data, origin);
+
+    return
+  }
+  if (origin) {
+    const replaceValue = `<span class="s">$1</span>`
+    const searchReg = new RegExp(`(${searchVal.value})`, 'ig')
+    const tempTracks = cloneDeep(origin)
+    data.playlist.tracks = tempTracks.filter(song => {
+      let flag = false;
+      // name
+      const newName = song.name.replaceAll(searchReg, replaceValue)
+      if (song.name !== newName) {
+        flag = true
+        song.name = newName
+      }
+      // ar
+      song.ar = song.ar.map(it => {
+        const newArName = it.name.replaceAll(searchReg, replaceValue)
+        if (it.name !== newArName) {
+          flag = true
+          it.name = newArName
+        }
+        return it
+      })
+      // al
+      const newAlName = song.al.name.replaceAll(searchReg, replaceValue)
+      if (song.al.name !== newAlName) {
+        flag = true
+        song.al.name = newAlName
+      }
+      return flag
+    })
+
+  }
+}
+
+const searchThrottle = throttle(search, 500)
+
+onBeforeMount(() => {
+  loadPlaylist({ id: route.params.id as string })
+})
+
+watch<string>(() => route.params.id as string, (id) => {
+  console.log(id);
+  loadPlaylist({ id })
+})
+watch(searchVal, (val) => {
+  searchThrottle()
+})
 </script>
 
 <style lang="scss" scoped>
-.playlist {
+.icon-bootstrap {
+  height: 14px;
+  width: 14px;
+}
 
+.disable {
+  color: #d9d9d9;
+  border: 1px solid #d9d9d9;
+}
+
+.playlist {
+  background-color: #fff;
 
   &-header {
     padding: 0 20px;
-    height: 150px;
     display: grid;
-    border: 1px solid saddlebrown;
-    grid-template-columns: 150px auto;
+    grid-template-columns: 200px auto;
     gap: 10px;
 
     &-left {
-      background-color: bisque;
+      :deep(img) {
+        border-radius: 10px;
+      }
     }
 
     &-right {
-      background-color: khaki;
       display: grid;
       grid-template-rows: repeat(6, 1fr);
-      gap: 5px;
+      grid-template-rows: auto repeat(2, 30px) repeat(6, auto);
+      font-size: 12px;
+      gap: 10px;
+
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .create-info {
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+
+        .creator {
+          display: grid;
+          grid-template-columns: 30px auto;
+          align-items: center;
+          gap: 5px;
+        }
+
+        .create-time {
+          margin-left: 10px;
+          color: #666666
+        }
+
+        img {
+          width: 30px;
+          height: 30px;
+          border-radius: 100%;
+        }
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: auto repeat(2, 130px) auto;
+        gap: 10px;
+
+        button {
+          font-size: 13px;
+
+          &:not(.options-all) {
+            border-radius: 50px;
+            border: 1px solid #e1e1e1;
+            display: grid;
+            grid-template-columns: 14px auto;
+            place-items: center;
+            padding-left: 10px;
+
+            &:not(.disable):hover {
+              background-color: #f3f3f3;
+            }
+          }
+        }
+
+        &-all {
+          border: none;
+          color: #fff;
+          display: grid;
+          grid-template-columns: auto 30px;
+          align-items: center;
+
+          &-left {
+            background-color: #eb002e;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, auto);
+            border-radius: 50px 0 0 50px;
+            place-items: center;
+          }
+
+          &-right {
+            height: 100%;
+            border-radius: 0 50px 50px 0;
+            background-color: #eb002e;
+            display: grid;
+            place-items: center;
+          }
+
+          div[class^="options-all-"] {
+            &:hover {
+              background-color: #dd002d;
+            }
+          }
+        }
+      }
+
+      .tags {
+        &-item {
+          color: #5071ae;
+
+          &::after {
+            display: inline;
+            content: '/';
+            color: #666;
+            margin: 0 4px;
+          }
+
+          &:nth-last-of-type(1) {
+            &::after {
+              content: none;
+            }
+          }
+        }
+      }
+
+      .count {
+        span {
+          color: #666;
+        }
+      }
+
+      .desc {
+        height: 30px;
+
+        span {
+          white-space: pre-line;
+          color: #666;
+          line-height: 30px;
+        }
+      }
     }
   }
 
   &-list {
     margin-top: 20px;
-    font-size: 14px;
+    font-size: 12px;
 
+
+
+
+    &-header {
+      color: #888888;
+    }
+
+    &-body {
+      .playlist-list-item {
+        &:nth-of-type(odd) {
+          background-color: #f8f8f8;
+        }
+
+        &:hover {
+          background-color: #f2f2f2;
+        }
+      }
+    }
 
     &-item {
 
       padding: 10px 20px;
+      display: grid;
+      gap: 15px;
+      grid-template-columns: 20px 50px auto repeat(2, 120px) 50px;
 
-      &:nth-of-type(odd) {
-
-        background-color: #fafafa;
+      .index {
+        color: #bbb;
       }
 
-      &:hover {
-        background-color: variables.$menuHover;
+      .opt {
+        display: grid;
+        grid-template-columns: repeat(2, auto);
+        gap: 4px;
+        color: #bbb;
+
+        .icon-bootstrap {
+          width: 14px;
+          height: 14px;
+        }
       }
+
+      .name {
+        color: #000;
+      }
+
+      .ar {
+        color: #666;
+
+        span {
+          cursor: pointer;
+
+          &::after {
+            content: '/';
+            margin: 0 4px;
+          }
+
+          &:nth-last-of-type(1) {
+            &::after {
+              content: none;
+            }
+          }
+        }
+      }
+
+      .al {
+        color: #888;
+
+        span {
+          cursor: pointer;
+        }
+      }
+
+      .dt {
+        color: #bbb;
+      }
+
     }
+  }
 
-
+  &-opt {
+    padding: 0 20px;
+    display: flex;
+    justify-content: flex-end;
   }
 }
 </style>

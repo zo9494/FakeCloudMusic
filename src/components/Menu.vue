@@ -38,7 +38,7 @@
     <div class="nav-item-title">我的音乐</div>
     <ul>
       <li>
-        <RouterLink draggable="false" to="/id/我喜欢的音乐">
+        <RouterLink draggable="false" :to="`/playlist/${menu.myLike.id}`">
           <SvgIcon class="icon-bootstrap" name="heart" />
           <span>我喜欢的音乐</span>
         </RouterLink>
@@ -65,7 +65,7 @@
       <li v-for="item in menu.myCreate" :key="item.id">
         <RouterLink draggable="false" :to="`/playlist/${item.id}`">
           <SvgIcon class="icon-bootstrap" name="music-note-list" />
-          <span>{{ item.name }}</span>
+          <span class="text-overflow">{{ item.name }}</span>
         </RouterLink>
       </li>
     </ul>
@@ -76,7 +76,7 @@
       <li v-for="item in menu.myCollect" :key="item.id">
         <RouterLink draggable="false" :to="`/playlist/${item.id}`">
           <SvgIcon class="icon-bootstrap" name="music-note-list" />
-          <span>{{ item.name }}</span>
+          <span class="text-overflow">{{ item.name }}</span>
         </RouterLink>
       </li>
     </ul>
@@ -84,19 +84,20 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, withDefaults } from "vue";
+import { withDefaults } from "vue";
 import { RouterLink } from "vue-router"
 
 interface menuType {
   menu: {
-    myLike: Playlist | {};
-    myCreate: Playlist[] | [];
-    myCollect: Playlist[] | [];
+    myLike: Partial<Order>
+    myCreate: Playlist[];
+    myCollect: Playlist[];
   }
 }
 const { menu } = withDefaults(defineProps<menuType>(), {
   menu: () => ({
-    myLike: {},
+    myLike: {
+    },
     myCreate: [],
     myCollect: []
   })
@@ -148,12 +149,6 @@ console.log(menu);
       font-size: 13px;
       line-height: 35px;
       overflow: hidden;
-
-      span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap
-      }
     }
   }
 }

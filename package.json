@@ -24,6 +24,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.191",
     "@vitejs/plugin-vue": "^4.0.0",
     "electron": "^22.0.3",
     "electron-builder": "^23.6.0",
@@ -42,6 +43,7 @@
     "dayjs": "^1.11.7",
     "fast-glob": "^3.2.12",
     "howler": "^2.2.3",
+    "lodash": "^4.17.21",
     "music-metadata": "^7.13.0",
     "pinia": "^2.0.29",
     "vue-router": "^4.1.6",

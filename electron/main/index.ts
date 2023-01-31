@@ -57,7 +57,7 @@ class Main {
         nodeIntegration: true,
       },
       frame: isMac,
-      width: 900,
+      width: 1000,
       height: 600,
       minWidth: 900,
       minHeight: 600,
