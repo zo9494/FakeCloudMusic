@@ -40,36 +40,6 @@ button {
   grid-template-rows: variables.$appBarHeight auto;
 }
 
-.scrollbar {
-  overflow: auto;
-  // height: 100%;
-  &::-webkit-scrollbar {
-    display: none;
-    width: 7px;
-    height: 7px;
-  }
-  &:hover {
-    &::-webkit-scrollbar {
-      display: block;
-    }
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: #d1d1d1;
-  }
-}
-.scrollbar-always {
-  overflow: auto;
-  &::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: #d1d1d1;
-  }
-}
-
 .text-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -78,6 +48,15 @@ button {
 
 .s {
   color: #0c73c2;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.4s ease-in-out;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
 }
 
 /* https://learn.microsoft.com/zh-cn/windows/apps/design/style/segoe-fluent-icons-font */

@@ -2,18 +2,26 @@
 import AppBar from './components/AppBar.vue';
 import ScrollBar from './components/ScrollBar.vue';
 import Menu from './components/Menu.vue';
-import { RouterView } from 'vue-router';
 import UserLogin from './components/UserLogin.vue';
+import Player from './components/Player.vue';
+
+import { RouterView } from 'vue-router';
 import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+
 import { useUserStore } from '@/store/user';
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
 
+const showPlayer = ref(false);
+
 window.loadUser = () => {
   console.log('loadUser');
-  userStore.getUserAccount()
+  userStore.getUserAccount();
 };
-
+setTimeout(() => {
+  showPlayer.value = true;
+}, 5000);
 </script>
 
 <template>
@@ -25,12 +33,18 @@ window.loadUser = () => {
       </div>
       <ScrollBar>
         <Menu :menu="order"></Menu>
+        <div style="height: 80px"></div>
       </ScrollBar>
     </div>
-    <div class="container-right-view scrollbar-always">
+    <ScrollBar class="container-right-view" way="always">
       <RouterView></RouterView>
-    </div>
-    <div class="container-player"> </div>
+      <div style="height: 80px"></div>
+    </ScrollBar>
+    <Transition name="slide-up">
+      <div v-show="showPlayer" class="container-player">
+        <Player />
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -40,7 +54,7 @@ window.loadUser = () => {
   overflow: hidden;
   display: grid;
   grid-template-columns: 200px auto;
-  grid-template-rows: auto 50px;
+  grid-template-rows: auto;
 
   &-left-nav {
     overflow: hidden;
@@ -52,10 +66,12 @@ window.loadUser = () => {
   // &-right-view {}
 
   &-player {
-    height: 50px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     grid-column: 1/3;
-    background-color: red;
-    border: 1px solid saddlebrown;
+    height: 60px;
   }
 
   .user {
