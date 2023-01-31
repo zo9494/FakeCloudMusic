@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue'
 interface Props {
   src?: string
@@ -12,36 +12,38 @@ watch(() => props.src, () => {
   load.value = false
 })
 </script>
+
 <template>
-  <div class="playlist-image">
+  <div class="f-avatar">
     <img v-show="load" :src="props.src" @load="handleLoad">
-    <div v-show="!load" class="playlist-image-error">
-      <SvgIcon name="album_150" />
+    <div v-show="!load" class="f-avatar-loading">
+      <SvgIcon name="user_90" />
     </div>
   </div>
 </template>
 
-<style lang="scss">
-.playlist-image {
-  display: inline-block;
+<style scoped lang="scss">
+.f-avatar {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 
   img {
     width: 100%;
     height: 100%;
+    border-radius: 50%;
   }
 
-  &-error {
+  &-loading {
     background-color: #e0e0e0;
     width: 100%;
-    height: calc(100% - 10px);
-    display: grid;
-    place-items: center;
-    padding: 10px;
-    border-radius: 10px;
+    height: 100%;
+    border-radius: 50px;
+    overflow: hidden;
 
     svg {
-      width: 150px;
-      height: 150px;
+      width: 100%;
+      height: 80%;
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
-  <span class="og-input">
-    <div class="og-input-prefix" @click="handleClear">
+  <span class="f-input">
+    <div class="f-input-prefix" @click="handleClear">
       <SvgIcon name="x-lg" v-if="props.modelValue" class="icon" />
       <SvgIcon name="search" v-else class="icon" />
     </div>
@@ -30,7 +30,7 @@ function handleClear() {
 </script>
 
 <style lang="scss">
-.og-input {
+.f-input {
   background-color: #ededed;
   padding: 2px 3px;
   border-radius: 50px;

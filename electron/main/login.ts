@@ -32,8 +32,7 @@ export class Login {
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await Login.win.loadURL(url + '/login/');
-      Login.win.webContents.openDevTools();
+      Login.win.loadURL(url + '/login/');
     } else {
       Login.win.loadFile(loginHtml);
     }

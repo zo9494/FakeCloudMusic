@@ -1,10 +1,11 @@
 <template>
   <div class="user" @click="open">
     <div class="avatar">
-      <img v-if="profile?.userId" :src="profile?.avatarUrl">
+      <Avatar :src="profile?.avatarUrl" />
+      <!-- <img v-if="profile?.userId" :src="profile?.avatarUrl">
       <div v-else>
         <SvgIcon name="user_90" />
-      </div>
+      </div> -->
     </div>
     <div class="user-right">
       <span> {{ profile?.userId?profile?.nickname: '未登录' }}</span>
@@ -17,6 +18,7 @@
 import { onBeforeMount } from "vue";
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia';
+import Avatar from '@/components/Avatar.vue'
 const userStore = useUserStore()
 const { profile } = storeToRefs(userStore)
 
@@ -48,31 +50,33 @@ function open() {
   padding-top: 5px;
 
   .avatar {
+    height: 40px;
+    width: 40px;
     display: grid;
     place-items: center;
+    overflow: hidden;
 
+    // >div {
+    //   background-color: #e0e0e0;
+    //   height: 40px;
+    //   width: 40px;
+    //   border-radius: 50%;
+    //   border: 1px solid #bfbfbf;
+    //   overflow: hidden;
+    // }
 
-    >div {
-      background-color: #e0e0e0;
-      height: 40px;
-      width: 40px;
-      border-radius: 50%;
-      border: 1px solid #bfbfbf;
-      overflow: hidden;
-    }
+    // svg {
+    //   height: 30px;
+    //   width: 30px;
+    //   margin-bottom: 10px;
+    //   margin-left: 4px;
+    // }
 
-    svg {
-      height: 30px;
-      width: 30px;
-      margin-bottom: 10px;
-      margin-left: 4px;
-    }
-
-    >img {
-      height: 40px;
-      width: 40px;
-      border-radius: 50%;
-    }
+    // >img {
+    //   height: 40px;
+    //   width: 40px;
+    //   border-radius: 50%;
+    // }
   }
 
   .user-right {

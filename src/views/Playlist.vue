@@ -5,11 +5,12 @@
       <div class="playlist-header-left">
         <Image :src="data.playlist.coverImgUrl" class="cover" />
       </div>
+
       <div class="playlist-header-right">
         <div class="title">{{ data.playlist.name }}</div>
         <div class="create-info">
           <div class="creator">
-            <img :src="data.playlist.creator?.avatarUrl" alt="">
+            <Avatar :src="data.playlist.creator?.avatarUrl" />
             <span>{{ data.playlist.creator?.nickname }}</span>
           </div>
           <span class="create-time">{{ formatDate(data.playlist.createTime) }}创建</span>
@@ -68,6 +69,7 @@
         </div>
       </div>
       <div class="playlist-list-body">
+        <div v-if="data.netErr" class="net-err">网络不给力哦，请检查你的网络设置~</div>
         <div class="playlist-list-item" v-for="song, index in data.playlist.tracks" :key="song.id">
           <div class="index">{{ index+ 1 }}</div>
           <div class="opt">
@@ -92,22 +94,30 @@
 
 <script setup lang="ts">
 import Image from '@/components/Playlist_Image.vue'
-import { onBeforeMount, watch, reactive, ref } from "vue";
-import { getPlaylistDetail } from '@/api/playlist'
-import { useRouter, useRoute } from 'vue-router'
 import FCInput from '@/components/Input.vue'
+import Avatar from "@/components/Avatar.vue";
+
+
+import { onBeforeMount, watch, reactive, ref } from "vue";
+import { useRoute } from 'vue-router'
+import { storeToRefs } from "pinia";
+import { cloneDeep, throttle } from "lodash";
+
+import { getPlaylistDetail } from '@/api/playlist'
+import { useUserStore } from "@/store/user";
+
 import { formatDate, formatDuring } from '@/utils/time'
 import { formatNumber } from '@/utils/number'
-import { cloneDeep, throttle } from "lodash";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/store/user";
+
+
+
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore)
-const router = useRouter()
 const route = useRoute()
 
 interface PlaylistDetail {
-  playlist: Partial<Playlist>
+  playlist: Partial<Playlist>;
+  netErr: boolean
 }
 
 let origin: Track[] = []
@@ -115,23 +125,42 @@ let origin: Track[] = []
 const data = reactive<PlaylistDetail>({
   playlist: {
     tracks: []
-  }
+  },
+  netErr: false
 })
-const searchVal = ref('')
 async function loadPlaylist(params: { id: string }) {
-  const { playlist } = await getPlaylistDetail(params)
-  playlist.tracks.forEach(song => {
-    song.origin_name = song.name
-    // ar
-    song.ar.forEach(it => { it.origin_name = it.name })
-    // al
-    song.al.origin_name = song.al.name
-  })
-  data.playlist = playlist
-  origin = playlist.tracks
-  console.log(data.playlist.tracks);
+  data.netErr = false
+  try {
+    const { playlist } = await getPlaylistDetail(params)
+    playlist.tracks.forEach(song => {
+      song.origin_name = song.name
+      // ar
+      song.ar.forEach(it => { it.origin_name = it.name })
+      // al
+      song.al.origin_name = song.al.name
+    })
+    data.playlist = playlist
+    origin = playlist.tracks
+  } catch (error) {
+    data.netErr = true
+  }
+}
+function resetData() {
+  data.playlist = {}
+  data.netErr = false
 }
 
+onBeforeMount(() => {
+  loadPlaylist({ id: route.params.id as string })
+})
+watch<string>(() => route.params.id as string, (id) => {
+  resetData()
+  loadPlaylist({ id })
+})
+
+
+// search-start
+const searchVal = ref('')
 function search() {
   if (!searchVal.value) {
     data.playlist.tracks = origin
@@ -171,23 +200,22 @@ function search() {
 
   }
 }
-
 const searchThrottle = throttle(search, 500)
-
-onBeforeMount(() => {
-  loadPlaylist({ id: route.params.id as string })
-})
-
-watch<string>(() => route.params.id as string, (id) => {
-  console.log(id);
-  loadPlaylist({ id })
-})
 watch(searchVal, (val) => {
   searchThrottle()
 })
+//  search-end
+
 </script>
 
 <style lang="scss" scoped>
+.net-err {
+  text-align: center;
+  color: #666666;
+  height: 30px;
+  line-height: 30px;
+}
+
 .icon-bootstrap {
   height: 14px;
   width: 14px;
@@ -234,6 +262,7 @@ watch(searchVal, (val) => {
         .creator {
           display: grid;
           grid-template-columns: 30px auto;
+          grid-template-rows: 30px;
           align-items: center;
           gap: 5px;
         }
@@ -241,12 +270,6 @@ watch(searchVal, (val) => {
         .create-time {
           margin-left: 10px;
           color: #666666
-        }
-
-        img {
-          width: 30px;
-          height: 30px;
-          border-radius: 100%;
         }
       }
 
@@ -345,9 +368,6 @@ watch(searchVal, (val) => {
     margin-top: 20px;
     font-size: 12px;
 
-
-
-
     &-header {
       color: #888888;
     }
@@ -365,8 +385,9 @@ watch(searchVal, (val) => {
     }
 
     &-item {
-
-      padding: 10px 20px;
+      height: 40px;
+      line-height: 40px;
+      padding: 0 20px;
       display: grid;
       gap: 15px;
       grid-template-columns: 20px 50px auto repeat(2, 120px) 50px;
@@ -376,8 +397,10 @@ watch(searchVal, (val) => {
       }
 
       .opt {
+        height: 100%;
         display: grid;
         grid-template-columns: repeat(2, auto);
+        place-items: center;
         gap: 4px;
         color: #bbb;
 

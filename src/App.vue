@@ -1,32 +1,25 @@
 <script setup lang="ts">
-import AppBar from "./components/AppBar.vue"
-import ScrollBar from "./components/ScrollBar.vue"
-import Menu from "./components/Menu.vue"
-import { RouterView } from "vue-router"
-import UserLogin from "./components/UserLogin.vue"
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/store/user";
+import AppBar from './components/AppBar.vue';
+import ScrollBar from './components/ScrollBar.vue';
+import Menu from './components/Menu.vue';
+import { RouterView } from 'vue-router';
+import UserLogin from './components/UserLogin.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/store/user';
 const userStore = useUserStore();
-const { order } = storeToRefs(userStore)
+const { order } = storeToRefs(userStore);
 
 window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount()
-}
+};
+
 </script>
 
 <template>
   <AppBar></AppBar>
   <div class="container">
     <div class="container-left-nav">
-      <div class="history">
-        <button class="history-back history-button disabled">
-          <SvgIcon class="icon-chevron" name="chevron-left" />
-        </button>
-        <button class="history-forward history-button">
-          <SvgIcon class="icon-chevron" name="chevron-right" />
-        </button>
-      </div>
       <div class="user">
         <UserLogin />
       </div>
@@ -37,9 +30,7 @@ window.loadUser = () => {
     <div class="container-right-view scrollbar-always">
       <RouterView></RouterView>
     </div>
-    <div class="container-player">
-
-    </div>
+    <div class="container-player"> </div>
   </div>
 </template>
 
@@ -54,34 +45,8 @@ window.loadUser = () => {
   &-left-nav {
     overflow: hidden;
     display: grid;
-    grid-template-rows: 25px 50px auto;
+    grid-template-rows: 50px auto;
     background-color: #ededed;
-
-    .history {
-      display: grid;
-      grid-template-columns: 25px 25px;
-      justify-content: flex-end;
-      gap: 20px;
-      align-items: center;
-
-      .history-button {
-        display: grid;
-        justify-items: center;
-        align-items: center;
-        border-radius: 50%;
-        height: 100%;
-
-        &:not(.disabled):hover {
-          background-color: rgba(46, 50, 56, 0.05);
-
-        }
-      }
-
-      .icon-chevron {
-        width: 16px;
-        height: 16px;
-      }
-    }
   }
 
   // &-right-view {}

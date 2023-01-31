@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import { defineComponent, h } from 'vue';
 import Playlist from '@/views/Playlist.vue';
-
 const Home = defineComponent({
   render() {
     return h('div', 'def');
@@ -10,7 +9,7 @@ const Home = defineComponent({
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
+    path: '/id/:name',
     component: Home,
   },
   {
@@ -19,7 +18,9 @@ const routes: RouteRecordRaw[] = [
   },
 ];
 
-export const router = createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
+
+export { router };
