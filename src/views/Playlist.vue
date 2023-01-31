@@ -53,7 +53,7 @@
     </div>
 
     <div class="playlist-opt">
-      <OgInput v-model="searchVal" placeholder="搜索歌单歌曲" />
+      <FCInput v-model="searchVal" placeholder="搜索歌单歌曲" />
     </div>
 
     <div class="playlist-list">
@@ -95,7 +95,7 @@ import Image from '@/components/Playlist_Image.vue'
 import { onBeforeMount, watch, reactive, ref } from "vue";
 import { getPlaylistDetail } from '@/api/playlist'
 import { useRouter, useRoute } from 'vue-router'
-import OgInput from '@/components/Input.vue'
+import FCInput from '@/components/Input.vue'
 import { formatDate, formatDuring } from '@/utils/time'
 import { formatNumber } from '@/utils/number'
 import { cloneDeep, throttle } from "lodash";
