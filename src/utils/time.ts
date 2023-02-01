@@ -4,8 +4,6 @@ export function formatDate(date?: number, separator = '-') {
   if (date === undefined) {
     return;
   }
-  debugger;
-
   return dayjs(date).format(`YYYY${separator}MM${separator}DD`);
 }
 

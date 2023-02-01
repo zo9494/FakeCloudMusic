@@ -10,6 +10,8 @@ import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 
 import { useUserStore } from '@/store/user';
+
+
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
 
@@ -71,7 +73,6 @@ setTimeout(() => {
     left: 0;
     right: 0;
     grid-column: 1/3;
-    height: 60px;
   }
 
   .user {

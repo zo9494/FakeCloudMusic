@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 interface propsType {
-  way: 'autoHidden' | 'always';
+  way?: 'autoHidden' | 'always';
 }
 const props = withDefaults(defineProps<propsType>(), {
   way: 'autoHidden',

@@ -15,7 +15,7 @@ interface Track {
   name: string;
   origin_name?: string;
   ar: Base[];
-  al: Base;
+  al: Base & { picUrl: string };
   dt: number;
 }
 
@@ -49,3 +49,15 @@ interface Playlist {
 interface PlaylistDetail {
   playlist: Playlist;
 }
+
+interface SongDetail {
+  songs: Track[];
+}
+interface SongUrl {
+  url: string;
+  time: number;
+  id: number;
+  size: number;
+  level: 'standard' | 'higher' | 'exhigh' | 'lossless' | 'hires';
+}
+interface SongUrls {}
