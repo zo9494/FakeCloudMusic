@@ -17,6 +17,7 @@ interface Track {
   ar: Base[];
   al: Base & { picUrl: string };
   dt: number;
+  arName: string;
 }
 
 interface TrackId {
@@ -61,3 +62,7 @@ interface SongUrl {
   level: 'standard' | 'higher' | 'exhigh' | 'lossless' | 'hires';
 }
 interface SongUrls {}
+interface Lyric {
+  time: number;
+  lyric: string;
+}

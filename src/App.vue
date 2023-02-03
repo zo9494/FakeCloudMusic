@@ -7,7 +7,7 @@ import Player from './components/Player.vue';
 
 import { RouterView } from 'vue-router';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+
 
 import { useUserStore } from '@/store/user';
 
@@ -15,15 +15,12 @@ import { useUserStore } from '@/store/user';
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
 
-const showPlayer = ref(false);
+
 
 window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount();
 };
-setTimeout(() => {
-  showPlayer.value = true;
-}, 5000);
 </script>
 
 <template>
@@ -42,11 +39,11 @@ setTimeout(() => {
       <RouterView></RouterView>
       <div style="height: 80px"></div>
     </ScrollBar>
-    <Transition name="slide-up">
-      <div v-show="showPlayer" class="container-player">
-        <Player />
-      </div>
-    </Transition>
+
+    <div class="container-player">
+      <Player />
+    </div>
+
   </div>
 </template>
 
@@ -73,6 +70,7 @@ setTimeout(() => {
     left: 0;
     right: 0;
     grid-column: 1/3;
+    z-index: 10;
   }
 
   .user {

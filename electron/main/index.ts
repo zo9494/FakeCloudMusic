@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import server = require('NeteaseCloudMusicApi/server');
 import { EVENT } from '../utils/eventTypes';
 import { isDevelopment, isLinux, isMac, isWin } from '../utils/platform';
-
+import { chalk } from '../utils/chalk';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { Login } from './login';
@@ -70,6 +70,15 @@ class Main {
       // open devtools
       if (isDevelopment) {
         Main.win.webContents.openDevTools();
+
+        if (isDevelopment) {
+          console.log(`vueDevtools:${chalk.green(vue_dev)}`);
+          try {
+            await session.defaultSession.loadExtension(vue_dev);
+          } catch (e) {
+            console.error('Vue Devtools failed to install:', e.toString());
+          }
+        }
       }
     } else {
       Main.win.loadFile(indexHtml);
@@ -94,7 +103,7 @@ class Main {
     const { server: expressApp } = await server.serveNcmApi({
       port: 35011,
     });
-    console.log('[NeteaseCloudMusicApi]: started');
+    console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
     Main.neteaseApi = expressApp;
     return;
   }
@@ -105,7 +114,7 @@ class Main {
       if (process.platform !== 'darwin') {
         app.quit();
         Main.neteaseApi.close(() => {
-          console.log('[NeteaseCloudMusicApi]: closed');
+          console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
         });
       }
     });
@@ -129,10 +138,12 @@ class Main {
     });
 
     app.on('ready', async () => {
+      console.log(chalk.red('ready'));
+
       if (isDevelopment) {
+        console.log(`vueDevtools:${chalk.green(vue_dev)}`);
         try {
           await session.defaultSession.loadExtension(vue_dev);
-          console.log(vue_dev);
         } catch (e) {
           console.error('Vue Devtools failed to install:', e.toString());
         }

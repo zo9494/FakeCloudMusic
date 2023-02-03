@@ -5,8 +5,6 @@ import electron from 'vite-plugin-electron';
 import pkg from './package.json';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import path from 'path';
-console.log(process.cwd());
-console.log(__dirname);
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {

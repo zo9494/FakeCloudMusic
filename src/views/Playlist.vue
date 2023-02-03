@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import Image from '@/components/Playlist_Image.vue';
+import Image from '@/components/PlaylistImage.vue';
 import FCInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
 
@@ -236,6 +236,11 @@ watch(searchVal, val => {
     &-left {
       :deep(img) {
         border-radius: 10px;
+      }
+
+      .cover {
+        width: 200px;
+        height: 200px;
       }
     }
 

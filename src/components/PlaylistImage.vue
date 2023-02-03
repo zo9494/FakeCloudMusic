@@ -33,15 +33,15 @@ watch(() => props.src, () => {
   &-error {
     background-color: #e0e0e0;
     width: 100%;
-    height: calc(100% - 10px);
+    height: 100%;
     display: grid;
     place-items: center;
     padding: 10px;
     border-radius: 10px;
 
     svg {
-      width: 150px;
-      height: 150px;
+      width: 100%;
+      height: 100%;
     }
   }
 }

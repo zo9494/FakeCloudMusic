@@ -1,6 +1,6 @@
 import { service } from '@/utils/request';
 import { isArray } from 'lodash';
-
+import { transformLyric } from '@/utils/utils';
 type Id = number | string;
 type Ids = string[] | number[];
 
@@ -34,4 +34,18 @@ export async function getSongUrl(ids: Id | Ids) {
     return data.data;
   }
   return data.data[0];
+}
+
+interface lyric {
+  lyric: string;
+}
+interface lyrics {
+  lrc: lyric;
+}
+
+export async function getLyric(id: Id) {
+  const { data } = await service.get<lyrics>('/lyric/new', {
+    params: { id },
+  });
+  return transformLyric(data.lrc.lyric);
 }

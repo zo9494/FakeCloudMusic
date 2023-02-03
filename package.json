@@ -24,6 +24,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/howler": "^2.2.7",
     "@types/lodash": "^4.14.191",
     "@vitejs/plugin-vue": "^4.0.0",
     "electron": "^22.0.3",
@@ -47,6 +48,7 @@
     "music-metadata": "^7.13.0",
     "pinia": "^2.0.29",
     "vue-router": "^4.1.6",
-    "vue-slider-component": "^4.1.0-beta.7"
+    "vue-slider-component": "^4.1.0-beta.7",
+    "chalk": "4"
   }
 }
