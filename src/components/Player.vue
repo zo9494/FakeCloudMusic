@@ -1,47 +1,32 @@
 <script lang="ts" setup>
-
-import VueSlider from 'vue-slider-component'
-import Image from '@/components/PlaylistImage.vue'
-import Lyrics from '@/components/PlayerLyrics.vue'
-import 'vue-slider-component/theme/default.css'
-import { getSongDetail, getSongUrl, getLyric } from "@/api/song";
-import { reactive, onBeforeMount, ref, watch, computed, nextTick } from "vue";
-import { throttle } from 'lodash'
-import { formatDuringMS } from '@/utils/time'
-import { FA, FAudio } from '@/utils/audio'
-
-
-
+import VueSlider from 'vue-slider-component';
+import Image from '@/components/PlaylistImage.vue';
+import Lyrics from '@/components/PlayerLyrics.vue';
+import 'vue-slider-component/theme/default.css';
+import { reactive, onUpdated, ref, watch, computed, nextTick } from 'vue';
+import { throttle } from 'lodash';
+import { storeToRefs } from 'pinia';
+import { usePlayerStore } from '@/store/player';
+import { formatDuringMS } from '@/utils/time';
+import { FA, FAudio } from '@/utils/audio';
+const playerStore = usePlayerStore();
+const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
 
 enum VolumeIcon {
-  mute = 'volume-mute',
-  down = 'volume-down',
-  up = 'volume-up'
+  mute = 'bi-volume-off',
+  down = 'bi-volume-down',
+  up = 'bi-volume-up',
 }
 
-
-
-type Props = Partial<Omit<SongUrl, 'id'> & Track>
-
-// const props = withDefaults(defineProps<{ picUrl: string }>(), {
-//   picUrl: ''
-// })
-
-
-const props = reactive<{ song: Partial<Track>, songUrl: Partial<SongUrl>, lyrics?: Lyric[] }>({
-  song: {},
-  songUrl: {}
-})
-
 interface Data {
-  node?: FAudio,
-  progress: number,
-  cacheProgress: number,
-  heart: boolean,
-  play: boolean,
-  volume: number,
-  duration: number,
-  showLyric: boolean
+  node?: FAudio;
+  progress: number;
+  cacheProgress: number;
+  heart: boolean;
+  play: boolean;
+  volume: number;
+  duration: number;
+  showLyric: boolean;
 }
 
 const data = reactive<Data>({
@@ -51,117 +36,112 @@ const data = reactive<Data>({
   play: false,
   volume: 0.3,
   duration: 0,
-  showLyric: false
-})
+  showLyric: false,
+});
 
-onBeforeMount(async () => {
-  getSongDetail(1811662859).then((song) => {
-    song.arName = song.ar.map(ar => ar.name).join('/')
-    props.song = song
-  });
-  getSongUrl(1811662859).then(songUrl => {
-    props.songUrl = songUrl
-    console.log(props);
-  })
-  getLyric(1811662859).then(val => {
-    props.lyrics = val
-    console.log(props.lyrics);
-  })
-})
+watch(
+  () => currentSong.value.songUrl?.url,
+  url => {
+    if (!url) {
+      return;
+    }
 
-
-
-watch(() => props.songUrl.url, (url) => {
-
-  if (!url) {
-    return
+    if (data.node) {
+      data.node.src = url;
+    } else {
+      data.node = FA({ src: url });
+    }
+    data.node.volume = data.volume;
+    setMediaMetadata({
+      artist: currentSong.value.song?.arName,
+      album: currentSong.value.song?.al?.name,
+      alPicUrl: currentSong.value.song?.al?.picUrl,
+      title: currentSong.value.song?.name,
+    });
   }
-
-  if (data.node) {
-    data.node.src = url
-  } else {
-    data.node = FA({ src: url })
-  }
-  data.node.volume = data.volume
-  setMediaMetadata({
-    artist: props.song.arName,
-    album: props.song.al?.name,
-    alPicUrl: props.song.al?.picUrl,
-    title: props.song.name
-  })
-})
+);
 
 // volume
 const volumeChange = throttle((value: number) => {
   if (data.node) {
-    data.node.volume = value
+    data.node.volume = value;
   }
-}, 500)
-watch(() => data.volume, volumeChange)
+}, 500);
+watch(() => data.volume, volumeChange);
 const volumeIcon = computed(() => {
   if (data.volume === 0) {
-    return VolumeIcon.mute
+    return VolumeIcon.mute;
   }
   if (data.volume >= 0.6) {
-    return VolumeIcon.up
+    return VolumeIcon.up;
   }
-  return VolumeIcon.down
-})
+  return VolumeIcon.down;
+});
 
-
-watch(() => data.node, () => {
-  data.node?.on('progress', (value) => {
-    data.cacheProgress = value
-  })
-  data.node?.on('canplay', () => {
-    data.duration = data.node?.duration || 0
-  })
-  data.node?.on('timeupdate', (value) => {
-    data.progress = value
-  })
-  data.node?.on('paused', handlePaused)
-
-})
-
-
+watch(
+  () => data.node,
+  () => {
+    data.node?.on('progress', value => {
+      data.cacheProgress = value;
+    });
+    data.node?.on('canplay', () => {
+      data.duration = data.node?.duration || 0;
+      data.node?.play();
+    });
+    data.node?.on('timeupdate', value => {
+      data.progress = value;
+    });
+    data.node?.on('paused', handlePaused);
+    data.node?.on('ended', next);
+  }
+);
 
 function play() {
-  data.node?.play()
+  data.node?.play();
   console.log(navigator.mediaSession.metadata);
 }
 function pause() {
-  data.node?.pause()
+  data.node?.pause();
+}
+
+function next() {
+  pause();
+  playerStore.next();
+}
+
+function previous() {
+  pause();
+  playerStore.previous();
 }
 function setCurrentTime(value: number) {
   if (data.node) {
-    data.node.currentTime = value
-    data.node.play()
+    data.node.currentTime = value;
+    data.node.play();
   }
 }
 
 function handlePlay(value: boolean) {
   if (value) {
-    play()
+    play();
   } else {
-    pause()
+    pause();
   }
 }
 
 function handleProgressChange(value: number) {
-  setCurrentTime(value)
+  setCurrentTime(value);
 }
 function handlePaused(val: boolean) {
-  data.play = !val
+  data.play = !val;
 }
 interface mediaData {
   title: string;
   artist: string;
-  album: string
-  alPicUrl: string
+  album: string;
+  alPicUrl: string;
 }
 function setMediaMetadata(params: Partial<mediaData>) {
-  const { title, alPicUrl: src, album, artist } = params
-
+  const { title, alPicUrl: src, album, artist } = params;
 
   navigator.mediaSession.metadata = new MediaMetadata({
     title,
@@ -170,22 +150,21 @@ function setMediaMetadata(params: Partial<mediaData>) {
     artwork: [
       {
         src: src ? `${src}?param=512y512` : '',
-        sizes: "192x192",
-        type: "image/png",
-      }
-    ]
-  })
-  navigator.mediaSession.setActionHandler('pause', pause)
-  navigator.mediaSession.setActionHandler('play', play)
+        sizes: '192x192',
+        type: 'image/png',
+      },
+    ],
+  });
+  navigator.mediaSession.setActionHandler('pause', pause);
+  navigator.mediaSession.setActionHandler('play', play);
 }
 
-const lyricCom = ref()
+const lyricCom = ref();
 function handleShowLyric() {
-  data.showLyric = true
+  data.showLyric = true;
   nextTick(() => {
-    lyricCom.value.handleScroll()
-  })
-
+    lyricCom.value.handleScroll();
+  });
 }
 </script>
 
@@ -197,48 +176,66 @@ function handleShowLyric() {
           <div class="mask">
             <i class="iconfont icon-arrow-up-bold"></i>
           </div>
-          <Image class="img" :src="props.song.al?.picUrl + '?param=512y512'" />
-
+          <Image
+            class="img"
+            :src="currentSong.song?.al?.picUrl + '?param=512y512'"
+          />
         </div>
         <div class="f-player-info-song">
-          <p class="f-player-info-song-name">{{ props.song.name }}</p>
-          <p class="f-player-info-song-ar">{{
-            props.song.arName
-          }}</p>
+          <p class="f-player-info-song-name">{{ currentSong.song?.name }}</p>
+          <p class="f-player-info-song-ar">{{ currentSong.song?.arName }}</p>
         </div>
       </div>
 
       <div class="f-player-heart">
-        <span>
-          <SvgIcon v-show="data.heart" name="heart-fill" class="heart-fill" />
-          <SvgIcon v-show="!data.heart" name="heart" class="heart" />
+        <span @click="data.heart = !data.heart">
+          <i v-show="data.heart" class="bi bi-heart-fill" />
+          <i v-show="!data.heart" class="bi bi-heart" />
         </span>
-
       </div>
 
       <div class="f-player-control">
-        <button class="f-player-control-previous f-player-control-btn">
-          <SvgIcon name="previous" />
+        <button
+          @click="previous"
+          class="f-player-control-previous f-player-control-btn"
+        >
+          <i class="icon-play-previous iconfont" />
         </button>
-        <button class="f-player-control-pau-pla f-player-control-btn" @click="handlePlay(!data.play)">
-          <SvgIcon v-show="data.play" name="pause" />
-          <SvgIcon v-show="!data.play" name="play" />
+        <button
+          class="f-player-control-pau-pla f-player-control-btn"
+          @click="handlePlay(!data.play)"
+        >
+          <i v-show="data.play" class="iconfont icon-pause" />
+          <i v-show="!data.play" class="iconfont icon-play" />
         </button>
-        <button class="f-player-control-next f-player-control-btn">
-          <SvgIcon name="next" />
+        <button
+          @click="next"
+          class="f-player-control-next f-player-control-btn"
+        >
+          <i class="icon-play-next iconfont" />
         </button>
       </div>
 
       <div class="f-player-progress">
         <span>{{ formatDuringMS(data.progress) }}</span>
         <div class="f-player-progress-bar">
-          <VueSlider :modelValue="data.progress" :lazy="true" @change="handleProgressChange" :min="0"
-            :max="data.duration" :duration="0.2" :interval="0.001" tooltip="none" :dot-size="10">
-
+          <VueSlider
+            :modelValue="data.progress"
+            :lazy="true"
+            @change="handleProgressChange"
+            :min="0"
+            :max="data.duration"
+            :duration="0.2"
+            :interval="0.001"
+            tooltip="none"
+            :dot-size="10"
+          >
             <template v-slot:process="{ _, __, style }">
-              <div class="vue-slider-process" :style="style">
-              </div>
-              <div class="vue-slider-process-cache" :style="{ width: `${data.cacheProgress}%` }"></div>
+              <div class="vue-slider-process" :style="style"> </div>
+              <div
+                class="vue-slider-process-cache"
+                :style="{ width: `${data.cacheProgress}%` }"
+              ></div>
             </template>
           </VueSlider>
         </div>
@@ -250,28 +247,93 @@ function handleShowLyric() {
           <i class="icon-playlist-music iconfont"> </i>
         </button>
         <div class="f-player-right-control-volume">
-          <SvgIcon class="f-player-right-control-volume-icon" :name="volumeIcon" />
-          <VueSlider :duration="0.1" class="f-player-right-control-volume-bar" v-model="data.volume" :max="1"
-            :interval="0.01" tooltip="none" :height="4" :dot-size="10">
+          <i :class="['bi', 'icon-volume', volumeIcon]" />
+          <VueSlider
+            :duration="0.1"
+            class="f-player-right-control-volume-bar"
+            v-model="data.volume"
+            :max="1"
+            :interval="0.01"
+            tooltip="none"
+            :height="4"
+            :dot-size="10"
+          >
           </VueSlider>
         </div>
-
       </div>
-
     </div>
   </Transition>
   <Transition name="slide-up">
-    <Lyrics ref="lyricCom" class="top" v-show="data.showLyric" :progress="data.progress" :lyrics="props.lyrics">
-      <button class="arrow-down" @click="data.showLyric = false" style="color:#000">
-        <i class="icon-arrow-down-bold iconfont"></i>
-      </button>
+    <Lyrics
+      :song="currentSong.song"
+      ref="lyricCom"
+      class="top"
+      v-show="data.showLyric"
+      :progress="data.progress"
+      :lyrics="lyrics"
+    >
+      <template v-slot:header>
+        <button
+          class="arrow-down"
+          @click="data.showLyric = false"
+          style="color: #000"
+        >
+          <i class="icon-arrow-down-bold iconfont"></i>
+        </button>
+      </template>
+      <template v-slot:options>
+        <div class="lyrics-options">
+          <div class="lyrics-options-slider">
+            <span>{{ formatDuringMS(data.progress) }}</span>
+            <div class="lyrics-options-slider-bar">
+              <VueSlider
+                :modelValue="data.progress"
+                :lazy="true"
+                @change="handleProgressChange"
+                :min="0"
+                :max="data.duration"
+                :duration="0.2"
+                :interval="0.001"
+                tooltip="none"
+                :dot-size="10"
+              >
+                <template v-slot:process="{ _, __, style }">
+                  <div class="vue-slider-process" :style="style"> </div>
+                  <div
+                    class="vue-slider-process-cache"
+                    :style="{ width: `${data.cacheProgress}%` }"
+                  ></div>
+                </template>
+              </VueSlider>
+            </div>
+            <span>{{ formatDuringMS(data.duration) }}</span>
+          </div>
+          <div class="lyrics-options-btn">
+            <button
+              @click="previous"
+              class="f-player-control-previous f-player-control-btn"
+            >
+              <i class="icon-play-previous iconfont" />
+            </button>
+            <button
+              class="f-player-control-pau-pla f-player-control-btn"
+              @click="handlePlay(!data.play)"
+            >
+              <i v-show="data.play" class="iconfont icon-pause" />
+              <i v-show="!data.play" class="iconfont icon-play" />
+            </button>
+            <button
+              @click="next"
+              class="f-player-control-next f-player-control-btn"
+            >
+              <i class="icon-play-next iconfont" />
+            </button>
+          </div>
+        </div>
+      </template>
     </Lyrics>
   </Transition>
-
-
 </template>
-
-
 
 <style lang="scss">
 .slide-up-enter-active,
@@ -282,6 +344,9 @@ function handleShowLyric() {
 .slide-up-enter-from,
 .slide-up-leave-to {
   transform: translateY(100%);
+}
+.bg {
+  background-size: cover;
 }
 
 .top {
@@ -395,33 +460,21 @@ button {
     gap: 5px;
 
     &-btn {
-      width: 30px;
-      height: 30px;
+      // width: 30px;
+      // height: 30px;
       display: grid;
       place-items: center;
       border-radius: 10px;
+      padding: 5px 8px;
 
       &:hover {
         background-color: rgba(209, 209, 214, 0.28);
       }
 
-      svg {
-        width: 20px;
-        height: 20px;
+      .iconfont {
+        font-size: 24px;
       }
     }
-
-    &-pau-pla {
-      height: 40px;
-      width: 40px;
-
-      svg {
-        width: 30px;
-        height: 30px;
-      }
-    }
-
-
   }
 
   &-progress {
@@ -448,7 +501,6 @@ button {
       grid-template-columns: 28px auto;
       align-items: center;
 
-
       &-icon {
         width: 28px;
         height: 28px;
@@ -461,13 +513,52 @@ button {
 
     &-list {
       padding: 5px 8px;
-      display: grid;
-      place-items: center;
       border-radius: 10px;
-      overflow: hidden;
 
       &:hover {
         background-color: rgba(209, 209, 214, 0.28);
+      }
+    }
+  }
+
+  .vue-slider {
+    .vue-slider-process-cache {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background-color: #cecece;
+      border-radius: 15px;
+      width: 0%;
+    }
+
+    .vue-slider-dot-handle {
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: #fff;
+      box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
+      visibility: hidden;
+    }
+
+    .vue-slider-rail {
+      background-color: #e5e5e5;
+    }
+
+    .vue-slider-process {
+      background-color: #ec4141;
+    }
+
+    &:hover {
+      .vue-slider-dot-handle {
+        visibility: visible;
+      }
+    }
+
+    &:active {
+      .vue-slider-dot-handle {
+        visibility: visible;
       }
     }
   }
@@ -479,47 +570,60 @@ button {
   cursor: pointer;
 }
 
-.vue-slider {
+.lyrics-options {
+  width: 80%;
+  display: grid;
+  grid-template-rows: 30px 50px;
+  align-items: center;
 
-  .vue-slider-process-cache {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    background-color: #cecece;
-    border-radius: 15px;
-    width: 0%;
-  }
+  &-slider {
+    display: flex;
+    gap: 5px;
 
-  .vue-slider-dot-handle {
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-color: #fff;
-    box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
-    visibility: hidden;
-  }
+    &-bar {
+      width: 100%;
 
-  .vue-slider-rail {
-    background-color: #e5e5e5;
-  }
+      .vue-slider {
+        .vue-slider-dot-handle {
+          cursor: pointer;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background-color: #fff;
+          box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
+          visibility: hidden;
+        }
 
-  .vue-slider-process {
-    background-color: #ec4141;
-  }
+        .vue-slider-process {
+          background-color: #eae7e6;
+        }
 
-  &:hover {
-    .vue-slider-dot-handle {
-      visibility: visible;
+        &:hover {
+          .vue-slider-dot-handle {
+            visibility: visible;
+          }
+        }
+
+        &:active {
+          .vue-slider-dot-handle {
+            visibility: visible;
+          }
+        }
+      }
     }
   }
 
-  &:active {
-    .vue-slider-dot-handle {
-      visibility: visible;
+  &-btn {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+
+    .iconfont {
+      font-size: 30px;
     }
   }
+}
 
+.icon-volume {
+  font-size: 28px;
 }
 </style>

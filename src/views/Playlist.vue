@@ -12,7 +12,9 @@
             <Avatar :src="data.playlist.creator?.avatarUrl" />
             <span>{{ data.playlist.creator?.nickname }}</span>
           </div>
-          <span class="create-time">{{ formatDate(data.playlist.createTime) }}创建</span>
+          <span class="create-time"
+            >{{ formatDate(data.playlist.createTime) }}创建</span
+          >
         </div>
         <div class="options">
           <button class="options-all">
@@ -24,12 +26,19 @@
               <SvgIcon name="plus" class="icon-bootstrap plus" />
             </div>
           </button>
-          <button :class="`options-collect ${profile.userId === data.playlist.userId ? 'disable' : null
-          }`">
+          <button
+            :class="`options-collect ${
+              profile.userId === data.playlist.userId ? 'disable' : null
+            }`"
+          >
             <SvgIcon name="folder-check" class="icon-bootstrap" />
 
-            <span v-if="data.playlist.subscribed">已收藏({{ formatNumber(data.playlist.subscribedCount) }})</span>
-            <span v-else>收藏({{ formatNumber(data.playlist.subscribedCount) }})</span>
+            <span v-if="data.playlist.subscribed"
+              >已收藏({{ formatNumber(data.playlist.subscribedCount) }})</span
+            >
+            <span v-else
+              >收藏({{ formatNumber(data.playlist.subscribedCount) }})</span
+            >
           </button>
           <button class="optins-share">
             <SvgIcon name="share" class="icon-bootstrap" />
@@ -40,15 +49,22 @@
             <span>下载全部</span>
           </button>
         </div>
-        <div class="tags">标签:
-          <span class="tags-item" v-for="item in data.playlist.tags" :key="item">{{ item }}</span>
+        <div class="tags"
+          >标签:
+          <span
+            class="tags-item"
+            v-for="item in data.playlist.tags"
+            :key="item"
+            >{{ item }}</span
+          >
         </div>
         <div class="count">
           歌曲数：<span>{{ data.playlist.trackCount }}</span> 播放数：<span>{{
             formatNumber(data.playlist.playCount)
           }}</span>
         </div>
-        <div class="desc text-overflow">简介：
+        <div class="desc text-overflow"
+          >简介：
           <span>{{ data.playlist.description }}</span>
         </div>
       </div>
@@ -70,15 +86,29 @@
         </div>
       </div>
       <div class="playlist-list-body">
-        <div v-if="data.netErr" class="net-err">网络不给力哦，请检查你的网络设置~</div>
-        <div class="playlist-list-item" v-for="(song, index) in data.playlist.tracks" :key="song.id">
+        <div v-if="data.netErr" class="net-err"
+          >网络不给力哦，请检查你的网络设置~</div
+        >
+        <div
+          class="playlist-list-item"
+          v-for="(song, index) in data.playlist.tracks"
+          :key="song.id"
+          @dblclick="handlePlay(index, data.playlist.tracks)"
+        >
           <div class="index">{{ index + 1 }}</div>
           <div class="opt">
             <SvgIcon name="heart" class="icon-bootstrap" />
             <SvgIcon name="download" class="icon-bootstrap" />
           </div>
-          <div class="text-overflow name" :title="song.origin_name" v-html="song.name" />
-          <div class="text-overflow ar" :title="song.ar.map(it => it.origin_name).join('/')">
+          <div
+            class="text-overflow name"
+            :title="song.origin_name"
+            v-html="song.name"
+          />
+          <div
+            class="text-overflow ar"
+            :title="song.ar.map(it => it.origin_name).join('/')"
+          >
             <span v-for="ar in song.ar" :key="ar.id" v-html="ar.name" />
           </div>
           <div class="text-overflow al">
@@ -103,6 +133,7 @@ import { cloneDeep, throttle } from 'lodash';
 
 import { getPlaylistDetail } from '@/api/playlist';
 import { useUserStore } from '@/store/user';
+import { usePlayerStore } from '@/store/player';
 
 import { formatDate, formatDuring } from '@/utils/time';
 import { formatNumber } from '@/utils/number';
@@ -110,6 +141,8 @@ import { formatNumber } from '@/utils/number';
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);
 const route = useRoute();
+
+const playerStore = usePlayerStore();
 
 interface PlaylistDetail {
   playlist: Partial<Playlist>;
@@ -198,6 +231,10 @@ function search() {
       return flag;
     });
   }
+}
+
+function handlePlay(index: number, list?: Track[]) {
+  playerStore.play(index, data.playlist.tracks);
 }
 const searchThrottle = throttle(search, 500);
 watch(searchVal, val => {

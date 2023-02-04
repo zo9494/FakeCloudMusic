@@ -16,10 +16,11 @@ export function transformLyric(...lyrics: string[]) {
 
       if (!isNaN(time)) {
         if (tempLyric.has(time)) {
-          tempLyric.set(time, {
-            ...tempLyric.get(time),
-            tlyric: lyric[1],
-          });
+          // 翻译歌词
+          // tempLyric.set(time, {
+          //   ...tempLyric.get(time),
+          //   tlyric: lyric[1],
+          // });
         } else {
           tempLyric.set(time, {
             time,
@@ -33,4 +34,8 @@ export function transformLyric(...lyrics: string[]) {
   lyric.sort((a, b) => a.time - b.time);
 
   return lyric;
+}
+
+export function getArName(Ar: Base[]) {
+  return Ar.map(item => item.origin_name || item.name).join(' / ');
 }

@@ -72,8 +72,8 @@ class Main {
         Main.win.webContents.openDevTools();
 
         if (isDevelopment) {
-          console.log(`vueDevtools:${chalk.green(vue_dev)}`);
           try {
+            console.log(`vueDevtools:${chalk.green(vue_dev)}`);
             await session.defaultSession.loadExtension(vue_dev);
           } catch (e) {
             console.error('Vue Devtools failed to install:', e.toString());
