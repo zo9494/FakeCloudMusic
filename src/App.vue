@@ -3,7 +3,7 @@ import AppBar from './components/AppBar.vue';
 import ScrollBar from './components/ScrollBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
-import Player from './components/Player.vue';
+import Player from '@/views/Player.vue';
 
 import { RouterView } from 'vue-router';
 import { storeToRefs } from 'pinia';
