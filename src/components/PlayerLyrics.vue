@@ -107,7 +107,7 @@ defineExpose({ handleScroll });
   height: 100%;
   background-size: cover;
   background-position: center;
-  padding: 20px 30px 30px 30px;
+  padding: 40px 30px 30px;
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(30px);
   display: grid;
