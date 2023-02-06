@@ -25,15 +25,17 @@
         </div>
         <div class="f-lyrics-body-right scrollbar" ref="scrollRef">
           <p :style="{ height: `${data.viewHeight / 4}px` }"></p>
-          <p
+          <div
             v-for="(item, index) in props.lyrics"
             :key="item.time"
             :class="[
-              data.currentIndex === index ? 'lyric-active' : null,
-              'lyric',
+              data.currentIndex === index ? 'item-active' : null,
+              'item',
             ]"
-            >{{ item.lyric }}
-          </p>
+          >
+            <p class="item-lyric">{{ item.lyric }}</p>
+            <p class="item-tlyric">{{ item.tlyric }}</p>
+          </div>
           <p :style="{ height: `${data.viewHeight / 4}px` }"></p>
         </div>
       </div>
@@ -86,7 +88,7 @@ watch(() => data.currentIndex, handleScroll);
 function handleScroll() {
   console.log('scroll', props);
 
-  const currentEl = document.querySelector('.lyric-active') as HTMLDivElement;
+  const currentEl = document.querySelector('.item-active') as HTMLDivElement;
   if (scrollRef.value) {
     scrollRef.value.scrollTop =
       currentEl.offsetTop - scrollRef.value.offsetHeight / 2;
@@ -152,10 +154,13 @@ defineExpose({ handleScroll });
     }
 
     &-right {
-      .lyric {
-        height: 35px;
+      width: 98%;
+      .item {
+        margin: 12px 0;
         transition: font-size ease-in-out 220ms;
-
+        p {
+          margin: 3px 0;
+        }
         &-active {
           font-weight: bold;
           font-size: 16px;

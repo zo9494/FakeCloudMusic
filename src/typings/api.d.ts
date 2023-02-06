@@ -65,4 +65,5 @@ interface SongUrls {}
 interface Lyric {
   time: number;
   lyric: string;
+  tlyric?: string;
 }

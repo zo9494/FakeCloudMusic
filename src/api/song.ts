@@ -41,11 +41,12 @@ interface lyric {
 }
 interface lyrics {
   lrc: lyric;
+  tlyric: lyric;
 }
 
 export async function getLyric(id: Id) {
   const { data } = await service.get<lyrics>('/lyric/new', {
     params: { id },
   });
-  return transformLyric(data.lrc.lyric);
+  return transformLyric(data.lrc.lyric, data.tlyric.lyric);
 }

@@ -2,7 +2,7 @@
   <div class="nav-item">
     <ul>
       <li>
-        <RouterLink draggable="false" to="/id/发现音乐">
+        <RouterLink draggable="false" to="/">
           <SvgIcon class="icon" name="netease_logo" />
           <span>发现音乐</span>
         </RouterLink>
@@ -20,7 +20,6 @@
         </RouterLink>
       </li>
       <li>
-
         <RouterLink draggable="false" to="/id/视频">
           <SvgIcon class="icon-bootstrap" name="video" />
           <span>视频</span>
@@ -44,14 +43,12 @@
         </RouterLink>
       </li>
       <li>
-
         <RouterLink draggable="false" to="/id/下载管理">
           <SvgIcon class="icon-bootstrap" name="download" />
           <span>下载管理</span>
         </RouterLink>
       </li>
       <li>
-
         <RouterLink draggable="false" to="/id/最近播放">
           <SvgIcon class="icon-bootstrap" name="clock-history" />
           <span>最近播放</span>
@@ -81,35 +78,28 @@
       </li>
     </ul>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import { withDefaults } from "vue";
-import { RouterLink } from "vue-router"
+import { withDefaults } from 'vue';
+import { RouterLink } from 'vue-router';
 
 interface menuType {
   menu: {
-    myLike: Partial<Order>
+    myLike: Partial<Order>;
     myCreate: Playlist[];
     myCollect: Playlist[];
-  }
+  };
 }
 const { menu } = withDefaults(defineProps<menuType>(), {
   menu: () => ({
-    myLike: {
-    },
+    myLike: {},
     myCreate: [],
-    myCollect: []
-  })
-})
-
-
-
+    myCollect: [],
+  }),
+});
 
 console.log(menu);
-
-
 </script>
 <style lang="scss" scoped>
 .nav-item {
@@ -129,7 +119,6 @@ console.log(menu);
     .icon-bootstrap {
       width: 28px;
       height: 16px;
-
     }
 
     .icon-font {

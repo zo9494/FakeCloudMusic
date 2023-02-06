@@ -42,12 +42,22 @@ class Main {
   static win: BrowserWindow | null = null;
   static neteaseApi: any;
   constructor() {
-    app.whenReady().then(() => {
+    app.whenReady().then(async () => {
       this.createServer();
       this.createWindow();
       this.registerAppEvent();
       this.registerHandle();
       this.registerGlobalShortcut();
+      if (isDevelopment) {
+        try {
+          console.log(`vueDevtools:${chalk.green(vue_dev)}`);
+          await session.defaultSession.loadExtension(vue_dev, {
+            allowFileAccess: true,
+          });
+        } catch (e) {
+          console.error('Vue Devtools failed to install:', e.toString());
+        }
+      }
     });
   }
   private async createWindow() {
@@ -70,15 +80,6 @@ class Main {
       // open devtools
       if (isDevelopment) {
         Main.win.webContents.openDevTools();
-
-        if (isDevelopment) {
-          try {
-            console.log(`vueDevtools:${chalk.green(vue_dev)}`);
-            await session.defaultSession.loadExtension(vue_dev);
-          } catch (e) {
-            console.error('Vue Devtools failed to install:', e.toString());
-          }
-        }
       }
     } else {
       Main.win.loadFile(indexHtml);
@@ -139,15 +140,6 @@ class Main {
 
     app.on('ready', async () => {
       console.log(chalk.red('ready'));
-
-      if (isDevelopment) {
-        console.log(`vueDevtools:${chalk.green(vue_dev)}`);
-        try {
-          await session.defaultSession.loadExtension(vue_dev);
-        } catch (e) {
-          console.error('Vue Devtools failed to install:', e.toString());
-        }
-      }
     });
   }
   /**
