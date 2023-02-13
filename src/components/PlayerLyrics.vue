@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUpdated, watch, reactive, ref } from 'vue';
+import { watch, reactive, ref } from 'vue';
 import Image from '@/components/PlaylistImage.vue';
 interface Props {
   progress: number;
@@ -57,28 +57,32 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const data = reactive({
   currentIndex: 0,
-  viewHeight: 500,
+  viewHeight: 400,
 });
 
 const scrollRef = ref<HTMLDivElement>();
-onUpdated(() => {
-  if (scrollRef.value?.offsetHeight) {
-    data.viewHeight = scrollRef.value.offsetHeight;
+watch(
+  () => scrollRef.value,
+  () => {
+    if (scrollRef.value?.offsetHeight) {
+      data.viewHeight = scrollRef.value.offsetHeight;
+    }
   }
-});
+);
 
 watch(
   () => props.progress,
   val => {
     if (props.lyrics.length) {
-      let currentIndex = 0;
-      for (let index = props.lyrics.length - 1; index >= 0; index--) {
+      let index = props.lyrics.length - 1;
+      for (index; index >= 0; index--) {
         if (val >= props.lyrics[index].time) {
-          currentIndex = index;
           break;
         }
       }
-      data.currentIndex = currentIndex;
+      data.currentIndex = index;
+    } else {
+      data.currentIndex = 0;
     }
   }
 );
@@ -86,10 +90,8 @@ watch(
 watch(() => data.currentIndex, handleScroll);
 
 function handleScroll() {
-  console.log('scroll', props);
-
-  const currentEl = document.querySelector('.item-active') as HTMLDivElement;
   if (scrollRef.value) {
+    const currentEl = document.querySelector('.item-active') as HTMLDivElement;
     scrollRef.value.scrollTop =
       currentEl.offsetTop - scrollRef.value.offsetHeight / 2;
   }

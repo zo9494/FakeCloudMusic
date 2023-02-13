@@ -42,6 +42,7 @@ class Main {
   static win: BrowserWindow | null = null;
   static neteaseApi: any;
   constructor() {
+    app.disableDomainBlockingFor3DAPIs();
     app.whenReady().then(async () => {
       this.createServer();
       this.createWindow();
