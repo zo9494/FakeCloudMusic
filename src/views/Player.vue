@@ -105,11 +105,15 @@ function pause() {
 }
 
 function next() {
+  data.progress = 0;
+  data.cacheProgress = 0;
   pause();
   playerStore.next();
 }
 
 function previous() {
+  data.progress = 0;
+  data.cacheProgress = 0;
   pause();
   playerStore.previous();
 }
@@ -170,7 +174,7 @@ function handleShowLyric() {
 
 <template>
   <Transition name="slide-up">
-    <div v-show="!data.showLyric" class="f-player">
+    <div v-if="!data.showLyric" class="f-player">
       <div class="f-player-info">
         <div class="f-player-info-cover" @click="handleShowLyric">
           <div class="mask">
@@ -268,9 +272,9 @@ function handleShowLyric() {
       :song="currentSong.song"
       ref="lyricCom"
       class="top"
-      v-show="data.showLyric"
       :progress="data.progress"
       :lyrics="lyrics"
+      :visible="data.showLyric"
     >
       <template v-slot:header>
         <button
@@ -370,8 +374,8 @@ button {
   width: 100%;
   display: grid;
   grid-template-columns: 160px 25px 130px auto 300px;
-  background-color: rgba(#fff, 0.6);
-  backdrop-filter: blur(3px);
+  background-color: whitesmoke;
+  // backdrop-filter: blur(3px);
   gap: 10px;
   place-items: center;
   border-top: 1px solid #d1d1d1;

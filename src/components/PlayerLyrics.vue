@@ -1,8 +1,11 @@
 <template>
   <div
+    v-if="visible"
     class="f-lyrics-bg"
     :style="{
-      backgroundImage: `url(${props.song?.al?.picUrl}?param=512y512)`,
+      backgroundImage: `linear-gradient(0deg,rgb(${data.bgColor.join(
+        ','
+      )}),rgb(245,245,245))`,
     }"
   >
     <div class="f-lyrics">
@@ -17,7 +20,7 @@
       </div>
       <div class="f-lyrics-body">
         <div class="f-lyrics-body-left">
-          <Image
+          <ImageComponent
             class="cover"
             :src="props.song?.al?.picUrl + '?param=512y512'"
           />
@@ -45,26 +48,29 @@
 
 <script setup lang="ts">
 import { watch, reactive, ref } from 'vue';
-import Image from '@/components/PlaylistImage.vue';
+import ImageComponent from '@/components/PlaylistImage.vue';
 interface Props {
   progress: number;
   lyrics?: Lyric[];
   song?: Partial<Track>;
+  visible: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   progress: 0,
   lyrics: () => [],
+  visible: true,
 });
 const data = reactive({
-  currentIndex: 0,
+  currentIndex: -1,
   viewHeight: 400,
+  bgColor: [245, 245, 245],
 });
 
 const scrollRef = ref<HTMLDivElement>();
 watch(
-  () => scrollRef.value,
-  () => {
-    if (scrollRef.value?.offsetHeight) {
+  () => props.visible,
+  val => {
+    if (val && scrollRef.value?.offsetHeight) {
       data.viewHeight = scrollRef.value.offsetHeight;
     }
   }
@@ -81,19 +87,97 @@ watch(
         }
       }
       data.currentIndex = index;
-    } else {
-      data.currentIndex = 0;
     }
   }
 );
 
 watch(() => data.currentIndex, handleScroll);
 
+watch(
+  () => props.song?.al?.picUrl,
+
+  val => {
+    if (val) {
+      console.log(val);
+
+      loadImg(val + '?param=512y512').then(rgb => {
+        console.log(rgb);
+        data.bgColor = rgb;
+      });
+    }
+  }
+);
+
+function loadImg(url: string) {
+  return new Promise<number[]>(resolve => {
+    let img = new Image();
+    img.src = url;
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      resolve(getImageColor(img));
+    };
+  });
+}
+function getImageColor(img: HTMLImageElement) {
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+
+  let context = canvas.getContext('2d');
+  if (!context) {
+    return [245, 245, 245];
+  }
+
+  context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  // 获取像素数据
+  let data = context.getImageData(0, 0, img.width, img.height).data;
+  let r = 1,
+    g = 1,
+    b = 1;
+  // 取所有像素的平均值
+  for (var row = 0; row < img.height; row++) {
+    for (var col = 0; col < img.width; col++) {
+      if (row == 0) {
+        r += data[img.width * row + col];
+        g += data[img.width * row + col + 1];
+        b += data[img.width * row + col + 2];
+      } else {
+        r += data[(img.width * row + col) * 4];
+        g += data[(img.width * row + col) * 4 + 1];
+        b += data[(img.width * row + col) * 4 + 2];
+      }
+    }
+  }
+
+  // 求取平均值
+  r /= img.width * img.height;
+  g /= img.width * img.height;
+  b /= img.width * img.height;
+
+  // 将最终的值取整
+  r = Math.round(r);
+  g = Math.round(g);
+  b = Math.round(b);
+  console.log(r, g, b);
+  return [r, g, b];
+}
+
 function handleScroll() {
   if (scrollRef.value) {
-    const currentEl = document.querySelector('.item-active') as HTMLDivElement;
-    scrollRef.value.scrollTop =
-      currentEl.offsetTop - scrollRef.value.offsetHeight / 2;
+    if (data.currentIndex === -1) {
+      scrollRef.value.scrollTop = 0;
+      return;
+    }
+    try {
+      const currentEl = document.querySelector(
+        '.item-active'
+      ) as HTMLDivElement;
+      scrollRef.value.scrollTop =
+        currentEl.offsetTop - scrollRef.value.offsetHeight / 1.4;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
@@ -101,9 +185,21 @@ defineExpose({ handleScroll });
 </script>
 
 <style lang="scss">
+#bg {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
 .f-lyrics {
   &-bg {
-    background-size: cover;
+    // background-color: whitesmoke;
+    // background-size: cover;
+    position: relative;
   }
   width: 100%;
   height: 100%;
@@ -111,7 +207,6 @@ defineExpose({ handleScroll });
   background-position: center;
   padding: 40px 30px 30px;
   background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(30px);
   display: grid;
   gap: 10px;
   grid-template-rows: 100px calc(100% - 110px);
@@ -158,7 +253,7 @@ defineExpose({ handleScroll });
     &-right {
       width: 98%;
       .item {
-        margin: 12px 0;
+        margin: 20px 0;
         transition: font-size ease-in-out 220ms;
         p {
           margin: 3px 0;

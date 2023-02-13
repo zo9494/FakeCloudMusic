@@ -44,7 +44,7 @@ export class FAudio {
       'timeupdate',
       throttle(() => {
         this.callbackMaps.timeupdate?.(round(this.audioNode.currentTime, 3));
-      })
+      }, 1000)
     );
     this.audioNode.addEventListener('ended', () => {
       this.callbackMaps.ended?.();
