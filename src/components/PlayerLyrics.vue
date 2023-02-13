@@ -248,10 +248,12 @@ defineExpose({ handleScroll });
     &-right {
       width: 98%;
       .item {
-        margin: 20px 0;
+        margin: 15px 0;
         transition: all ease-in-out 220ms;
+        height: 36px;
         p {
-          margin: 3px 0;
+          margin: 4px 0;
+          height: 18px;
         }
         &-active {
           font-weight: bold;
