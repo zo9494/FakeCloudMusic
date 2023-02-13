@@ -76,7 +76,6 @@ function init() {
 }
 
 function close() {
-  console.log(window);
   window.electron.window.closeLoginWin()
   window.close()
 }

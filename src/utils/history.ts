@@ -5,7 +5,6 @@ class FHistory {
   forwardLen = ref(0);
   backLen = ref(0);
   push(to: RouteLocationRaw) {
-    console.log(this);
     // this.backLen.value++;
     // router.push(to);
   }

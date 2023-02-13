@@ -197,8 +197,6 @@ const searchVal = ref('');
 function search() {
   if (!searchVal.value) {
     data.playlist.tracks = origin;
-    console.log('re', data, origin);
-
     return;
   }
   if (origin) {

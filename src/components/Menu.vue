@@ -99,7 +99,6 @@ const { menu } = withDefaults(defineProps<menuType>(), {
   }),
 });
 
-console.log(menu);
 </script>
 <style lang="scss" scoped>
 .nav-item {

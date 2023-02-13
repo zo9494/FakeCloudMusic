@@ -98,10 +98,7 @@ watch(
 
   val => {
     if (val) {
-      console.log(val);
-
       loadImg(val + '?param=512y512').then(rgb => {
-        console.log(rgb);
         data.bgColor = rgb;
       });
     }
@@ -175,9 +172,7 @@ function handleScroll() {
       ) as HTMLDivElement;
       scrollRef.value.scrollTop =
         currentEl.offsetTop - scrollRef.value.offsetHeight / 1.4;
-    } catch (error) {
-      console.log(error);
-    }
+    } catch {}
   }
 }
 

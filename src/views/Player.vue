@@ -98,7 +98,6 @@ watch(
 
 function play() {
   data.node?.play();
-  console.log(navigator.mediaSession.metadata);
 }
 function pause() {
   data.node?.pause();
