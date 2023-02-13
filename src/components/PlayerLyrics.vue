@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="visible"
+    v-show="visible"
     class="f-lyrics-bg"
     :style="{
       backgroundImage: `linear-gradient(0deg,rgb(${data.bgColor.join(
@@ -249,7 +249,7 @@ defineExpose({ handleScroll });
       width: 98%;
       .item {
         margin: 20px 0;
-        transition: font-size ease-in-out 220ms;
+        transition: all ease-in-out 220ms;
         p {
           margin: 3px 0;
         }

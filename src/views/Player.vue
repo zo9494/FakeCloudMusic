@@ -173,7 +173,7 @@ function handleShowLyric() {
 
 <template>
   <Transition name="slide-up">
-    <div v-if="!data.showLyric" class="f-player">
+    <div v-show="!data.showLyric" class="f-player">
       <div class="f-player-info">
         <div class="f-player-info-cover" @click="handleShowLyric">
           <div class="mask">
