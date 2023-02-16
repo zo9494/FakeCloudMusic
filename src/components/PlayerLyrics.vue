@@ -79,7 +79,7 @@ watch(
 watch(
   () => props.progress,
   val => {
-    if (props.lyrics.length) {
+    if (props.lyrics.length > 1) {
       let index = props.lyrics.length - 1;
       for (index; index >= 0; index--) {
         if (val >= props.lyrics[index].time) {
@@ -87,6 +87,8 @@ watch(
         }
       }
       data.currentIndex = index;
+    } else {
+      data.currentIndex = 0;
     }
   }
 );
@@ -97,6 +99,7 @@ watch(
   () => props.song?.al?.picUrl,
 
   val => {
+    resetData();
     if (val) {
       loadImg(val + '?param=512y512').then(rgb => {
         data.bgColor = rgb;
@@ -176,6 +179,10 @@ function handleScroll() {
   }
 }
 
+function resetData() {
+  data.currentIndex = -1;
+}
+
 defineExpose({ handleScroll });
 </script>
 
@@ -250,10 +257,8 @@ defineExpose({ handleScroll });
       .item {
         margin: 15px 0;
         transition: all ease-in-out 220ms;
-        height: 36px;
         p {
           margin: 4px 0;
-          height: 18px;
         }
         &-active {
           font-weight: bold;

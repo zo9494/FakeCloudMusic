@@ -1,10 +1,17 @@
 <template>
   <header class="header">
     <button class="close" @click="close">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x"
-        viewBox="0 0 16 16">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        fill="currentColor"
+        class="bi bi-x"
+        viewBox="0 0 16 16"
+      >
         <path
-          d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+          d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+        />
       </svg>
     </button>
     <div class="drag"></div>
@@ -14,7 +21,7 @@
       <p class="title">扫码登录</p>
       <div class="qr-code">
         <div>
-          <img v-if="qrimg && stepCode !== '2'" :src="qrimg">
+          <img v-if="qrimg && stepCode !== '2'" :src="qrimg" />
           <img v-else-if="stepCode === '2'" class="scanned" :src="img" />
           <div class="out-date" v-show="stepCode === '0'">
             <p>二维码已过期</p>
@@ -30,10 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { getQR, checkStatus } from '@/api/user'
-import { onBeforeMount, Ref, ref, } from 'vue'
-import img from '@/assets/img/login.png'
-const qrimg = ref()
+import { getQR, checkStatus } from '@/api/user';
+import { onBeforeMount, Ref, ref } from 'vue';
+import img from '@/assets/img/login.png';
+const qrimg = ref();
+const timer = ref(0);
 /**
  * 0 - 二维码过期
  * 1 - 等待扫码
@@ -42,74 +50,67 @@ const qrimg = ref()
 const steps = {
   0: {
     msg: '',
-    tip: '使用网易云音乐app扫码登录'
+    tip: '使用网易云音乐app扫码登录',
   },
   1: {
     msg: '',
-    tip: '使用网易云音乐app扫码登录'
+    tip: '使用网易云音乐app扫码登录',
   },
   2: {
     msg: '扫描成功',
-    tip: '请在手机上确认登录'
-  }
-}
+    tip: '请在手机上确认登录',
+  },
+};
 /**
  * 0 - 二维码过期
  * 1 - 等待扫码
  * 2 - 待确认
  */
-const stepCode: Ref<'0' | '1' | '2'> = ref('1')
+const stepCode: Ref<'0' | '1' | '2'> = ref('1');
 
-
-
-onBeforeMount(init)
+onBeforeMount(init);
 
 function init() {
   getQR()
     .then(data => {
-      qrimg.value = data.qrimg
-      return data.key
+      qrimg.value = data.qrimg;
+      return data.key;
     })
     .then(key => {
-      checkQRStatus(key)
-    })
+      checkQRStatus(key);
+    });
 }
 
 function close() {
-  window.electron.window.closeLoginWin()
-  window.close()
+  window.clearTimeout(timer.value);
+  window.electron.window.closeLoginWin();
+  window.close();
 }
 
-async function checkQRStatus(key: string) {
-  let timer = 0
-  const func = () => {
-    timer = window.setTimeout(async () => {
-      const { code, cookie } = await checkStatus(key)
-      if (code === 803) {
-        localStorage.cookie = cookie;
-        window.clearTimeout(timer)
-        window.electron.reloadUser()
-        close()
-        return
-      }
-      if (code === 800) {
-        stepCode.value = '0'
-        return
-      }
-      if (code === 802) {
-        stepCode.value = '2'
-      }
-
-      func()
-
-    }, 2000)
-  }
-  func()
+function checkQRStatus(key: string) {
+  timer.value = window.setTimeout(async () => {
+    const { code, cookie } = await checkStatus(key);
+    if (code === 803) {
+      localStorage.cookie = cookie;
+      window.clearTimeout(timer.value);
+      window.electron.reloadUser();
+      close();
+      return;
+    }
+    if (code === 800) {
+      stepCode.value = '0';
+      return;
+    }
+    if (code === 802) {
+      stepCode.value = '2';
+    }
+    checkQRStatus(key);
+  }, 2000);
 }
 
 function refresh() {
-  init()
-  stepCode.value = '1'
+  init();
+  stepCode.value = '1';
 }
 </script>
 
@@ -132,7 +133,7 @@ function refresh() {
   height: 20px;
   width: 20px;
 
-  >svg {
+  > svg {
     cursor: pointer;
   }
 }
@@ -158,7 +159,7 @@ function refresh() {
     }
 
     .qr-code {
-      >div {
+      > div {
         width: 180px;
         height: 100%;
         overflow: hidden;
