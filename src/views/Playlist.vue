@@ -206,6 +206,7 @@ onMounted(() => {
       intersectionObserverCallback,
       {
         root: document.querySelector('.container-right-view'),
+        rootMargin: '-60px 0px',
       }
     );
     data.observer.observe(listHeaderRef.value);

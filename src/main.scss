@@ -58,8 +58,8 @@ button {
   height: 100%;
   &::-webkit-scrollbar {
     display: none;
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
   }
 
   &:hover {
@@ -77,8 +77,11 @@ button {
     overflow: auto;
     height: 100%;
     &::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
+      width: 9px;
+      height: 9px;
+      &:hover {
+        width: 10px;
+      }
     }
 
     &::-webkit-scrollbar-thumb {
