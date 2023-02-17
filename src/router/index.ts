@@ -2,25 +2,21 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import { defineComponent, h } from 'vue';
 import Playlist from '@/views/Playlist.vue';
 import FindMusic from '@/views/FindMusic.vue';
-const Home = defineComponent({
-  render() {
-    return h('div', 'def');
-  },
-});
+import NotFoundPage from '@/views/404.vue';
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: FindMusic,
-  },
-  {
-    path: '/id/:name',
-    component: Home,
+    component: NotFoundPage,
   },
 
   {
     path: '/playlist/:id',
     component: Playlist,
+  },
+  {
+    path: '/:catchAll(.*)',
+    component: NotFoundPage,
   },
 ];
 

@@ -5,5 +5,8 @@
 
 # 截图
 
+
 ![image-20230204154231881](/README-zh_CN.assets/1.png)
 ![image-20230204154231881](/README-zh_CN.assets/2.png)
+![image-20230204154231881](/README-zh_CN.assets/3.png)
+![image-20230204154231881](/README-zh_CN.assets/4.png)

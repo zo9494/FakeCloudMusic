@@ -3,20 +3,21 @@
     <div v-show="data.headerFixed" class="playlist-header-fixed">
       <div class="title">{{ data.playlist.name }}</div>
       <div class="options">
-        <button class="options-all">
+        <button class="options-all" @click="handleDev">
           <i class="bi bi-play-fill"></i>
         </button>
         <button
+          @click="handleDev"
           :class="`options-collect ${
             profile.userId === data.playlist.userId ? 'disable' : null
           }`"
         >
           <i class="bi bi-folder-check"></i>
         </button>
-        <button class="optins-share">
+        <button @click="handleDev" class="optins-share">
           <i class="bi bi-share"></i>
         </button>
-        <button class="options-download">
+        <button @click="handleDev" class="options-download">
           <i class="bi bi-download"></i>
         </button>
       </div>
@@ -39,15 +40,16 @@
         </div>
         <div class="options">
           <button class="options-all">
-            <div class="options-all-left">
+            <div @click="handleDev" class="options-all-left">
               <i class="bi bi-play-circle"></i>
               <span>播放全部</span>
             </div>
-            <div class="options-all-right">
+            <div @click="handleDev" class="options-all-right">
               <i class="bi bi-plus-lg"></i>
             </div>
           </button>
           <button
+            @click="handleDev"
             :class="`options-collect ${
               profile.userId === data.playlist.userId ? 'disable' : null
             }`"
@@ -61,11 +63,11 @@
               >收藏({{ formatNumber(data.playlist.subscribedCount) }})</span
             >
           </button>
-          <button class="optins-share">
+          <button @click="handleDev" class="optins-share">
             <i class="bi bi-share"></i>
             <span>分享 ({{ formatNumber(data.playlist.shareCount) }})</span>
           </button>
-          <button class="options-download">
+          <button @click="handleDev" class="options-download">
             <i class="bi bi-download"></i>
             <span>下载全部</span>
           </button>
@@ -118,8 +120,8 @@
         >
           <div class="index">{{ index + 1 }}</div>
           <div class="opt">
-            <i class="bi bi-heart"></i>
-            <i class="bi bi-download"></i>
+            <i @click="handleDev" class="bi bi-heart"></i>
+            <i @click="handleDev" class="bi bi-download"></i>
           </div>
           <div
             class="text-overflow name"
@@ -238,6 +240,10 @@ function intersectionObserverCallback(entries: IntersectionObserverEntry[]) {
   }
 }
 
+// dev
+function handleDev() {
+  window.alert('功能开发中...');
+}
 // search-start
 const searchVal = ref('');
 function search() {

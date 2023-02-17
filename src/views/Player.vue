@@ -95,7 +95,11 @@ watch(
     data.node?.on('ended', next);
   }
 );
-
+// dev
+function handleDev() {
+  window.alert('功能开发中...');
+}
+//
 function play() {
   data.node?.play();
 }
@@ -191,7 +195,7 @@ function handleShowLyric() {
       </div>
 
       <div class="f-player-heart">
-        <span @click="data.heart = !data.heart">
+        <span @click="handleDev">
           <i v-show="data.heart" class="bi bi-heart-fill" />
           <i v-show="!data.heart" class="bi bi-heart" />
         </span>
@@ -246,7 +250,7 @@ function handleShowLyric() {
       </div>
 
       <div class="f-player-right-control">
-        <button class="f-player-right-control-list">
+        <button @click="handleDev" class="f-player-right-control-list">
           <i class="icon-playlist-music iconfont"> </i>
         </button>
         <div class="f-player-right-control-volume">
