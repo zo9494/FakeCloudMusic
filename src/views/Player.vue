@@ -377,7 +377,7 @@ button {
   // backdrop-filter: blur(3px);
   gap: 10px;
   place-items: center;
-  border-top: 1px solid #d1d1d1;
+  border-top: 1px solid #dfdfdf;
 
   &-info {
     display: grid;

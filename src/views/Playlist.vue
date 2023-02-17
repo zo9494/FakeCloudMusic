@@ -1,5 +1,8 @@
 <template>
   <div class="playlist">
+    <div v-show="data.headerFixed" class="playlist-header-fixed">
+      <div class="title">{{ data.playlist.name }}</div>
+    </div>
     <div class="playlist-header">
       <div class="playlist-header-left">
         <Image :src="data.playlist.coverImgUrl" class="cover" />
@@ -75,7 +78,7 @@
     </div>
 
     <div class="playlist-list">
-      <div class="playlist-list-header">
+      <div class="playlist-list-header" ref="listHeaderRef">
         <div class="playlist-list-item">
           <div></div>
           <div></div>
@@ -126,7 +129,7 @@ import Image from '@/components/PlaylistImage.vue';
 import FCInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
 
-import { onBeforeMount, watch, reactive, ref } from 'vue';
+import { onBeforeMount, onMounted, watch, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { cloneDeep, throttle } from 'lodash';
@@ -147,6 +150,8 @@ const playerStore = usePlayerStore();
 interface PlaylistDetail {
   playlist: Partial<Playlist>;
   netErr: boolean;
+  headerFixed: boolean;
+  observer?: IntersectionObserver;
 }
 
 let origin: Track[] = [];
@@ -155,6 +160,7 @@ const data = reactive<PlaylistDetail>({
   playlist: {
     tracks: [],
   },
+  headerFixed: false,
   netErr: false,
 });
 async function loadPlaylist(params: { id: string }) {
@@ -191,6 +197,27 @@ watch<string>(
     loadPlaylist({ id });
   }
 );
+
+//
+const listHeaderRef = ref<HTMLDivElement>();
+onMounted(() => {
+  if (listHeaderRef.value) {
+    data.observer = new window.IntersectionObserver(
+      intersectionObserverCallback,
+      {
+        root: document.querySelector('.container-right-view'),
+      }
+    );
+    data.observer.observe(listHeaderRef.value);
+  }
+});
+function intersectionObserverCallback(entries: IntersectionObserverEntry[]) {
+  if (entries[0].intersectionRatio === 0) {
+    data.headerFixed = true;
+  } else {
+    data.headerFixed = false;
+  }
+}
 
 // search-start
 const searchVal = ref('');
@@ -261,7 +288,20 @@ watch(searchVal, val => {
 
 .playlist {
   background-color: #fff;
-
+  &-header-fixed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    padding: 20px;
+    border-bottom: 1px solid #dfdfdf;
+    .title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+    }
+  }
   &-header {
     padding: 0 20px;
     display: grid;
@@ -408,6 +448,7 @@ watch(searchVal, val => {
 
     &-header {
       color: #888888;
+      border-bottom: 1px solid #dfdfdf;
     }
 
     &-body {

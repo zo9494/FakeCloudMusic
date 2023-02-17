@@ -33,10 +33,12 @@ window.loadUser = () => {
         <div style="height: 80px"></div>
       </ScrollBar>
     </div>
-    <ScrollBar class="container-right-view" way="always">
-      <RouterView></RouterView>
-      <div style="height: 80px"></div>
-    </ScrollBar>
+    <div class="container-right-view">
+      <ScrollBar way="always">
+        <RouterView></RouterView>
+        <div style="height: 80px"></div>
+      </ScrollBar>
+    </div>
 
     <div class="container-player">
       <Player />
@@ -59,7 +61,11 @@ window.loadUser = () => {
     background-color: #ededed;
   }
 
-  // &-right-view {}
+  &-right-view {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
 
   &-player {
     position: fixed;
