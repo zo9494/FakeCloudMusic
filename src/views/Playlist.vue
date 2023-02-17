@@ -2,6 +2,24 @@
   <div class="playlist">
     <div v-show="data.headerFixed" class="playlist-header-fixed">
       <div class="title">{{ data.playlist.name }}</div>
+      <div class="options">
+        <button class="options-all">
+          <i class="bi bi-play-fill"></i>
+        </button>
+        <button
+          :class="`options-collect ${
+            profile.userId === data.playlist.userId ? 'disable' : null
+          }`"
+        >
+          <i class="bi bi-folder-check"></i>
+        </button>
+        <button class="optins-share">
+          <i class="bi bi-share"></i>
+        </button>
+        <button class="options-download">
+          <i class="bi bi-download"></i>
+        </button>
+      </div>
     </div>
     <div class="playlist-header">
       <div class="playlist-header-left">
@@ -22,11 +40,11 @@
         <div class="options">
           <button class="options-all">
             <div class="options-all-left">
-              <SvgIcon name="play-circle" class="icon-bootstrap" />
+              <i class="bi bi-play-circle"></i>
               <span>播放全部</span>
             </div>
             <div class="options-all-right">
-              <SvgIcon name="plus" class="icon-bootstrap plus" />
+              <i class="bi bi-plus-lg"></i>
             </div>
           </button>
           <button
@@ -34,7 +52,7 @@
               profile.userId === data.playlist.userId ? 'disable' : null
             }`"
           >
-            <SvgIcon name="folder-check" class="icon-bootstrap" />
+            <i class="bi bi-folder-check"></i>
 
             <span v-if="data.playlist.subscribed"
               >已收藏({{ formatNumber(data.playlist.subscribedCount) }})</span
@@ -44,11 +62,11 @@
             >
           </button>
           <button class="optins-share">
-            <SvgIcon name="share" class="icon-bootstrap" />
+            <i class="bi bi-share"></i>
             <span>分享 ({{ formatNumber(data.playlist.shareCount) }})</span>
           </button>
           <button class="options-download">
-            <SvgIcon name="download" class="icon-bootstrap" />
+            <i class="bi bi-download"></i>
             <span>下载全部</span>
           </button>
         </div>
@@ -100,8 +118,8 @@
         >
           <div class="index">{{ index + 1 }}</div>
           <div class="opt">
-            <SvgIcon name="heart" class="icon-bootstrap" />
-            <SvgIcon name="download" class="icon-bootstrap" />
+            <i class="bi bi-heart"></i>
+            <i class="bi bi-download"></i>
           </div>
           <div
             class="text-overflow name"
@@ -277,11 +295,6 @@ watch(searchVal, val => {
   line-height: 30px;
 }
 
-.icon-bootstrap {
-  height: 14px;
-  width: 14px;
-}
-
 .disable {
   color: #d9d9d9;
   border: 1px solid #d9d9d9;
@@ -301,6 +314,25 @@ watch(searchVal, val => {
       font-size: 22px;
       font-weight: bold;
       color: #333;
+    }
+    .options {
+      margin: 10px 0;
+      display: grid;
+      grid-template-columns: repeat(4, 25px);
+      gap: 20px;
+      button {
+        font-size: 18px;
+        height: 25px;
+        width: 25px;
+        border-radius: 100%;
+      }
+      &-all {
+        background-color: #e8002b;
+        color: #fff;
+      }
+      &-collect {
+        border: none;
+      }
     }
   }
   &-header {
@@ -483,11 +515,6 @@ watch(searchVal, val => {
         place-items: center;
         gap: 4px;
         color: #bbb;
-
-        .icon-bootstrap {
-          width: 14px;
-          height: 14px;
-        }
       }
 
       .name {
