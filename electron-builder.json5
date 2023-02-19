@@ -4,7 +4,6 @@
 {
   appId: 'com.zo.FakeCloudMusic',
   asar: true,
-  icon: 'public/favicon.ico',
   directories: {
     output: 'release/${version}',
   },
@@ -14,6 +13,7 @@
     target: ['dmg'],
   },
   win: {
+    icon: 'public/favicon.ico',
     target: [
       {
         target: 'nsis',
