@@ -72,7 +72,6 @@ window.loadUser = () => {
     bottom: 0;
     left: 0;
     right: 0;
-    grid-column: 1/3;
     z-index: 10;
   }
 

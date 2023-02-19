@@ -1,5 +1,5 @@
 {
-  "name": "fake-cloud-music",
+  "name": "FakeCloudMusic",
   "version": "0.0.1",
   "main": "dist-electron/main/index.js",
   "description": "",

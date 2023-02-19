@@ -27,6 +27,7 @@ interface Data {
   volume: number;
   duration: number;
   showLyric: boolean;
+  showPlaylist: boolean;
 }
 
 const data = reactive<Data>({
@@ -37,6 +38,7 @@ const data = reactive<Data>({
   volume: 0.3,
   duration: 0,
   showLyric: false,
+  showPlaylist: false,
 });
 
 watch(
@@ -173,6 +175,12 @@ function handleShowLyric() {
     lyricCom.value.handleScroll();
   });
 }
+
+// playlist
+
+function handleShowPlaylist() {
+  data.showPlaylist = !data.showPlaylist;
+}
 </script>
 
 <template>
@@ -250,7 +258,7 @@ function handleShowLyric() {
       </div>
 
       <div class="f-player-right-control">
-        <button @click="handleDev" class="f-player-right-control-list">
+        <button @click="handleShowPlaylist" class="f-player-right-control-list">
           <i class="icon-playlist-music iconfont"> </i>
         </button>
         <div class="f-player-right-control-volume">
@@ -340,6 +348,18 @@ function handleShowLyric() {
       </template>
     </Lyrics>
   </Transition>
+  <div v-show="data.showPlaylist" class="f-playlist">
+    <div class="f-playlist-header">
+      <p class="f-playlist-header-title">当前播放</p>
+    </div>
+    <div class="f-playlist-body">
+      <div class="f-playlist-separator"></div>
+      <div v-if="playlist.length" class="f-playlist-item"></div>
+      <div v-else class="f-playlist-empty">
+        <p>你还没添加任何歌曲!</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss">
@@ -568,6 +588,43 @@ button {
         visibility: visible;
       }
     }
+  }
+}
+
+.f-playlist {
+  position: fixed;
+  z-index: -1;
+  width: 400px;
+  height: calc(100vh - 75px);
+  top: 25px;
+  right: 0;
+  background-color: #fff;
+  border-radius: 5px 0 0 0;
+  box-shadow: 0 2px 8px 0 rgba(99, 99, 99, 0.2);
+  padding: 15px 20px;
+  &-header {
+    &-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+  }
+  &-body {
+    height: 100%;
+    margin-top: 15px;
+    .f-playlist-separator {
+      height: 1px;
+      width: 100%;
+      background-color: #dfdfdf;
+    }
+    .f-playlist-empty {
+      height: 50%;
+      display: grid;
+      place-items: center;
+      color: #888888;
+    }
+    .f-playlist-item{}
   }
 }
 
