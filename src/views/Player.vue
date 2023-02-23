@@ -3,7 +3,7 @@ import VueSlider from 'vue-slider-component';
 import Image from '@/components/PlaylistImage.vue';
 import Lyrics from '@/components/PlayerLyrics.vue';
 import 'vue-slider-component/theme/default.css';
-import { reactive, onUpdated, ref, watch, computed, nextTick } from 'vue';
+import { reactive, watch, computed } from 'vue';
 import { throttle } from 'lodash';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/store/player';
@@ -166,14 +166,12 @@ function setMediaMetadata(params: Partial<mediaData>) {
   });
   navigator.mediaSession.setActionHandler('pause', pause);
   navigator.mediaSession.setActionHandler('play', play);
+  navigator.mediaSession.setActionHandler('nexttrack', next);
+  navigator.mediaSession.setActionHandler('previoustrack', previous);
 }
 
-const lyricCom = ref();
 function handleShowLyric() {
   data.showLyric = true;
-  nextTick(() => {
-    lyricCom.value.handleScroll();
-  });
 }
 
 // playlist
@@ -280,12 +278,11 @@ function handleShowPlaylist() {
   </Transition>
   <Transition name="slide-up">
     <Lyrics
+      v-if="data.showLyric"
       :song="currentSong.song"
-      ref="lyricCom"
       class="top"
       :progress="data.progress"
       :lyrics="lyrics"
-      :visible="data.showLyric"
     >
       <template v-slot:header>
         <button
@@ -414,7 +411,6 @@ button {
       height: 45px;
       border-radius: 10px;
       overflow: hidden;
-      cursor: pointer;
 
       &:hover {
         .mask {
@@ -423,6 +419,7 @@ button {
       }
 
       .mask {
+        cursor: pointer;
         display: none;
         position: absolute;
         width: 100%;
@@ -624,8 +621,14 @@ button {
       place-items: center;
       color: #888888;
     }
-    .f-playlist-item{}
+    .f-playlist-item {
+    }
   }
+}
+
+.arrow-down {
+  padding: 3px 15px;
+  cursor: pointer;
 }
 
 .icon-arrow-down-bold,

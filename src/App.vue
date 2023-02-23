@@ -10,8 +10,6 @@ import { storeToRefs } from 'pinia';
 
 import { useUserStore } from '@/store/user';
 
-import { onUpdated } from 'vue';
-
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
 
@@ -58,7 +56,7 @@ window.loadUser = () => {
     overflow: hidden;
     display: grid;
     grid-template-rows: 50px auto;
-    background-color: #ededed;
+    background-color: variables.$appBgColor;
   }
 
   &-right-view {
@@ -76,7 +74,7 @@ window.loadUser = () => {
   }
 
   .user {
-    background-color: #ebebeb;
+    background-color: variables.$appBgColor;
   }
 }
 </style>

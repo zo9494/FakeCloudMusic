@@ -392,12 +392,12 @@ watch(searchVal, val => {
 
       .options {
         display: grid;
-        grid-template-columns: auto repeat(2, 130px) auto;
+        grid-template-columns: 140px repeat(2, 130px) auto;
         gap: 10px;
 
         button {
           font-size: 13px;
-
+          max-width: 140px;
           &:not(.options-all) {
             border-radius: 50px;
             border: 1px solid #e1e1e1;

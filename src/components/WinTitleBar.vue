@@ -1,7 +1,6 @@
 <template>
   <header class="appHeader">
-    <div class="title">
-    </div>
+    <div class="title"> </div>
     <!-- 应用窗口的控制按钮 -->
     <div class="buttons">
       <button @click="handleMinimize">
@@ -18,20 +17,19 @@
 </template>
 
 <script setup lang="ts">
-
 import { ref } from 'vue';
-const isMaximized = ref(false)
+const isMaximized = ref(false);
 
 function handleMinimize() {
-  window.electron.window.minimize()
+  window.electron.window.minimize();
 }
 function handleResizable() {
-  window.electron.window.resizable().then((value) => {
-    isMaximized.value = value
-  })
+  window.electron.window.resizable().then(value => {
+    isMaximized.value = value;
+  });
 }
 function handleClose() {
-  window.electron.window.close()
+  window.electron.window.close();
 }
 </script>
 
@@ -56,7 +54,7 @@ function handleClose() {
       outline-style: none;
       border: none;
       background-color: transparent;
-      font-family: "FluentIcon";
+      font-family: 'FluentIcon';
       font-size: 12px;
       height: 100%;
 
@@ -81,7 +79,7 @@ function handleClose() {
   .title {
     -webkit-app-region: drag;
 
-    >* {
+    > * {
       pointer-events: none;
     }
   }

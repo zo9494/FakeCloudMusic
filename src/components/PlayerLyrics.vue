@@ -1,6 +1,5 @@
 <template>
   <div
-    v-show="visible"
     class="f-lyrics-bg"
     :style="{
       backgroundImage: `linear-gradient(0deg,rgb(${data.bgColor.join(
@@ -47,18 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { watch, reactive, ref } from 'vue';
+import { watch, reactive, ref, onMounted, nextTick } from 'vue';
 import ImageComponent from '@/components/PlaylistImage.vue';
 interface Props {
   progress: number;
   lyrics?: Lyric[];
   song?: Partial<Track>;
-  visible: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   progress: 0,
   lyrics: () => [],
-  visible: true,
 });
 const data = reactive({
   currentIndex: -1,
@@ -67,31 +64,36 @@ const data = reactive({
 });
 
 const scrollRef = ref<HTMLDivElement>();
-watch(
-  () => props.visible,
-  val => {
-    if (val && scrollRef.value?.offsetHeight) {
+
+onMounted(() => {
+  nextTick(() => {
+    if (scrollRef.value?.offsetHeight) {
       data.viewHeight = scrollRef.value.offsetHeight;
     }
-  }
-);
+  });
+  data.currentIndex = processLyricsIndex(props.progress, props.lyrics);
+});
 
 watch(
   () => props.progress,
   val => {
-    if (props.lyrics.length > 1) {
-      let index = props.lyrics.length - 1;
-      for (index; index >= 0; index--) {
-        if (val >= props.lyrics[index].time) {
-          break;
-        }
-      }
-      data.currentIndex = index;
-    } else {
-      data.currentIndex = 0;
-    }
+    data.currentIndex = processLyricsIndex(val, props.lyrics);
   }
 );
+
+function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
+  if (!process || lyrics.length === 0) {
+    return 0;
+  }
+
+  let index = lyrics.length - 1;
+  for (index; index >= 0; index--) {
+    if (process >= lyrics[index].time) {
+      break;
+    }
+  }
+  return index;
+}
 
 watch(() => data.currentIndex, handleScroll);
 
