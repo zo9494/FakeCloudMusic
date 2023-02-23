@@ -39,3 +39,11 @@ export function transformLyric(...lyrics: string[]) {
 export function getArName(Ar: Base[]) {
   return Ar.map(item => item.origin_name || item.name).join(' / ');
 }
+
+export function isNotEmpty(str: string): boolean {
+  if (str && /\S/g.test(str)) {
+    return false;
+  } else {
+    return true;
+  }
+}

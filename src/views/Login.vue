@@ -88,11 +88,11 @@ function close() {
 }
 
 function checkQRStatus(key: string) {
+  window.clearTimeout(timer.value);
   timer.value = window.setTimeout(async () => {
     const { code, cookie } = await checkStatus(key);
     if (code === 803) {
       localStorage.cookie = cookie;
-      window.clearTimeout(timer.value);
       window.electron.reloadUser();
       close();
       return;
