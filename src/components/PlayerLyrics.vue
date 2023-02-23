@@ -66,12 +66,13 @@ const data = reactive({
 const scrollRef = ref<HTMLDivElement>();
 
 onMounted(() => {
+  data.currentIndex = processLyricsIndex(props.progress, props.lyrics);
   nextTick(() => {
     if (scrollRef.value?.offsetHeight) {
       data.viewHeight = scrollRef.value.offsetHeight;
     }
+    handleScroll();
   });
-  data.currentIndex = processLyricsIndex(props.progress, props.lyrics);
 });
 
 watch(
