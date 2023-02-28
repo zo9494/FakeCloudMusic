@@ -21,7 +21,7 @@
         <div class="f-lyrics-body-left">
           <ImageComponent
             class="cover"
-            :src="props.song?.al?.picUrl + '?param=512y512'"
+            :src="props.song?.al?.picUrl + '?param=300y300'"
           />
           <slot name="options"></slot>
         </div>
@@ -73,6 +73,9 @@ onMounted(() => {
     }
     handleScroll();
   });
+  if (props.song?.al?.picUrl) {
+    setBgColor(props.song.al.picUrl);
+  }
 });
 
 watch(
@@ -104,13 +107,15 @@ watch(
   val => {
     resetData();
     if (val) {
-      loadImg(val + '?param=512y512').then(rgb => {
-        data.bgColor = rgb;
-      });
+      setBgColor(val);
     }
   }
 );
-
+function setBgColor(url: string) {
+  loadImg(url + '?param=300y300').then(rgb => {
+    data.bgColor = rgb;
+  });
+}
 function loadImg(url: string) {
   return new Promise<number[]>(resolve => {
     let img = new Image();

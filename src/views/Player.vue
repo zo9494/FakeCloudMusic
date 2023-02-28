@@ -158,7 +158,7 @@ function setMediaMetadata(params: Partial<mediaData>) {
     album,
     artwork: [
       {
-        src: src ? `${src}?param=512y512` : '',
+        src: src ? `${src}?param=300y300` : '',
         sizes: '192x192',
         type: 'image/png',
       },
@@ -191,7 +191,7 @@ function handleShowPlaylist() {
           </div>
           <Image
             class="img"
-            :src="currentSong.song?.al?.picUrl + '?param=512y512'"
+            :src="currentSong.song?.al?.picUrl + '?param=300y300'"
           />
         </div>
         <div class="f-player-info-song">
