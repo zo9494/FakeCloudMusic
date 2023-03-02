@@ -77,6 +77,9 @@ function init() {
       return data.key;
     })
     .then(key => {
+      if (!key) {
+        return;
+      }
       checkQRStatus(key);
     });
 }
@@ -90,7 +93,11 @@ function close() {
 function checkQRStatus(key: string) {
   window.clearTimeout(timer.value);
   timer.value = window.setTimeout(async () => {
-    const { code, cookie } = await checkStatus(key);
+    const data = await checkStatus(key);
+    if (!data) {
+      return;
+    }
+    const { code, cookie } = data;
     if (code === 803) {
       localStorage.cookie = cookie;
       window.electron.reloadUser();

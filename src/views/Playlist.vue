@@ -186,7 +186,11 @@ const data = reactive<PlaylistDetail>({
 async function loadPlaylist(params: { id: string }) {
   data.netErr = false;
   try {
-    const { playlist } = await getPlaylistDetail(params);
+    const data = await getPlaylistDetail(params);
+    if (!data?.playlist) {
+      return;
+    }
+    const { playlist } = data;
     playlist.tracks.forEach(song => {
       song.origin_name = song.name;
       // ar
