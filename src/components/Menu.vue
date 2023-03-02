@@ -3,7 +3,7 @@
     <ul>
       <li>
         <RouterLink draggable="false" to="/">
-          <NeteaseLogoSVG class="netease_logo" />
+          <NeteaseLogoSVG class="svg-netease_logo" />
           <span>发现音乐</span>
         </RouterLink>
       </li>
@@ -15,13 +15,13 @@
       </li>
       <li>
         <RouterLink draggable="false" to="/私人FM">
-          <RadioSVG class="radio_svg" />
+          <RadioSVG class="svg-radio" />
           <span>私人FM</span>
         </RouterLink>
       </li>
       <li>
         <RouterLink draggable="false" to="/视频">
-          <i class="bi bi-camera-video" />
+          <i class="bi bi-play-btn" />
           <span>视频</span>
         </RouterLink>
       </li>
@@ -110,13 +110,16 @@ const { menu } = withDefaults(defineProps<menuType>(), {
   }
 
   li {
-    .netease_logo {
-      width: 35px;
-      height: 30px;
+    .svg {
+      &-netease_logo {
+        width: 35px;
+        height: 30px;
+      }
+      &-radio {
+        width: 35px;
+      }
     }
-    .radio_svg {
-      width: 35px;
-    }
+
     .bi {
       font-size: 17px;
       text-align: center;

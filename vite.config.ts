@@ -3,7 +3,6 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import electron from 'vite-plugin-electron';
 import pkg from './package.json';
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import path from 'path';
 import svgLoader from 'vite-svg-loader';
 // https://vitejs.dev/config/
@@ -91,13 +90,6 @@ export default defineConfig(({ command }) => {
       // Use Node.js API in the Renderer-process
       // renderer({
       //   nodeIntegration: true,
-      // }),
-      //
-      // createSvgIconsPlugin({
-      //   // 指定需要缓存的图标文件夹
-      //   iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
-      //   // 指定symbolId格式
-      //   symbolId: 'icon-[dir]-[name]',
       // }),
       svgLoader(),
     ],

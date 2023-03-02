@@ -33,8 +33,15 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
     }),
     actions: {
       async getUserAccount() {
-        const { profile, account } = await getUserAccount();
+        const data = await getUserAccount();
+        if (!data) {
+          return;
+        }
+        const { profile, account } = data;
         getSubCount({ uid: profile.userId }).then(data => {
+          if (!data) {
+            return;
+          }
           const myCollect = data.filter(item => item.userId !== profile.userId);
 
           const myLike = data.find(

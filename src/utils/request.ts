@@ -30,11 +30,12 @@ export class Service {
   public request(config: RequestConfig): Promise<AxiosResponse> {
     return this.instance.request(config);
   }
-  public get<T = undefined, D = undefined>(
+  public async get<T = undefined>(
     url: string,
     config?: RequestConfig
-  ): Promise<AxiosResponse<Result<T, D>>> {
-    return this.instance.get(url, config);
+  ): Promise<T | null> {
+    const res = await this.instance.get(url, config);
+    return res.data;
   }
 }
 

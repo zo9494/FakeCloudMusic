@@ -5,7 +5,7 @@ interface PlaylistDetailParams {
   s?: string;
 }
 export async function getPlaylistDetail(params: PlaylistDetailParams) {
-  const { data } = await service.get<PlaylistDetail>('/playlist/detail', {
+  const data = await service.get<PlaylistDetail>('/playlist/detail', {
     params,
   });
   return data;
