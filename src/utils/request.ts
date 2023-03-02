@@ -34,8 +34,8 @@ export class Service {
     url: string,
     config?: RequestConfig
   ): Promise<T | null> {
-    const res = await this.instance.get(url, config);
-    return res.data;
+    const { data } = await this.instance.get(url, config);
+    return data;
   }
 }
 

@@ -25,15 +25,18 @@ export function getSongUrl(ids: Ids): Promise<SongUrl[]>;
 
 export async function getSongUrl(ids: Id | Ids) {
   const f = isArray(ids);
-  const data = await service.get<SongUrl[]>('/song/url', {
+  const res = await service.get<{ data: SongUrl[] }>('/song/url', {
     params: {
       id: f ? ids.join(',') : ids,
     },
   });
-  if (f) {
-    return data;
+  if (!res?.data) {
+    return;
   }
-  return data?.[0];
+  if (f) {
+    return res.data;
+  }
+  return res.data[0];
 }
 
 interface lyric {
