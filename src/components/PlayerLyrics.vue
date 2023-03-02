@@ -263,14 +263,16 @@ defineExpose({ handleScroll });
     &-right {
       width: 98%;
       .item {
-        margin: 15px 0;
+        font-size: 14.8px;
+        color: #555;
+        margin: 20px 0;
         transition: all ease-in-out 220ms;
         p {
-          margin: 4px 0;
+          margin: 10px 0;
         }
         &-active {
           font-weight: bold;
-          font-size: 16px;
+          color: #000;
         }
       }
     }

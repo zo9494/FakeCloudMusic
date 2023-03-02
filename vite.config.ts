@@ -5,7 +5,7 @@ import electron from 'vite-plugin-electron';
 import pkg from './package.json';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import path from 'path';
-
+import svgLoader from 'vite-svg-loader';
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   rmSync('dist-electron', { recursive: true, force: true });
@@ -93,12 +93,13 @@ export default defineConfig(({ command }) => {
       //   nodeIntegration: true,
       // }),
       //
-      createSvgIconsPlugin({
-        // 指定需要缓存的图标文件夹
-        iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
-        // 指定symbolId格式
-        symbolId: 'icon-[dir]-[name]',
-      }),
+      // createSvgIconsPlugin({
+      //   // 指定需要缓存的图标文件夹
+      //   iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
+      //   // 指定symbolId格式
+      //   symbolId: 'icon-[dir]-[name]',
+      // }),
+      svgLoader(),
     ],
     build: {
       rollupOptions: {

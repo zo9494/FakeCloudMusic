@@ -3,31 +3,31 @@
     <ul>
       <li>
         <RouterLink draggable="false" to="/">
-          <SvgIcon class="icon" name="netease_logo" />
+          <NeteaseLogoSVG class="netease_logo" />
           <span>发现音乐</span>
         </RouterLink>
       </li>
       <li>
         <RouterLink draggable="false" to="/播客">
-          <SvgIcon class="icon-bootstrap" name="broadcast" />
+          <i class="bi bi-broadcast" />
           <span>播客</span>
         </RouterLink>
       </li>
       <li>
         <RouterLink draggable="false" to="/私人FM">
-          <SvgIcon class="icon-font" name="radio" />
+          <RadioSVG class="radio_svg" />
           <span>私人FM</span>
         </RouterLink>
       </li>
       <li>
         <RouterLink draggable="false" to="/视频">
-          <SvgIcon class="icon-bootstrap" name="video" />
+          <i class="bi bi-camera-video" />
           <span>视频</span>
         </RouterLink>
       </li>
       <li>
         <RouterLink draggable="false" to="/关注">
-          <SvgIcon class="icon-bootstrap" name="people" />
+          <i class="bi bi-people" />
           <span>关注</span>
         </RouterLink>
       </li>
@@ -38,19 +38,19 @@
     <ul>
       <li>
         <RouterLink draggable="false" :to="`/playlist/${menu.myLike.id}`">
-          <SvgIcon class="icon-bootstrap" name="heart" />
+          <i class="bi bi-heart" />
           <span>我喜欢的音乐</span>
         </RouterLink>
       </li>
       <li>
         <RouterLink draggable="false" to="/下载管理">
-          <SvgIcon class="icon-bootstrap" name="download" />
+          <i class="bi bi-download" />
           <span>下载管理</span>
         </RouterLink>
       </li>
       <li>
         <RouterLink draggable="false" to="/最近播放">
-          <SvgIcon class="icon-bootstrap" name="clock-history" />
+          <i class="bi bi-clock-history" />
           <span>最近播放</span>
         </RouterLink>
       </li>
@@ -61,7 +61,7 @@
     <ul>
       <li v-for="item in menu.myCreate" :key="item.id">
         <RouterLink draggable="false" :to="`/playlist/${item.id}`">
-          <SvgIcon class="icon-bootstrap" name="music-note-list" />
+          <i class="bi bi-music-note-list" />
           <span class="text-overflow">{{ item.name }}</span>
         </RouterLink>
       </li>
@@ -72,7 +72,7 @@
     <ul>
       <li v-for="item in menu.myCollect" :key="item.id">
         <RouterLink draggable="false" :to="`/playlist/${item.id}`">
-          <SvgIcon class="icon-bootstrap" name="music-note-list" />
+          <i class="bi bi-music-note-list" />
           <span class="text-overflow">{{ item.name }}</span>
         </RouterLink>
       </li>
@@ -83,7 +83,8 @@
 <script setup lang="ts">
 import { withDefaults } from 'vue';
 import { RouterLink } from 'vue-router';
-
+import NeteaseLogoSVG from '@/assets/svg/netease_logo.svg?component';
+import RadioSVG from '@/assets/svg/radio.svg?component';
 interface menuType {
   menu: {
     myLike: Partial<Order>;
@@ -109,19 +110,19 @@ const { menu } = withDefaults(defineProps<menuType>(), {
   }
 
   li {
-    .icon {
-      width: 28px;
-      height: 28px;
+    .netease_logo {
+      width: 35px;
+      height: 30px;
     }
-
-    .icon-bootstrap {
-      width: 28px;
-      height: 16px;
+    .radio_svg {
+      width: 35px;
     }
-
-    .icon-font {
-      width: 28px;
-      height: 19px;
+    .bi {
+      font-size: 17px;
+      text-align: center;
+      &-heart {
+        font-size: 16px;
+      }
     }
 
     &:hover {

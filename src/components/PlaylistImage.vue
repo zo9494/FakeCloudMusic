@@ -1,22 +1,26 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import Album150SVG from '@/assets/svg/album_150.svg?component';
+import { ref, watch } from 'vue';
 interface Props {
-  src?: string
+  src?: string;
 }
-const props = defineProps<Props>()
-const load = ref(false)
+const props = defineProps<Props>();
+const load = ref(false);
 function handleLoad() {
-  load.value = true
+  load.value = true;
 }
-watch(() => props.src, () => {
-  load.value = false
-})
+watch(
+  () => props.src,
+  () => {
+    load.value = false;
+  }
+);
 </script>
 <template>
   <div class="playlist-image">
-    <img v-show="load" :src="props.src" @load="handleLoad">
+    <img v-show="load" :src="props.src" @load="handleLoad" />
     <div v-show="!load" class="playlist-image-error">
-      <SvgIcon name="album_150" />
+      <Album150SVG />
     </div>
   </div>
 </template>

@@ -1,31 +1,36 @@
 <template>
   <span class="f-input">
     <div class="f-input-prefix" @click="handleClear">
-      <SvgIcon name="x-lg" v-if="props.modelValue" class="icon" />
-      <SvgIcon name="search" v-else class="icon" />
+      <i class="bi bi-x-lg icon" v-if="props.modelValue" />
+      <i class="bi bi-search icon" v-else />
     </div>
-    <input type="text" :value="props.modelValue" @input="handleInput" :placeholder="props.placeholder">
+    <input
+      type="text"
+      :value="props.modelValue"
+      @input="handleInput"
+      :placeholder="props.placeholder"
+    />
   </span>
 </template>
 
 <script setup lang="ts">
-import { InputHTMLAttributes } from 'vue'
+import { InputHTMLAttributes } from 'vue';
 interface InputProps {
-  placeholder?: any,
-  modelValue?: any
+  placeholder?: any;
+  modelValue?: any;
 }
 
 interface InputEmits {
-  (e: 'update:modelValue', payload: any): void
+  (e: 'update:modelValue', payload: any): void;
 }
 
-const props = defineProps<InputProps>()
-const emit = defineEmits<InputEmits>()
+const props = defineProps<InputProps>();
+const emit = defineEmits<InputEmits>();
 function handleInput(e: Event) {
-  emit('update:modelValue', (e.target as InputHTMLAttributes)?.value)
+  emit('update:modelValue', (e.target as InputHTMLAttributes)?.value);
 }
 function handleClear() {
-  props.modelValue && emit('update:modelValue', '')
+  props.modelValue && emit('update:modelValue', '');
 }
 </script>
 

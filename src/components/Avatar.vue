@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import User90SVG from '@/assets/svg/user_90.svg?component';
+import { ref, watch } from 'vue';
 interface Props {
-  src?: string
+  src?: string;
 }
-const props = defineProps<Props>()
-const load = ref(false)
+const props = defineProps<Props>();
+const load = ref(false);
 function handleLoad() {
-  load.value = true
+  load.value = true;
 }
-watch(() => props.src, () => {
-  load.value = false
-})
+watch(
+  () => props.src,
+  () => {
+    load.value = false;
+  }
+);
 </script>
 
 <template>
   <div class="f-avatar">
-    <img v-show="load" :src="props.src" @load="handleLoad">
+    <img v-show="load" :src="props.src" @load="handleLoad" />
     <div v-show="!load" class="f-avatar-loading">
-      <SvgIcon name="user_90" />
+      <User90SVG />
     </div>
   </div>
 </template>

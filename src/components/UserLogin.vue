@@ -9,7 +9,7 @@
     </div>
     <div class="user-right">
       <span> {{ profile?.userId ? profile?.nickname : '未登录' }}</span>
-      <SvgIcon name="caret-right-fill" />
+      <i class="bi bi-caret-right-fill" />
     </div>
   </div>
 </template>
