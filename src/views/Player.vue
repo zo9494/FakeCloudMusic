@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import VueSlider from 'vue-slider-component';
 import Image from '@/components/PlaylistImage.vue';
-import Lyrics from '@/components/PlayerLyrics.vue';
+import Lyrics from '@/components/player/PlayerLyrics.vue';
+import List from '@/components/player/Playerlist.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, computed } from 'vue';
 import { throttle } from 'lodash';
@@ -9,6 +10,7 @@ import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/store/player';
 import { formatDuringMS } from '@/utils/time';
 import { FA, FAudio } from '@/utils/audio';
+import { getImageColor } from '@/utils/utils';
 const playerStore = usePlayerStore();
 const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
 
@@ -28,6 +30,7 @@ interface Data {
   duration: number;
   showLyric: boolean;
   showPlaylist: boolean;
+  bgColor: [number, number, number];
 }
 
 const data = reactive<Data>({
@@ -39,6 +42,7 @@ const data = reactive<Data>({
   duration: 0,
   showLyric: false,
   showPlaylist: false,
+  bgColor: [245, 245, 245],
 });
 
 watch(
@@ -62,7 +66,21 @@ watch(
     });
   }
 );
+watch(
+  () => currentSong.value?.song?.al?.picUrl,
 
+  val => {
+    if (val) {
+      setBgColor(val);
+    }
+  }
+);
+
+function setBgColor(url: string) {
+  getImageColor(url + '?param=300y300').then(rgb => {
+    data.bgColor = rgb;
+  });
+}
 // volume
 const volumeChange = throttle((value: number) => {
   if (data.node) {
@@ -178,12 +196,27 @@ function handleShowLyric() {
 
 function handleShowPlaylist() {
   data.showPlaylist = !data.showPlaylist;
+  if (data.showPlaylist) {
+    window.addEventListener('click', addPlaylistEvent);
+  }
+}
+function addPlaylistEvent() {
+  data.showPlaylist = false;
+  window.removeEventListener('click', addPlaylistEvent);
 }
 </script>
 
 <template>
   <Transition name="slide-up">
-    <div v-show="!data.showLyric" class="f-player">
+    <div
+      v-show="!data.showLyric"
+      class="f-player"
+      :style="{
+        backgroundImage: `linear-gradient(90deg,rgba(${data.bgColor.join(
+          ','
+        )},0.2),rgb(245,245,245))`,
+      }"
+    >
       <div class="f-player-info">
         <div class="f-player-info-cover" @click="handleShowLyric">
           <div class="mask">
@@ -256,7 +289,10 @@ function handleShowPlaylist() {
       </div>
 
       <div class="f-player-right-control">
-        <button @click="handleShowPlaylist" class="f-player-right-control-list">
+        <button
+          @click.stop="handleShowPlaylist"
+          class="f-player-right-control-list"
+        >
           <i class="icon-playlist-music iconfont"> </i>
         </button>
         <div class="f-player-right-control-volume">
@@ -278,6 +314,7 @@ function handleShowPlaylist() {
   </Transition>
   <Transition name="slide-up">
     <Lyrics
+      :bg-color="data.bgColor"
       v-if="data.showLyric"
       :song="currentSong.song"
       class="top"
@@ -345,18 +382,8 @@ function handleShowPlaylist() {
       </template>
     </Lyrics>
   </Transition>
-  <div v-show="data.showPlaylist" class="f-playlist">
-    <div class="f-playlist-header">
-      <p class="f-playlist-header-title">当前播放</p>
-    </div>
-    <div class="f-playlist-body">
-      <div class="f-playlist-separator"></div>
-      <div v-if="playlist.length" class="f-playlist-item"></div>
-      <div v-else class="f-playlist-empty">
-        <p>你还没添加任何歌曲!</p>
-      </div>
-    </div>
-  </div>
+
+  <List v-if="data.showPlaylist"></List>
 </template>
 
 <style lang="scss">

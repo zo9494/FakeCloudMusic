@@ -2,7 +2,7 @@
   <div
     class="f-lyrics-bg"
     :style="{
-      backgroundImage: `linear-gradient(0deg,rgb(${data.bgColor.join(
+      backgroundImage: `linear-gradient(0deg,rgb(${props.bgColor.join(
         ','
       )}),rgb(245,245,245))`,
     }"
@@ -52,15 +52,16 @@ interface Props {
   progress: number;
   lyrics?: Lyric[];
   song?: Partial<Track>;
+  bgColor?: [number, number, number];
 }
 const props = withDefaults(defineProps<Props>(), {
   progress: 0,
   lyrics: () => [],
+  bgColor: () => [245, 245, 245],
 });
 const data = reactive({
   currentIndex: -1,
   viewHeight: 400,
-  bgColor: [245, 245, 245],
 });
 
 const scrollRef = ref<HTMLDivElement>();
@@ -73,9 +74,6 @@ onMounted(() => {
     }
     handleScroll();
   });
-  if (props.song?.al?.picUrl) {
-    setBgColor(props.song.al.picUrl);
-  }
 });
 
 watch(
@@ -87,7 +85,7 @@ watch(
 
 function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   if (!process || lyrics.length === 0) {
-    return 0;
+    return -1;
   }
 
   let index = lyrics.length - 1;
@@ -100,76 +98,6 @@ function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
 }
 
 watch(() => data.currentIndex, handleScroll);
-
-watch(
-  () => props.song?.al?.picUrl,
-
-  val => {
-    resetData();
-    if (val) {
-      setBgColor(val);
-    }
-  }
-);
-function setBgColor(url: string) {
-  loadImg(url + '?param=300y300').then(rgb => {
-    data.bgColor = rgb;
-  });
-}
-function loadImg(url: string) {
-  return new Promise<number[]>(resolve => {
-    let img = new Image();
-    img.src = url;
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      resolve(getImageColor(img));
-    };
-  });
-}
-function getImageColor(img: HTMLImageElement) {
-  const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
-
-  let context = canvas.getContext('2d');
-  if (!context) {
-    return [245, 245, 245];
-  }
-
-  context.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-  // 获取像素数据
-  let data = context.getImageData(0, 0, img.width, img.height).data;
-  let r = 1,
-    g = 1,
-    b = 1;
-  // 取所有像素的平均值
-  for (var row = 0; row < img.height; row++) {
-    for (var col = 0; col < img.width; col++) {
-      if (row == 0) {
-        r += data[img.width * row + col];
-        g += data[img.width * row + col + 1];
-        b += data[img.width * row + col + 2];
-      } else {
-        r += data[(img.width * row + col) * 4];
-        g += data[(img.width * row + col) * 4 + 1];
-        b += data[(img.width * row + col) * 4 + 2];
-      }
-    }
-  }
-
-  // 求取平均值
-  r /= img.width * img.height;
-  g /= img.width * img.height;
-  b /= img.width * img.height;
-
-  // 将最终的值取整
-  r = Math.round(r);
-  g = Math.round(g);
-  b = Math.round(b);
-  console.log(r, g, b);
-  return [r, g, b];
-}
 
 function handleScroll() {
   if (scrollRef.value) {
@@ -185,10 +113,6 @@ function handleScroll() {
         currentEl.offsetTop - scrollRef.value.offsetHeight / 1.4;
     } catch {}
   }
-}
-
-function resetData() {
-  data.currentIndex = -1;
 }
 
 defineExpose({ handleScroll });
@@ -265,10 +189,10 @@ defineExpose({ handleScroll });
       .item {
         font-size: 14.8px;
         color: #555;
-        margin: 20px 0;
+        margin: 15px 0;
         transition: all ease-in-out 220ms;
         p {
-          margin: 10px 0;
+          margin: 5px 0;
         }
         &-active {
           font-weight: bold;

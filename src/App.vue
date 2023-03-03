@@ -21,7 +21,25 @@ window.loadUser = () => {
 
 <template>
   <AppBar></AppBar>
-  <div class="container">
+  <div class="container-left-nav">
+    <div class="user">
+      <UserLogin />
+    </div>
+    <ScrollBar>
+      <Menu :menu="order"></Menu>
+      <div style="height: 80px"></div>
+    </ScrollBar>
+  </div>
+  <div class="container-right-view">
+    <ScrollBar way="always">
+      <RouterView></RouterView>
+      <div style="height: 80px"></div>
+    </ScrollBar>
+  </div>
+  <div class="container-player">
+    <Player />
+  </div>
+  <!-- <div class="container">
     <div class="container-left-nav">
       <div class="user">
         <UserLogin />
@@ -37,15 +55,15 @@ window.loadUser = () => {
         <div style="height: 80px"></div>
       </ScrollBar>
     </div>
-
     <div class="container-player">
       <Player />
     </div>
-  </div>
+  </div> -->
 </template>
 
 <style lang="scss">
 .container {
+  grid-row: 3/4;
   height: 100%;
   overflow: hidden;
   display: grid;
@@ -53,6 +71,7 @@ window.loadUser = () => {
   grid-template-rows: auto;
 
   &-left-nav {
+    grid-row: 2/4;
     overflow: hidden;
     display: grid;
     grid-template-rows: 50px auto;
@@ -60,6 +79,7 @@ window.loadUser = () => {
   }
 
   &-right-view {
+    grid-row: 3/4;
     height: 100%;
     position: relative;
     overflow: hidden;

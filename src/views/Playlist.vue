@@ -94,7 +94,11 @@
     </div>
 
     <div class="playlist-opt">
-      <FCInput v-model="searchVal" placeholder="搜索歌单歌曲" />
+      <FInput
+        class="playlist-opt-input"
+        v-model="searchVal"
+        placeholder="搜索歌单歌曲"
+      />
     </div>
 
     <div class="playlist-list">
@@ -146,7 +150,7 @@
 
 <script setup lang="ts">
 import Image from '@/components/PlaylistImage.vue';
-import FCInput from '@/components/Input.vue';
+import FInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
 
 import { onBeforeMount, onMounted, watch, reactive, ref } from 'vue';
@@ -568,6 +572,9 @@ watch(searchVal, val => {
     padding: 0 20px;
     display: flex;
     justify-content: flex-end;
+    &-input {
+      width: 180px;
+    }
   }
 }
 </style>

@@ -36,6 +36,8 @@ function handleClear() {
 
 <style lang="scss">
 .f-input {
+  height: 100%;
+  width: 100%;
   background-color: #ededed;
   padding: 2px 3px;
   border-radius: 50px;
@@ -46,7 +48,7 @@ function handleClear() {
 
   &-prefix {
     width: 100%;
-
+    text-align: center;
     .icon {
       width: 11px;
       height: 11px;
@@ -54,9 +56,10 @@ function handleClear() {
   }
 
   input {
+    width: 100%;
+    height: 100%;
     color: #333333;
     font-size: 12px;
-    width: 120px;
     border: none;
     outline-style: none;
     background-color: transparent;
