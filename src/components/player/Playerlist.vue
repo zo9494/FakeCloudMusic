@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<PropsType>(), {
 .f-playlist {
   width: 400px;
   height: calc(100vh - 80px);
-
+  padding: 10px;
   &-header {
     &-title {
       margin: 0;

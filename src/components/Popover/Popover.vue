@@ -3,17 +3,8 @@
     <slot v-if="$slots.reference" name="reference"></slot>
   </Trigger>
 
-  <!-- <button @click="test(1)">
-    1
-    <button @click.capture="test(2)"
-      >2
-
-      <button @click="test(3)">3</button>
-    </button>
-  </button> -->
-
   <teleport to=".f-popover-container">
-    <div class="f-popover" v-show="data.isShow" ref="popoverRef">
+    <div :class="popoverClass" v-show="visible" ref="popoverRef">
       <slot></slot>
     </div>
   </teleport>
@@ -21,7 +12,7 @@
 
 <script setup lang="ts">
 import Trigger from './Trigger';
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, computed, watch } from 'vue';
 import { createPopper, Instance } from '@popperjs/core';
 enum trigger {
   click = 'click',
@@ -29,6 +20,8 @@ enum trigger {
 }
 interface PropsType {
   trigger?: keyof typeof trigger;
+  popoverClass?: string;
+  visible?: any;
 }
 const props = withDefaults(defineProps<PropsType>(), {
   trigger: 'click',
@@ -36,11 +29,31 @@ const props = withDefaults(defineProps<PropsType>(), {
 
 interface DataType {
   popperInstance?: Instance;
-  isShow: boolean;
+  visible: boolean;
 }
 const data = reactive<DataType>({
-  isShow: false,
+  visible: false,
 });
+const isBool = computed(() => typeof props.visible === 'boolean');
+
+const visible = computed({
+  get() {
+    if (isBool.value) {
+      return props.visible;
+    }
+    return data.visible;
+  },
+  set: updateVisible,
+});
+
+watch(
+  () => visible.value,
+  () => {
+    data.popperInstance?.update();
+  },
+  { immediate: true }
+);
+
 let el = document.querySelector('.f-popover-container');
 if (!el) {
   el = document.createElement('div');
@@ -48,6 +61,12 @@ if (!el) {
   document.body.appendChild(el);
 }
 
+const popoverClass = computed(() => {
+  if (props.popoverClass) {
+    return `f-popover ${props.popoverClass}`;
+  }
+  return 'f-popover';
+});
 const popoverRef = ref();
 const triggerRef = ref();
 
@@ -67,18 +86,35 @@ onMounted(() => {
 
 function onClick() {
   if (props.trigger === trigger.click) {
-    data.isShow = !data.isShow;
-    if (data.isShow) {
+    updateVisible(!visible.value);
+    if (visible.value) {
       window.addEventListener('click', globalEvent, { capture: true });
-      data.popperInstance?.update();
     } else {
       window.removeEventListener('click', globalEvent, { capture: true });
     }
   }
 }
 
-function globalEvent() {
-  data.isShow = false;
+function globalEvent(e: MouseEvent) {
+  const isSelf = el?.contains(e.target as HTMLElement | null);
+  if (!isSelf) {
+    updateVisible(false);
+  }
+}
+
+// emit
+interface Emits {
+  (e: 'update:visible', payload: any): void;
+}
+const emit = defineEmits<Emits>();
+function updateVisible(val: boolean) {
+  console.log('updateVisible: ' + val);
+  console.log('isBool: ' + isBool.value);
+
+  if (!isBool.value) {
+    data.visible = val;
+  }
+  emit('update:visible', val);
 }
 </script>
 
@@ -87,6 +123,6 @@ function globalEvent() {
   background-color: #fff;
   border-radius: 5px 0 0 0;
   box-shadow: 0 2px 8px 0 rgba(99, 99, 99, 0.2);
-  padding: 12px;
+  padding: 2px;
 }
 </style>

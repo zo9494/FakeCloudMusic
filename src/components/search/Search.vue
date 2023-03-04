@@ -8,17 +8,10 @@
           :placeholder="data.placeholder"
         />
       </template>
-      <div class="search-result">
-        <div>11</div>
-        <div>11</div>
-        <div>11</div>
-        <div>11</div>
-        <div>11</div>
-        <div>11</div>
-        <div>11</div>
-        <div>11</div>
-        <div>11</div>
-      </div>
+      <ScrollBar class="search-panel" way="always">
+        <SearchHistory />
+        <HotSearch />
+      </ScrollBar>
     </Popover>
   </div>
 </template>
@@ -28,7 +21,9 @@ import { onBeforeMount, reactive, onBeforeUnmount } from 'vue';
 import FInput from '@/components/Input.vue';
 import Popover from '@/components/Popover/Popover.vue';
 import { getHotSearch } from '@/api/search';
-
+import ScrollBar from '@/components/ScrollBar.vue';
+import HotSearch from '@/components/search/HotSearch.vue';
+import SearchHistory from '@/components/search/SearchHistory.vue';
 interface DataType {
   value: string;
   placeholder: string;
@@ -60,6 +55,20 @@ onBeforeMount(() => {
 onBeforeUnmount(() => {
   window.clearTimeout(data.timer);
 });
+
+// 历史记录
+function recordHistory(value: string) {
+  const json = localStorage.getItem('search_history');
+  let history: string[];
+  if (json) {
+    history = JSON.parse(json);
+  } else {
+    history = [];
+  }
+
+  history.push(value);
+  localStorage.setItem('search_history', JSON.stringify(json));
+}
 </script>
 
 <style scoped lang="scss">
@@ -69,9 +78,10 @@ onBeforeUnmount(() => {
     height: 24px;
     width: 180px;
   }
-  &-result {
-    width: 320px;
-    height: calc(100vh - 100px);
+  &-panel {
+    width: 360px;
+    height: 75vh;
+    padding-top: 15px;
   }
 }
 </style>

@@ -5,7 +5,7 @@ import Lyrics from '@/components/player/PlayerLyrics.vue';
 import List from '@/components/player/Playerlist.vue';
 import Popover from '@/components/Popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
-import { reactive, watch, computed } from 'vue';
+import { reactive, watch, computed, onMounted } from 'vue';
 import { throttle } from 'lodash';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/store/player';
@@ -32,6 +32,7 @@ interface Data {
   showLyric: boolean;
   showPlaylist: boolean;
   bgColor: [number, number, number];
+  popoverEl?: HTMLDivElement;
 }
 
 const data = reactive<Data>({
@@ -193,17 +194,26 @@ function handleShowLyric() {
   data.showLyric = true;
 }
 
-// playlist
-
-function handleShowPlaylist() {
+onMounted(() => {
+  const el = document.querySelector('.f-popover-container') as HTMLDivElement;
+  if (el) {
+    data.popoverEl = el;
+  }
+});
+function onShowPlaylist() {
   data.showPlaylist = !data.showPlaylist;
   if (data.showPlaylist) {
-    window.addEventListener('click', addPlaylistEvent);
+    window.addEventListener('click', addEvent, { capture: true });
+  } else {
+    window.removeEventListener('click', addEvent, { capture: true });
   }
 }
-function addPlaylistEvent() {
-  data.showPlaylist = false;
-  window.removeEventListener('click', addPlaylistEvent);
+
+function addEvent(e: MouseEvent) {
+  const isSelf = data.popoverEl?.contains(e.target as HTMLElement);
+  if (!isSelf) {
+    data.showPlaylist = false;
+  }
 }
 </script>
 
@@ -290,9 +300,9 @@ function addPlaylistEvent() {
       </div>
 
       <div class="f-player-right-control">
-        <Popover>
+        <Popover :visible="data.showPlaylist">
           <template #reference>
-            <button class="f-player-right-control-list">
+            <button @click="onShowPlaylist" class="f-player-right-control-list">
               <i class="icon-playlist-music iconfont"> </i>
             </button>
           </template>

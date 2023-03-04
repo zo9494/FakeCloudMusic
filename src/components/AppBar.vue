@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 import WindowButton from './WindowButton.vue';
-import Search from '@/components/Search.vue';
+import Search from '@/components/search/Search.vue';
 let isWin = false;
 if (process.platform === 'win32') {
   isWin = true;
