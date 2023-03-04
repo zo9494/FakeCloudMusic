@@ -3,6 +3,7 @@ import VueSlider from 'vue-slider-component';
 import Image from '@/components/PlaylistImage.vue';
 import Lyrics from '@/components/player/PlayerLyrics.vue';
 import List from '@/components/player/Playerlist.vue';
+import Popover from '@/components/Popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, computed } from 'vue';
 import { throttle } from 'lodash';
@@ -289,12 +290,16 @@ function addPlaylistEvent() {
       </div>
 
       <div class="f-player-right-control">
-        <button
-          @click.stop="handleShowPlaylist"
-          class="f-player-right-control-list"
-        >
-          <i class="icon-playlist-music iconfont"> </i>
-        </button>
+        <Popover>
+          <template #reference>
+            <button class="f-player-right-control-list">
+              <i class="icon-playlist-music iconfont"> </i>
+            </button>
+          </template>
+
+          <List />
+        </Popover>
+
         <div class="f-player-right-control-volume">
           <i :class="['bi', 'icon-volume', volumeIcon]" />
           <VueSlider
@@ -382,8 +387,6 @@ function addPlaylistEvent() {
       </template>
     </Lyrics>
   </Transition>
-
-  <List v-if="data.showPlaylist"></List>
 </template>
 
 <style lang="scss">
@@ -611,44 +614,6 @@ button {
       .vue-slider-dot-handle {
         visibility: visible;
       }
-    }
-  }
-}
-
-.f-playlist {
-  position: fixed;
-  z-index: -1;
-  width: 400px;
-  height: calc(100vh - 75px);
-  top: 25px;
-  right: 0;
-  background-color: #fff;
-  border-radius: 5px 0 0 0;
-  box-shadow: 0 2px 8px 0 rgba(99, 99, 99, 0.2);
-  padding: 15px 20px;
-  &-header {
-    &-title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
-    }
-  }
-  &-body {
-    height: 100%;
-    margin-top: 15px;
-    .f-playlist-separator {
-      height: 1px;
-      width: 100%;
-      background-color: #dfdfdf;
-    }
-    .f-playlist-empty {
-      height: 50%;
-      display: grid;
-      place-items: center;
-      color: #888888;
-    }
-    .f-playlist-item {
     }
   }
 }

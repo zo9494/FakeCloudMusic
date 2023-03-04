@@ -14,3 +14,20 @@ createApp(App)
   .$nextTick(() => {
     postMessage({ payload: 'removeLoading' }, '*');
   });
+
+window.getCookie = () => {
+  const str: string | undefined = localStorage.cookie;
+  if (!str) {
+    return null;
+  }
+  const cookieStrs: string[] = str.split(';');
+  let cookieObj: { [propName: string]: any } = {};
+  cookieStrs.forEach(str => {
+    const [key, value] = str.split('=');
+    if (key !== undefined && value !== undefined) {
+      cookieObj[key] = value;
+    }
+  });
+  console.log(cookieObj);
+  return 'MUSIC_U=' + cookieObj['MUSIC_U'];
+};

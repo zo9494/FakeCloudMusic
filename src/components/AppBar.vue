@@ -3,7 +3,7 @@
   <div class="app_bar-right drag">
     <div class="app_bar-right-options">
       <div class="app_bar-right-options-search no-drag">
-        <FInput class="search" placeholder="搜索" />
+        <Search />
       </div>
       <div class="app_bar-right-options-buttons no-drag">
         <button @click="clickSetting">
@@ -20,7 +20,7 @@
 
 <script lang="ts" setup>
 import WindowButton from './WindowButton.vue';
-import FInput from '@/components/Input.vue';
+import Search from '@/components/Search.vue';
 let isWin = false;
 if (process.platform === 'win32') {
   isWin = true;
@@ -46,10 +46,6 @@ function clickSetting() {
       &-search {
         display: flex;
         align-items: center;
-        .search {
-          height: 26px;
-          width: 200px;
-        }
       }
       &-buttons {
         margin: 0 20px;

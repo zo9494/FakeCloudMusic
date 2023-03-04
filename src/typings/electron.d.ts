@@ -22,5 +22,7 @@ declare global {
   interface Window {
     electron: ElectronApi;
     loadUser: () => void;
+    getCookie: () => string | null;
+    [propName: any]: any;
   }
 }

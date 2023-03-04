@@ -26,12 +26,7 @@ const props = withDefaults(defineProps<PropsType>(), {
 .f-playlist {
   width: 400px;
   height: calc(100vh - 80px);
-  top: 25px;
-  right: 0;
-  background-color: #fff;
-  border-radius: 5px 0 0 0;
-  box-shadow: 0 2px 8px 0 rgba(99, 99, 99, 0.2);
-  padding: 15px 20px;
+
   &-header {
     &-title {
       margin: 0;
