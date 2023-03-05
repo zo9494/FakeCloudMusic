@@ -73,6 +73,9 @@ export default defineConfig(({ command }) => {
         },
         {
           entry: 'electron/preload/login.ts',
+          onstart(options) {
+            options.reload();
+          },
           vite: {
             build: {
               sourcemap,

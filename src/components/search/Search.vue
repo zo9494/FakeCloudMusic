@@ -9,8 +9,9 @@
         />
       </template>
       <ScrollBar class="search-panel" way="always">
-        <SearchHistory />
-        <HotSearch />
+        <!-- <SearchHistory />
+        <HotSearch /> -->
+        <SearchSuggest />
       </ScrollBar>
     </Popover>
   </div>
@@ -24,6 +25,7 @@ import { getHotSearch } from '@/api/search';
 import ScrollBar from '@/components/ScrollBar.vue';
 import HotSearch from '@/components/search/HotSearch.vue';
 import SearchHistory from '@/components/search/SearchHistory.vue';
+import SearchSuggest from '@/components/search/SearchSuggest.vue';
 interface DataType {
   value: string;
   placeholder: string;

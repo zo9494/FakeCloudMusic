@@ -2,7 +2,10 @@ import { service } from '@/utils/request';
 
 interface QRKeyType {
   code: number;
-  unikey: string;
+  data: {
+    code: number;
+    unikey: string;
+  };
 }
 export async function getQRKey() {
   const data = await service.get<QRKeyType>('login/qr/key', {
@@ -10,11 +13,13 @@ export async function getQRKey() {
       timestamp: Date.now(),
     },
   });
-  return data;
+  return data?.data;
 }
 interface QRType {
-  qrimg: string;
-  qrurl: string;
+  data: {
+    qrimg: string;
+    qrurl: string;
+  };
 }
 export async function getQR() {
   const qrKey = await getQRKey();
@@ -28,7 +33,7 @@ export async function getQR() {
   });
   return {
     key: qrKey?.unikey,
-    ...data,
+    ...data?.data,
   };
 }
 interface QRCheckType {
