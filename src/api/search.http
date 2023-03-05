@@ -12,5 +12,16 @@ GET {{baseUrl}}/search/hot/detail HTTP/1.1
 Cookie: {{Cookie}}
 
 ### hot search suggest
-GET {{baseUrl}}/search/suggest?keywords=海阔天空 HTTP/1.1
+GET {{baseUrl}}/search/suggest?keywords=不 HTTP/1.1
+### hot search suggest
+GET {{baseUrl}}/search/suggest?keywords=不&type=mobile HTTP/1.1
+Cookie: {{Cookie}}
+###  search multimatch
+GET {{baseUrl}}/search/multimatch?keywords=不 HTTP/1.1
+Cookie: {{Cookie}}
+###  search
+GET {{baseUrl}}/search?keywords=不&limit=10 HTTP/1.1
+Cookie: {{Cookie}}
+###  search
+GET {{baseUrl}}/cloudsearch?keywords=不&limit=10 HTTP/1.1
 Cookie: {{Cookie}}

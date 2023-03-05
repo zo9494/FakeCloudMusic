@@ -9,9 +9,11 @@
         />
       </template>
       <ScrollBar class="search-panel" way="always">
-        <!-- <SearchHistory />
-        <HotSearch /> -->
-        <SearchSuggest />
+        <SearchSuggest v-show="data.value" :keywords="data.value" />
+        <div v-show="!data.value">
+          <SearchHistory />
+          <HotSearch />
+        </div>
       </ScrollBar>
     </Popover>
   </div>
@@ -38,7 +40,7 @@ const data = reactive<DataType>({
   timer: -1,
 });
 
-function autoChangeHotSearch(hot: Hot[], startIndex = 0) {
+function autoChangeHotSearch(hot: HotSearch.Hot[], startIndex = 0) {
   window.clearTimeout(data.timer);
   data.placeholder = hot[startIndex].first;
   data.timer = window.setTimeout(() => {
