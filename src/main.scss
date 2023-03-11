@@ -75,7 +75,7 @@ button {
   height: 100%;
   &:hover {
     &::-webkit-scrollbar-thumb {
-      background-color: #e2e2e2;
+      background-color: variables.$scrollbarColor;
     }
   }
   &::-webkit-scrollbar {
@@ -98,7 +98,7 @@ button {
 
     &::-webkit-scrollbar-thumb {
       border-radius: 10px;
-      background: #e2e2e2;
+      background: variables.$scrollbarColor;
     }
   }
 }

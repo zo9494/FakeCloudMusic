@@ -114,7 +114,10 @@
       </div>
       <div class="playlist-list-body">
         <div v-if="data.loading" class="loading">
-          <LoadingSVG width="20px" height="20px"></LoadingSVG>
+          <div class="loading-content">
+            <LoadingSVG width="20px" height="20px"></LoadingSVG>
+            <span>加载中...</span>
+          </div>
         </div>
         <div v-if="data.netErr" class="net-err"
           >网络不给力哦，请检查你的网络设置~</div
@@ -322,6 +325,11 @@ watch(searchVal, val => {
   height: 100px;
   display: grid;
   place-items: center;
+  &-content {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
 }
 .disable {
   color: #d9d9d9;
