@@ -113,6 +113,9 @@
         </div>
       </div>
       <div class="playlist-list-body">
+        <div v-if="data.loading" class="loading">
+          <LoadingSVG width="20px" height="20px"></LoadingSVG>
+        </div>
         <div v-if="data.netErr" class="net-err"
           >网络不给力哦，请检查你的网络设置~</div
         >
@@ -152,6 +155,7 @@
 import Image from '@/components/PlaylistImage.vue';
 import FInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
+import LoadingSVG from '@/assets/svg/loading.svg?component';
 
 import { onBeforeMount, onMounted, watch, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -174,6 +178,7 @@ const playerStore = usePlayerStore();
 interface PlaylistDetail {
   playlist: Partial<Playlist>;
   netErr: boolean;
+  loading: boolean;
   headerFixed: boolean;
   observer?: IntersectionObserver;
 }
@@ -186,9 +191,11 @@ const data = reactive<PlaylistDetail>({
   },
   headerFixed: false,
   netErr: false,
+  loading: false,
 });
 async function loadPlaylist(params: { id: string }) {
   data.netErr = false;
+  data.loading = true;
   try {
     const res = await getPlaylistDetail(params);
     if (!res?.playlist) {
@@ -208,6 +215,8 @@ async function loadPlaylist(params: { id: string }) {
     origin = playlist.tracks;
   } catch (error) {
     data.netErr = true;
+  } finally {
+    data.loading = false;
   }
 }
 function resetData() {
@@ -308,7 +317,12 @@ watch(searchVal, val => {
   height: 30px;
   line-height: 30px;
 }
-
+.loading {
+  color: #666;
+  height: 100px;
+  display: grid;
+  place-items: center;
+}
 .disable {
   color: #d9d9d9;
   border: 1px solid #d9d9d9;

@@ -22,7 +22,7 @@ import { onBeforeMount, reactive } from 'vue';
 import { getHotSearchDetail } from '@/api/search';
 
 interface DataType {
-  hotSearch: Datum[];
+  hotSearch: HotDetail.Datum[];
 }
 
 const data = reactive<DataType>({
