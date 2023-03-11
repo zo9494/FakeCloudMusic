@@ -73,37 +73,32 @@ button {
 .scrollbar {
   overflow: auto;
   height: 100%;
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background-color: #e2e2e2;
+    }
+  }
   &::-webkit-scrollbar {
-    display: none;
     width: 8px;
     height: 8px;
   }
-
-  &:hover {
-    &::-webkit-scrollbar {
-      display: block;
-    }
-  }
-
   &::-webkit-scrollbar-thumb {
+    background-color: transparent;
     border-radius: 10px;
-    background: #e5e5e5;
   }
 
   &-always {
     overflow: auto;
     height: 100%;
+
     &::-webkit-scrollbar {
       width: 8px;
       height: 8px;
-      &:hover {
-        width: 10px;
-      }
     }
 
     &::-webkit-scrollbar-thumb {
       border-radius: 10px;
-      background: #e5e5e5;
+      background: #e2e2e2;
     }
   }
 }

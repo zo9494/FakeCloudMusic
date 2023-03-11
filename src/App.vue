@@ -79,6 +79,7 @@ window.loadUser = () => {
   }
 
   &-right-view {
+    padding: 0 2px;
     grid-row: 3/4;
     height: 100%;
     position: relative;
