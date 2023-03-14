@@ -279,6 +279,7 @@ function addEvent(e: MouseEvent) {
           <VueSlider
             :modelValue="data.progress"
             :lazy="true"
+            :height="5"
             @change="handleProgressChange"
             :min="0"
             :max="data.duration"
@@ -351,6 +352,7 @@ function addEvent(e: MouseEvent) {
             <span>{{ formatDuringMS(data.progress) }}</span>
             <div class="lyrics-options-slider-bar">
               <VueSlider
+                :height="5"
                 :modelValue="data.progress"
                 :lazy="true"
                 @change="handleProgressChange"

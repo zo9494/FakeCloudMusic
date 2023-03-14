@@ -21,6 +21,7 @@
       <p class="title">扫码登录</p>
       <div class="qr-code">
         <div>
+          <Loading v-if="loading"></Loading>
           <img v-if="qrimg && stepCode !== '2'" :src="qrimg" />
           <img v-else-if="stepCode === '2'" class="scanned" :src="img" />
           <div class="out-date" v-show="stepCode === '0'">
@@ -40,6 +41,7 @@
 import { getQR, checkStatus } from '@/api/user';
 import { onBeforeMount, Ref, ref } from 'vue';
 import img from '@/assets/img/login.png';
+import Loading from '@/components/Loading.vue';
 const qrimg = ref();
 const timer = ref(0);
 /**
@@ -67,6 +69,7 @@ const steps = {
  * 2 - 待确认
  */
 const stepCode: Ref<'0' | '1' | '2'> = ref('1');
+const loading: Ref<boolean> = ref(true);
 
 onBeforeMount(init);
 
@@ -81,6 +84,9 @@ function init() {
         return;
       }
       checkQRStatus(key);
+    })
+    .finally(() => {
+      loading.value = false;
     });
 }
 
