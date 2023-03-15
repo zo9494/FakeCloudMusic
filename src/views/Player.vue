@@ -3,7 +3,7 @@ import VueSlider from 'vue-slider-component';
 import Image from '@/components/PlaylistImage.vue';
 import Lyrics from '@/components/player/PlayerLyrics.vue';
 import List from '@/components/player/Playerlist.vue';
-import Popover from '@/components/Popover/Popover.vue';
+import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, computed, onMounted } from 'vue';
 import { throttle } from 'lodash';

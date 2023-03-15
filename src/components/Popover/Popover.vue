@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import Trigger from './Trigger';
 import { onMounted, ref, reactive, computed, watch } from 'vue';
-import { createPopper, Instance } from '@popperjs/core';
+import { createPopper, Instance, Placement } from '@popperjs/core';
 enum trigger {
   click = 'click',
   hover = 'hover',
@@ -22,9 +22,11 @@ interface PropsType {
   trigger?: keyof typeof trigger;
   popoverClass?: string;
   visible?: any;
+  placement?: Placement;
 }
 const props = withDefaults(defineProps<PropsType>(), {
   trigger: 'click',
+  placement: 'auto',
 });
 
 interface DataType {
@@ -72,7 +74,7 @@ const triggerRef = ref();
 
 onMounted(() => {
   data.popperInstance = createPopper(triggerRef.value.$el, popoverRef.value, {
-    placement: 'top',
+    placement: props.placement,
     modifiers: [
       {
         name: 'offset',

@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { onBeforeMount, reactive, onBeforeUnmount } from 'vue';
 import FInput from '@/components/Input.vue';
-import Popover from '@/components/Popover/Popover.vue';
+import Popover from '@/components/popover/Popover.vue';
 import { getHotSearch } from '@/api/search';
 import ScrollBar from '@/components/ScrollBar.vue';
 import HotSearch from '@/components/search/HotSearch.vue';
