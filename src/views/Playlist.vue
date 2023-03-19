@@ -370,8 +370,8 @@ function lineClamp(str?: string, expand = false) {
 
   if (str.length > endIndex) {
     data.canExpand = true;
-    return str;
   }
+  return str;
 }
 </script>
 
