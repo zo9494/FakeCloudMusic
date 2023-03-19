@@ -91,12 +91,14 @@
           <span
             :class="{
               'desc-inner': true,
+              'text-overflow': true,
               expand: data.isExpand,
             }"
             ref="desRef"
-            >{{ data.playlist.description?.trim() }}</span
+            >{{ lineClamp(data.playlist.description, data.isExpand) }}</span
           >
           <i
+            v-if="data.canExpand"
             :class="{
               bi: true,
               'bi-caret-up-fill': data.isExpand,
@@ -200,6 +202,7 @@ interface PlaylistDetail {
   headerFixed: boolean;
   observer?: IntersectionObserver;
   isExpand: boolean;
+  canExpand: boolean;
 }
 
 let origin: Track[] = [];
@@ -212,6 +215,7 @@ const data = reactive<PlaylistDetail>({
   netErr: false,
   loading: false,
   isExpand: false,
+  canExpand: false,
 });
 async function loadPlaylist(params: { id: string }) {
   data.netErr = false;
@@ -243,6 +247,7 @@ function resetData() {
   data.playlist = {};
   data.netErr = false;
   data.isExpand = false;
+  data.canExpand = false;
 }
 
 onBeforeMount(() => {
@@ -349,18 +354,24 @@ function lineClamp(str?: string, expand = false) {
   }
 
   const strArr = str.split('\n');
-  str = strArr[0];
+  const firstLine = strArr[0];
 
   const style = window.getComputedStyle(desRef.value);
   const width = desRef.value?.clientWidth;
   const height = desRef.value?.clientHeight;
   const fontSize = parseFloat(style.fontSize);
   const lineHeight = parseFloat(style.lineHeight);
-  console.log(height, width, fontSize, lineHeight);
-  console.log(width / fontSize);
-
   const endIndex = (width / fontSize) >>> 0;
-  return str.substring(0, endIndex - 3) + '...';
+
+  if (strArr.length > 1) {
+    data.canExpand = true;
+    return firstLine.substring(0, endIndex - 3) + '...';
+  }
+
+  if (str.length > endIndex) {
+    data.canExpand = true;
+    return str;
+  }
 }
 </script>
 
@@ -556,9 +567,8 @@ function lineClamp(str?: string, expand = false) {
         &-inner {
           display: inline-block;
           height: 20px;
-          overflow: hidden;
-          white-space: pre-line;
           &.expand {
+            white-space: pre-line;
             height: auto;
           }
         }
