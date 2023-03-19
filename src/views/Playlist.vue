@@ -88,9 +88,26 @@
             formatNumber(data.playlist.playCount)
           }}</span>
         </div>
-        <div class="desc text-overflow"
-          >简介：
-          <span>{{ data.playlist.description }}</span>
+        <div class="desc">
+          <span>简介：</span>
+          <span
+            :class="{
+              'desc-inner': true,
+              'text-overflow': true,
+              expand: data.isExpand,
+            }"
+            ref="desRef"
+            >{{ lineClamp(data.playlist.description, data.isExpand) }}</span
+          >
+          <i
+            v-if="data.canExpand"
+            :class="{
+              bi: true,
+              'bi-caret-up-fill': data.isExpand,
+              'bi-caret-down-fill': !data.isExpand,
+            }"
+            @click="toggleDesc"
+          />
         </div>
       </div>
     </div>
@@ -104,7 +121,7 @@
     </div>
 
     <div class="playlist-list">
-      <div class="playlist-list-header" ref="listHeaderRef">
+      <div class="playlist-list-header">
         <div class="playlist-list-item">
           <div></div>
           <div></div>
@@ -186,6 +203,8 @@ interface PlaylistDetail {
   loading: boolean;
   headerFixed: boolean;
   observer?: IntersectionObserver;
+  isExpand: boolean;
+  canExpand: boolean;
 }
 
 let origin: Track[] = [];
@@ -197,6 +216,8 @@ const data = reactive<PlaylistDetail>({
   headerFixed: false,
   netErr: false,
   loading: false,
+  isExpand: false,
+  canExpand: false,
 });
 async function loadPlaylist(params: { id: string }) {
   data.netErr = false;
@@ -227,6 +248,8 @@ async function loadPlaylist(params: { id: string }) {
 function resetData() {
   data.playlist = {};
   data.netErr = false;
+  data.isExpand = false;
+  data.canExpand = false;
 }
 
 onBeforeMount(() => {
@@ -241,17 +264,17 @@ watch<string>(
 );
 
 //
-const listHeaderRef = ref<HTMLDivElement>();
+const playlistHeaderRef = ref<HTMLDivElement>();
 onMounted(() => {
-  if (listHeaderRef.value) {
+  if (playlistHeaderRef.value) {
     data.observer = new window.IntersectionObserver(
       intersectionObserverCallback,
       {
         root: document.querySelector('.container-right-view'),
-        rootMargin: '-60px 0px',
+        rootMargin: '0px 0px 80px 0px',
       }
     );
-    data.observer.observe(listHeaderRef.value);
+    data.observer.observe(playlistHeaderRef.value);
   }
 });
 function intersectionObserverCallback(entries: IntersectionObserverEntry[]) {
@@ -313,6 +336,45 @@ watch(searchVal, val => {
   searchThrottle();
 });
 //  search-end
+
+// desc
+const desRef = ref<HTMLSpanElement>();
+function toggleDesc() {
+  data.isExpand = !data.isExpand;
+}
+
+function lineClamp(str?: string, expand = false) {
+  str = str?.trim();
+  if (!str) {
+    return str;
+  }
+  if (!desRef.value) {
+    return str;
+  }
+  if (expand) {
+    return str;
+  }
+
+  const strArr = str.split('\n');
+  const firstLine = strArr[0];
+
+  const style = window.getComputedStyle(desRef.value);
+  const width = desRef.value?.clientWidth;
+  const height = desRef.value?.clientHeight;
+  const fontSize = parseFloat(style.fontSize);
+  const lineHeight = parseFloat(style.lineHeight);
+  const endIndex = (width / fontSize) >>> 0;
+
+  if (strArr.length > 1) {
+    data.canExpand = true;
+    return firstLine.substring(0, endIndex - 3) + '...';
+  }
+
+  if (str.length > endIndex) {
+    data.canExpand = true;
+  }
+  return str;
+}
 </script>
 
 <style lang="scss" scoped>
@@ -511,12 +573,19 @@ watch(searchVal, val => {
       }
 
       .desc {
-        height: 30px;
-
-        span {
-          white-space: pre-line;
+        display: grid;
+        grid-template-columns: 36px auto 30px;
+        &-inner {
+          display: inline-block;
+          height: 20px;
+          &.expand {
+            white-space: pre-line;
+            height: auto;
+          }
+        }
+        > * {
+          line-height: 20px;
           color: #666;
-          line-height: 30px;
         }
       }
     }
