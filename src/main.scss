@@ -79,12 +79,15 @@ button {
     }
   }
   &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
   }
   &::-webkit-scrollbar-thumb {
     background-color: transparent;
     border-radius: 10px;
+    &:hover {
+      background-color: variables.$scrollbarHoverColor;
+    }
   }
 
   &-always {
@@ -92,13 +95,16 @@ button {
     height: 100%;
 
     &::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
     }
 
     &::-webkit-scrollbar-thumb {
       border-radius: 10px;
       background: variables.$scrollbarColor;
+      &:hover {
+        background-color: variables.$scrollbarHoverColor;
+      }
     }
   }
 }
