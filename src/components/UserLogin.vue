@@ -30,6 +30,7 @@ import Popover from '@/components/popover/Popover.vue';
 import { useUserStore } from '@/store/user';
 import { storeToRefs } from 'pinia';
 import Avatar from '@/components/Avatar.vue';
+import { message } from '@/components/message/message';
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);
 const visible = ref<boolean>(false);
@@ -38,6 +39,7 @@ onBeforeMount(() => {
 });
 
 function open() {
+  message();
   if (profile.value.userId) {
     showPopover();
   } else {

@@ -1,27 +1,29 @@
 <template>
   <div class="playlist">
-    <div v-show="data.headerFixed" class="playlist-header-fixed">
-      <div class="title">{{ data.playlist.name }}</div>
-      <div class="options">
-        <button class="options-all" @click="handleDev">
-          <i class="bi bi-play-fill"></i>
-        </button>
-        <button
-          @click="handleDev"
-          :class="`options-collect ${
-            profile.userId === data.playlist.userId ? 'disable' : null
-          }`"
-        >
-          <i class="bi bi-folder-check"></i>
-        </button>
-        <button @click="handleDev" class="optins-share">
-          <i class="bi bi-share"></i>
-        </button>
-        <button @click="handleDev" class="options-download">
-          <i class="bi bi-download"></i>
-        </button>
+    <Transition name="fade">
+      <div v-show="data.headerFixed" class="playlist-header-fixed">
+        <div class="title">{{ data.playlist.name }}</div>
+        <div class="options">
+          <button class="options-all" @click="handleDev">
+            <i class="bi bi-play-fill"></i>
+          </button>
+          <button
+            @click="handleDev"
+            :class="`options-collect ${
+              profile.userId === data.playlist.userId ? 'disable' : null
+            }`"
+          >
+            <i class="bi bi-folder-check"></i>
+          </button>
+          <button @click="handleDev" class="optins-share">
+            <i class="bi bi-share"></i>
+          </button>
+          <button @click="handleDev" class="options-download">
+            <i class="bi bi-download"></i>
+          </button>
+        </div>
       </div>
-    </div>
+    </Transition>
     <div class="playlist-header">
       <div class="playlist-header-left">
         <Image :src="data.playlist.coverImgUrl" class="cover" />
@@ -314,6 +316,15 @@ watch(searchVal, val => {
 </script>
 
 <style lang="scss" scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity, transform 280ms ease-in-out;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
 .net-err {
   text-align: center;
   color: #666666;
