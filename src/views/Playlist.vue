@@ -24,7 +24,7 @@
         </div>
       </div>
     </Transition>
-    <div class="playlist-header">
+    <div class="playlist-header" ref="playlistHeaderRef">
       <div class="playlist-header-left">
         <Image :src="data.playlist.coverImgUrl" class="cover" />
       </div>
