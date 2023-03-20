@@ -1,4 +1,10 @@
-import { defineComponent, cloneVNode, VNode, Fragment } from 'vue';
+import {
+  defineComponent,
+  cloneVNode,
+  VNode,
+  Fragment,
+  createElementVNode,
+} from 'vue';
 
 export default defineComponent({
   name: 'Trigger',
@@ -17,7 +23,10 @@ export default defineComponent({
 
   render() {
     const defaultSlot = this.$slots.default?.(this.$attrs);
-    return getFirstNode(defaultSlot);
+    const node = getFirstNode(defaultSlot);
+    if (node) {
+      return cloneVNode(node, { class: 'f-popover-trigger', ...this.$attrs });
+    }
   },
 });
 

@@ -1,5 +1,5 @@
 <template>
-  <Trigger @click="onClick" ref="triggerRef">
+  <Trigger @click.stop="onClick" ref="triggerRef">
     <slot v-if="$slots.reference" name="reference"></slot>
   </Trigger>
 
@@ -50,8 +50,13 @@ const visible = computed({
 
 watch(
   () => visible.value,
-  () => {
+  val => {
     data.popperInstance?.update();
+    if (val) {
+      window.addEventListener('click', globalEvent);
+    } else {
+      window.removeEventListener('click', globalEvent);
+    }
   },
   { immediate: true }
 );
@@ -88,19 +93,23 @@ onMounted(() => {
 
 function onClick() {
   if (props.trigger === trigger.click) {
-    updateVisible(!visible.value);
-    if (visible.value) {
-      window.addEventListener('click', globalEvent, { capture: true });
-    } else {
-      window.removeEventListener('click', globalEvent, { capture: true });
+    if (!isBool.value) {
+      visible.value = !visible.value;
     }
+    // console.log(props.visible);
+
+    // if (visible.value) {
+    //   window.addEventListener('click', globalEvent);
+    // } else {
+    //   window.removeEventListener('click', globalEvent);
+    // }
   }
 }
 
 function globalEvent(e: MouseEvent) {
   const isSelf = el?.contains(e.target as HTMLElement | null);
   if (!isSelf) {
-    updateVisible(false);
+    visible.value = false;
   }
 }
 
@@ -110,8 +119,7 @@ interface Emits {
 }
 const emit = defineEmits<Emits>();
 function updateVisible(val: boolean) {
-  console.log('updateVisible: ' + val);
-  console.log('isBool: ' + isBool.value);
+  console.log(`update:visible: ${val}; \nisBool: ${isBool.value}`);
 
   if (!isBool.value) {
     data.visible = val;

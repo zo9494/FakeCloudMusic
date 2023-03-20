@@ -202,6 +202,7 @@ onMounted(() => {
 });
 function onShowPlaylist() {
   data.showPlaylist = !data.showPlaylist;
+  debugger;
   if (data.showPlaylist) {
     window.addEventListener('click', addEvent, { capture: true });
   } else {
@@ -301,9 +302,9 @@ function addEvent(e: MouseEvent) {
       </div>
 
       <div class="f-player-right-control">
-        <Popover :visible="data.showPlaylist">
+        <Popover>
           <template #reference>
-            <button @click="onShowPlaylist" class="f-player-right-control-list">
+            <button class="f-player-right-control-list">
               <i class="icon-playlist-music iconfont"> </i>
             </button>
           </template>

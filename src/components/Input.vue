@@ -1,6 +1,6 @@
 <template>
   <span class="f-input">
-    <div class="f-input-prefix" @click="handleClear">
+    <div class="f-input-prefix">
       <i class="bi bi-x-lg icon" v-if="props.modelValue" />
       <i class="bi bi-search icon" v-else />
     </div>

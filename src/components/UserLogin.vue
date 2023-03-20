@@ -1,7 +1,7 @@
 <template>
-  <Popover :visible="visible" placement="right">
+  <Popover placement="right">
     <template #reference>
-      <div class="user" @click="open">
+      <div class="user" @click="openLogin">
         <div class="avatar">
           <Avatar :src="profile?.avatarUrl" />
           <!-- <img v-if="profile?.userId" :src="profile?.avatarUrl">
@@ -33,34 +33,15 @@ import Avatar from '@/components/Avatar.vue';
 import { message } from '@/components/message/message';
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);
-const visible = ref<boolean>(false);
+
 onBeforeMount(() => {
   userStore.getUserAccount();
 });
 
-function open() {
+function openLogin() {
   message();
-  if (profile.value.userId) {
-    showPopover();
-  } else {
+  if (!profile.value.userId) {
     window.electron.window.createLoginWin();
-  }
-}
-
-function showPopover() {
-  visible.value = !visible.value;
-  if (visible.value) {
-    window.addEventListener('click', clickEvent, { capture: true });
-  } else {
-    window.removeEventListener('click', clickEvent, { capture: true });
-  }
-}
-
-function clickEvent(e: MouseEvent) {
-  const el = document.querySelector('.f-popover-container') as HTMLDivElement;
-  const isSelf = el?.contains(e.target as HTMLElement);
-  if (!isSelf) {
-    visible.value = false;
   }
 }
 </script>

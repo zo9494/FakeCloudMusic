@@ -1,11 +1,12 @@
 <template>
   <div class="search">
-    <Popover>
+    <Popover v-model:visible="data.visible">
       <template #reference>
         <FInput
           v-model="data.value"
           class="search-input"
           :placeholder="data.placeholder"
+          @click="handleClick"
         />
       </template>
       <ScrollBar class="search-panel" way="always">
@@ -32,12 +33,14 @@ interface DataType {
   value: string;
   placeholder: string;
   timer: number;
+  visible: boolean;
 }
 
 const data = reactive<DataType>({
   value: '',
   placeholder: '搜索',
   timer: -1,
+  visible: false,
 });
 
 function autoChangeHotSearch(hot: HotSearch.Hot[], startIndex = 0) {
@@ -72,6 +75,10 @@ function recordHistory(value: string) {
 
   history.push(value);
   localStorage.setItem('search_history', JSON.stringify(json));
+}
+
+function handleClick() {
+  data.visible = true;
 }
 </script>
 
