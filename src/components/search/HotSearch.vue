@@ -5,7 +5,11 @@
     </div>
     <div class="hot-search-body">
       <div class="list">
-        <div class="list-item" v-for="(item, index) in data.hotSearch">
+        <div
+          class="list-item"
+          @click="handleClick"
+          v-for="(item, index) in data.hotSearch"
+        >
           <div class="list-item-index">{{ index + 1 }}</div>
           <div class="list-item-body">
             <p>{{ item.searchWord }}</p>
@@ -35,6 +39,10 @@ onBeforeMount(() => {
     }
   });
 });
+
+function handleClick() {
+  console.log('handleClick');
+}
 </script>
 
 <style lang="scss">

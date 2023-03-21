@@ -1,12 +1,16 @@
 <template>
-  <div class="search">
-    <Popover v-model:visible="data.visible">
+  <div class="search" ref="searchRef">
+    <Popover
+      :show="data.visible"
+      trigger="manual"
+      :on-clickoutside="clickOutSide"
+    >
       <template #reference>
         <FInput
           v-model="data.value"
           class="search-input"
           :placeholder="data.placeholder"
-          @click="handleClick"
+          @click.stop="handleClick"
         />
       </template>
       <ScrollBar class="search-panel" way="always">
@@ -21,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, reactive, onBeforeUnmount } from 'vue';
+import { onBeforeMount, reactive, onBeforeUnmount, ref } from 'vue';
 import FInput from '@/components/Input.vue';
 import Popover from '@/components/popover/Popover.vue';
 import { getHotSearch } from '@/api/search';
@@ -79,6 +83,13 @@ function recordHistory(value: string) {
 
 function handleClick() {
   data.visible = true;
+}
+const searchRef = ref<HTMLDivElement>();
+function clickOutSide(e: MouseEvent) {
+  const isSelf = searchRef.value?.contains(e.target as Node);
+  if (!isSelf) {
+    data.visible = false;
+  }
 }
 </script>
 

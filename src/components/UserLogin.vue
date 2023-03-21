@@ -1,5 +1,5 @@
 <template>
-  <Popover placement="right">
+  <Popover trigger="click" placement="right">
     <template #reference>
       <div class="user" @click="openLogin">
         <div class="avatar">

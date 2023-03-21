@@ -302,7 +302,7 @@ function addEvent(e: MouseEvent) {
       </div>
 
       <div class="f-player-right-control">
-        <Popover>
+        <Popover trigger="click" placement="top-start">
           <template #reference>
             <button class="f-player-right-control-list">
               <i class="icon-playlist-music iconfont"> </i>

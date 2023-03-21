@@ -25,9 +25,11 @@ const props = withDefaults(defineProps<PropsType>(), {
 <style scoped lang="scss">
 .f-playlist {
   width: 400px;
-  height: calc(100vh - 80px);
-  padding: 10px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
   &-header {
+    padding: 10px;
     &-title {
       margin: 0;
       font-size: 18px;
@@ -37,10 +39,9 @@ const props = withDefaults(defineProps<PropsType>(), {
   }
   &-body {
     height: 100%;
-    margin-top: 15px;
     .f-playlist-separator {
+      margin: 0 10px;
       height: 1px;
-      width: 100%;
       background-color: #dfdfdf;
     }
     .f-playlist-empty {
