@@ -7,7 +7,6 @@
       )}),rgb(245,245,245))`,
     }"
   >
-    <div class="app_bar-blank"></div>
     <div class="f-lyrics">
       <div class="f-lyrics-header">
         <div>
