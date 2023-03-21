@@ -1,5 +1,5 @@
 <template>
-  <header class="app-bar">
+  <header class="app-bar drag">
     <div class="app-bar-options">
       <div class="app-bar-options-search no-drag">
         <Search />
