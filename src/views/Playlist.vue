@@ -1,6 +1,6 @@
 <template>
   <div class="playlist">
-    <Transition name="fade">
+    <Transition name="fade-slide-down">
       <div v-show="data.headerFixed" class="playlist-header-fixed">
         <div class="title">{{ data.playlist.name }}</div>
         <div class="options">
@@ -378,15 +378,6 @@ function lineClamp(str?: string, expand = false) {
 </script>
 
 <style lang="scss" scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity, transform 280ms ease-in-out;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-100%);
-}
 .net-err {
   text-align: center;
   color: #666666;

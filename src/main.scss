@@ -38,10 +38,10 @@ button {
 #app {
   height: 100vh;
   width: 100vw;
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: repeat(2, variables.$appBarHeight) auto;
-  grid-template-columns: 200px auto;
+  // overflow: hidden;
+  // display: grid;
+  // grid-template-rows: repeat(2, variables.$appBarHeight) auto;
+  // grid-template-columns: 200px auto;
   position: relative;
 }
 
@@ -111,5 +111,27 @@ button {
 
 .no-padding {
   padding: 0 !important;
+}
+
+//
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 280ms ease-in-out;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+}
+// fade and slide-down
+.fade-slide-down-enter-active,
+.fade-slide-down-leave-active {
+  transition: opacity, transform 280ms ease-in-out;
+}
+.fade-slide-down-enter-from,
+.fade-slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
 }
 /* https://learn.microsoft.com/zh-cn/windows/apps/design/style/segoe-fluent-icons-font */

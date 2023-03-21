@@ -403,15 +403,6 @@ function addEvent(e: MouseEvent) {
 </template>
 
 <style lang="scss">
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: transform 280ms ease-in-out;
-}
-
-.slide-up-enter-from,
-.slide-up-leave-to {
-  transform: translateY(100%);
-}
 .bg {
   background-size: cover;
 }

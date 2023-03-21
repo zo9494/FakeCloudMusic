@@ -20,27 +20,9 @@ window.loadUser = () => {
 </script>
 
 <template>
-  <AppBar></AppBar>
-  <div class="container-left-nav">
-    <div class="user">
-      <UserLogin />
-    </div>
-    <ScrollBar>
-      <Menu :menu="order"></Menu>
-      <div style="height: 80px"></div>
-    </ScrollBar>
-  </div>
-  <div class="container-right-view">
-    <ScrollBar way="always">
-      <RouterView></RouterView>
-      <div style="height: 80px"></div>
-    </ScrollBar>
-  </div>
-  <div class="container-player">
-    <Player />
-  </div>
-  <!-- <div class="container">
-    <div class="container-left-nav">
+  <main class="container">
+    <aside class="container-left-nav">
+      <div class="drag"></div>
       <div class="user">
         <UserLogin />
       </div>
@@ -48,42 +30,48 @@ window.loadUser = () => {
         <Menu :menu="order"></Menu>
         <div style="height: 80px"></div>
       </ScrollBar>
-    </div>
+    </aside>
     <div class="container-right-view">
-      <ScrollBar way="always">
-        <RouterView></RouterView>
-        <div style="height: 80px"></div>
-      </ScrollBar>
+      <AppBar></AppBar>
+      <div class="container-right-view-inner">
+        <ScrollBar way="always">
+          <RouterView></RouterView>
+          <div style="height: 80px"></div>
+        </ScrollBar>
+      </div>
     </div>
     <div class="container-player">
       <Player />
     </div>
-  </div> -->
+  </main>
 </template>
 
 <style lang="scss">
 .container {
-  grid-row: 3/4;
+  width: 100%;
   height: 100%;
   overflow: hidden;
   display: grid;
   grid-template-columns: 200px auto;
-  grid-template-rows: auto;
 
   &-left-nav {
-    grid-row: 2/4;
     overflow: hidden;
     display: grid;
-    grid-template-rows: 50px auto;
+    grid-template-rows: 20px 50px auto;
     background-color: variables.$appBgColor;
   }
 
   &-right-view {
-    padding: 0 2px;
-    grid-row: 3/4;
+    padding: 40px 2px 0 2px;
     height: 100%;
-    position: relative;
     overflow: hidden;
+    position: relative;
+    &-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
   }
 
   &-player {
