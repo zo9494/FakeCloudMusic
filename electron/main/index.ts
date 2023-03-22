@@ -178,10 +178,12 @@ class Main {
    * 全局快捷键
    */
   private registerGlobalShortcut() {
-    globalShortcut.register('F10', () => {
-      Main.win && Main.win.webContents.openDevTools();
-      Login.win && Login.win.webContents.openDevTools();
-    });
+    if (isDevelopment) {
+      globalShortcut.register('F10', () => {
+        Main.win && Main.win.webContents.openDevTools();
+        Login.win && Login.win.webContents.openDevTools();
+      });
+    }
   }
 }
 
