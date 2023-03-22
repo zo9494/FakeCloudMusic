@@ -187,6 +187,7 @@ defineExpose({ handleScroll });
     &-right {
       width: 98%;
       .item {
+        min-height: 20px;
         font-size: 14.8px;
         color: #555;
         margin: 15px 0;
