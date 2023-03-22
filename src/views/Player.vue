@@ -2,11 +2,11 @@
 import VueSlider from 'vue-slider-component';
 import Image from '@/components/PlaylistImage.vue';
 import Lyrics from '@/components/player/PlayerLyrics.vue';
+import VolumeIcon from '@/components/player/PlayerVolumeIcon.vue';
 import List from '@/components/player/Playerlist.vue';
 import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
-import { reactive, watch, computed, onMounted } from 'vue';
-import { throttle } from 'lodash';
+import { reactive, watch, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/store/player';
 import { formatDuringMS } from '@/utils/time';
@@ -14,12 +14,6 @@ import { FA, FAudio } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
 const playerStore = usePlayerStore();
 const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
-
-enum VolumeIcon {
-  mute = 'bi-volume-off',
-  down = 'bi-volume-down',
-  up = 'bi-volume-up',
-}
 
 interface Data {
   node?: FAudio;
@@ -84,21 +78,19 @@ function setBgColor(url: string) {
   });
 }
 // volume
-const volumeChange = throttle((value: number) => {
-  if (data.node) {
-    data.node.volume = value;
+// const volumeChange = throttle((value: number) => {
+//   if (data.node) {
+//     data.node.volume = value;
+//   }
+// }, 100);
+watch(
+  () => data.volume,
+  value => {
+    if (data.node) {
+      data.node.volume = value;
+    }
   }
-}, 500);
-watch(() => data.volume, volumeChange);
-const volumeIcon = computed(() => {
-  if (data.volume === 0) {
-    return VolumeIcon.mute;
-  }
-  if (data.volume >= 0.6) {
-    return VolumeIcon.up;
-  }
-  return VolumeIcon.down;
-});
+);
 
 watch(
   () => data.node,
@@ -192,29 +184,6 @@ function setMediaMetadata(params: Partial<mediaData>) {
 
 function handleShowLyric() {
   data.showLyric = true;
-}
-
-onMounted(() => {
-  const el = document.querySelector('.f-popover-container') as HTMLDivElement;
-  if (el) {
-    data.popoverEl = el;
-  }
-});
-function onShowPlaylist() {
-  data.showPlaylist = !data.showPlaylist;
-  debugger;
-  if (data.showPlaylist) {
-    window.addEventListener('click', addEvent, { capture: true });
-  } else {
-    window.removeEventListener('click', addEvent, { capture: true });
-  }
-}
-
-function addEvent(e: MouseEvent) {
-  const isSelf = data.popoverEl?.contains(e.target as HTMLElement);
-  if (!isSelf) {
-    data.showPlaylist = false;
-  }
 }
 </script>
 
@@ -313,7 +282,7 @@ function addEvent(e: MouseEvent) {
         </Popover>
 
         <div class="f-player-right-control-volume">
-          <i :class="['bi', 'icon-volume', volumeIcon]" />
+          <VolumeIcon :volume="data.volume"></VolumeIcon>
           <VueSlider
             :duration="0"
             class="f-player-right-control-volume-bar"
@@ -549,30 +518,26 @@ button {
   }
 
   &-right-control {
-    display: grid;
-    grid-template-columns: auto auto;
+    display: flex;
     gap: 5px;
 
     &-volume {
       width: 100px;
       display: grid;
-      grid-template-columns: 28px auto;
+      grid-template-columns: 20px auto;
       align-items: center;
-
-      &-icon {
-        width: 28px;
-        height: 28px;
-      }
-
+      font-size: 20px;
       &-bar {
         width: 100%;
       }
     }
 
     &-list {
-      padding: 5px 8px;
+      padding: 0px 13px;
       border-radius: 10px;
-
+      .iconfont {
+        font-size: 13px;
+      }
       &:hover {
         background-color: rgba(209, 209, 214, 0.28);
       }
@@ -684,9 +649,5 @@ button {
       font-size: 30px;
     }
   }
-}
-
-.icon-volume {
-  font-size: 28px;
 }
 </style>

@@ -92,3 +92,26 @@ export const FA = (() => {
     return instance;
   };
 })();
+
+// todo 播放模式
+enum Mode {
+  // 顺序播放
+  order = 'order',
+  // 循环播放
+  loop = 'loop',
+  // 随机播放
+  shuffle = 'shuffle',
+}
+type ModeKey = keyof typeof Mode;
+class PlayMode {
+  private value: keyof typeof Mode;
+  constructor(value = Mode.order) {
+    this.value = value;
+  }
+  set mode(value: ModeKey) {
+    this.value = value;
+  }
+  get mode(): ModeKey {
+    return this.value;
+  }
+}
