@@ -284,7 +284,7 @@ function addEvent(e: MouseEvent) {
             @change="handleProgressChange"
             :min="0"
             :max="data.duration"
-            :duration="0.2"
+            :duration="0"
             :interval="0.001"
             tooltip="none"
             :dot-size="10"
@@ -315,7 +315,7 @@ function addEvent(e: MouseEvent) {
         <div class="f-player-right-control-volume">
           <i :class="['bi', 'icon-volume', volumeIcon]" />
           <VueSlider
-            :duration="0.1"
+            :duration="0"
             class="f-player-right-control-volume-bar"
             v-model="data.volume"
             :max="1"
@@ -359,9 +359,9 @@ function addEvent(e: MouseEvent) {
                 @change="handleProgressChange"
                 :min="0"
                 :max="data.duration"
-                :duration="0.2"
                 :interval="0.001"
                 tooltip="none"
+                :duration="0"
                 :dot-size="10"
               >
                 <template v-slot:process="{ _, __, style }">

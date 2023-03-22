@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NConfigProvider, GlobalThemeOverrides } from 'naive-ui';
 import AppBar from './components/AppBar.vue';
 import ScrollBar from './components/ScrollBar.vue';
 import Menu from './components/Menu.vue';
@@ -13,6 +14,11 @@ import { useUserStore } from '@/store/user';
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
 
+const themeOverrides: GlobalThemeOverrides = {
+  Slider: {
+    handleSize: '12px',
+  },
+};
 window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount();
@@ -20,7 +26,11 @@ window.loadUser = () => {
 </script>
 
 <template>
-  <main class="container">
+  <NConfigProvider
+    tag="main"
+    class="container"
+    :theme-overrides="themeOverrides"
+  >
     <aside class="container-left-nav">
       <div class="drag"></div>
       <div class="user">
@@ -43,7 +53,7 @@ window.loadUser = () => {
     <div class="container-player">
       <Player />
     </div>
-  </main>
+  </NConfigProvider>
 </template>
 
 <style lang="scss">

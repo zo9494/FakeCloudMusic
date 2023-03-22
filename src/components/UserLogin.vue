@@ -1,5 +1,10 @@
 <template>
-  <Popover trigger="click" placement="right">
+  <Popover
+    :show="visible"
+    trigger="manual"
+    placement="right"
+    :on-clickoutside="clickOutSide"
+  >
     <template #reference>
       <div class="user" @click="openLogin">
         <div class="avatar">
@@ -37,12 +42,18 @@ const { profile } = storeToRefs(userStore);
 onBeforeMount(() => {
   userStore.getUserAccount();
 });
-
+const visible = ref(false);
 function openLogin() {
   message();
   if (!profile.value.userId) {
     window.electron.window.createLoginWin();
+  } else {
+    visible.value = true;
   }
+}
+
+function clickOutSide() {
+  visible.value = false;
 }
 </script>
 
