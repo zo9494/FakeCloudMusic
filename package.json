@@ -2,8 +2,8 @@
   "name": "FakeCloudMusic",
   "version": "0.0.1",
   "main": "dist-electron/main/index.js",
-  "description": "",
-  "author": "",
+  "description": "music player",
+  "author": "zo",
   "license": "MIT",
   "private": true,
   "keywords": [
