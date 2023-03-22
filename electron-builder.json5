@@ -9,12 +9,12 @@
   },
   files: ['dist-electron', 'dist'],
   mac: {
-    icon: 'public/icon.png',
+    icon: './public/icon.png',
     artifactName: '${productName}_${version}.${ext}',
     target: ['dmg'],
   },
   win: {
-    icon: 'public/favicon.ico',
+    icon: './public/icon.ico',
     target: [
       {
         target: 'nsis',
@@ -28,8 +28,5 @@
     perMachine: false,
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false,
-    installerIcon: 'public/favicon.ico',
-    uninstallerIcon: 'public/favicon.ico',
-    installerHeaderIcon: 'public/favicon.ico',
   },
 }
