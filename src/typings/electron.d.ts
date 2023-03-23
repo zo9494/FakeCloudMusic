@@ -5,15 +5,17 @@ import * as Electron from 'electron';
  */
 
 interface window {
-  close: () => Promise<any>;
+  close: (value?: boolean) => Promise<any>;
   resizable: () => Promise<boolean>;
   minimize: () => Promise<any>;
   createLoginWin: () => Promise<any>;
   closeLoginWin: () => Promise<any>;
+  beforeClose: (cb: () => void) => void;
+  minimizeToTray: () => void;
 }
 
 export default interface ElectronApi {
-  ipcRenderer: Electron.IpcRenderer;
+  // ipcRenderer: Electron.IpcRenderer;
   window: window;
   reloadUser: () => void;
 }

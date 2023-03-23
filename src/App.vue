@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { NConfigProvider, GlobalThemeOverrides } from 'naive-ui';
+import { h } from 'vue';
+import { useDialog } from 'naive-ui';
 import AppBar from './components/AppBar.vue';
 import ScrollBar from './components/ScrollBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
 import Player from '@/views/Player.vue';
-
+import CloseTip from '@/components/CloseTip.vue';
 import { RouterView } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
@@ -13,47 +14,64 @@ import { useUserStore } from '@/store/user';
 
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
-
-const themeOverrides: GlobalThemeOverrides = {
-  Slider: {
-    handleSize: '12px',
-  },
-};
+const dialog = useDialog();
 window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount();
 };
+let afterClose: Promise<boolean>;
+function confirm(val: boolean) {
+  dialog.destroyAll();
+  afterClose = Promise.resolve(val);
+}
+function onAfterLeave() {
+  afterClose.then(value => {
+    if (value) {
+      window.electron.window.close(true);
+    } else {
+      window.electron.window.minimizeToTray();
+    }
+  });
+}
+window.electron.window.beforeClose(function () {
+  console.log('from main: before-close');
+  dialog.create({
+    showIcon: false,
+    autoFocus: false,
+    // closable: false,
+    transformOrigin: 'center',
+    onAfterLeave,
+    content: () =>
+      h(CloseTip, {
+        confirm,
+      }),
+  });
+});
 </script>
 
 <template>
-  <NConfigProvider
-    tag="main"
-    class="container"
-    :theme-overrides="themeOverrides"
-  >
-    <aside class="container-left-nav">
-      <div class="drag"></div>
-      <div class="user">
-        <UserLogin />
-      </div>
-      <ScrollBar>
-        <Menu :menu="order"></Menu>
+  <aside class="container-left-nav">
+    <div class="drag"></div>
+    <div class="user">
+      <UserLogin />
+    </div>
+    <ScrollBar>
+      <Menu :menu="order"></Menu>
+      <div style="height: 80px"></div>
+    </ScrollBar>
+  </aside>
+  <div class="container-right-view">
+    <AppBar></AppBar>
+    <div class="container-right-view-inner">
+      <ScrollBar way="always">
+        <RouterView></RouterView>
         <div style="height: 80px"></div>
       </ScrollBar>
-    </aside>
-    <div class="container-right-view">
-      <AppBar></AppBar>
-      <div class="container-right-view-inner">
-        <ScrollBar way="always">
-          <RouterView></RouterView>
-          <div style="height: 80px"></div>
-        </ScrollBar>
-      </div>
     </div>
-    <div class="container-player">
-      <Player />
-    </div>
-  </NConfigProvider>
+  </div>
+  <div class="container-player">
+    <Player />
+  </div>
 </template>
 
 <style lang="scss">

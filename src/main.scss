@@ -104,6 +104,10 @@ button {
 .no-padding {
   padding: 0 !important;
 }
+.n-modal-mask {
+  backdrop-filter: blur(2px);
+  background-color: rgba(225, 225, 225, 0.2);
+}
 
 //
 

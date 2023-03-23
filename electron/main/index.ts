@@ -6,6 +6,9 @@ import {
   ipcMain,
   globalShortcut,
   session,
+  nativeImage,
+  Tray,
+  Menu,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
@@ -41,6 +44,8 @@ const vue_dev = join(process.cwd(), '/vue_devtools/');
 class Main {
   static win: BrowserWindow | null = null;
   static neteaseApi: any;
+  static tray: Tray;
+  canClose = false;
   constructor() {
     app.disableDomainBlockingFor3DAPIs();
     app.whenReady().then(async () => {
@@ -49,6 +54,7 @@ class Main {
       this.registerAppEvent();
       this.registerHandle();
       this.registerGlobalShortcut();
+      this.createTray();
       if (isDevelopment) {
         try {
           console.log(`vueDevtools:${chalk.green(vue_dev)}`);
@@ -139,8 +145,18 @@ class Main {
       }
     });
 
-    app.on('ready', async () => {
+    app.on('ready', () => {
       console.log(chalk.red('ready'));
+    });
+    app.on('before-quit', e => {
+      console.log(chalk.red('before-quit'));
+      // todo 退出确认
+      Main.win.webContents.send(EVENT.BEFORE_CLOSE);
+      console.log(this.canClose);
+
+      if (!this.canClose) {
+        e.preventDefault();
+      }
     });
   }
   /**
@@ -148,7 +164,8 @@ class Main {
    */
   private registerHandle() {
     // window
-    ipcMain.handle(EVENT.WINDOW_CLOSE, () => {
+    ipcMain.handle(EVENT.WINDOW_CLOSE, (_, value = false) => {
+      this.canClose = value;
       app.quit();
     });
     ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
@@ -171,6 +188,11 @@ class Main {
     ipcMain.handle(EVENT.RELOAD_USER, (_, args) => {
       return Main.win.webContents.executeJavaScript('window.loadUser()');
     });
+    ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, () => {
+      setTimeout(() => {
+        Main.win.hide();
+      }, 100);
+    });
 
     Login.registerHandle();
   }
@@ -184,6 +206,17 @@ class Main {
         Login.win && Login.win.webContents.openDevTools();
       });
     }
+  }
+
+  private createTray() {
+    const icon = nativeImage.createFromPath('public/icon.png');
+    Main.tray = new Tray(icon);
+    const contextMenu = Menu.buildFromTemplate([{ label: '退出' }]);
+
+    Main.tray.setContextMenu(contextMenu);
+    Main.tray.on('click', () => {
+      Main.win.show();
+    });
   }
 }
 
