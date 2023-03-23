@@ -8,13 +8,14 @@
     output: 'release/${version}',
   },
   files: ['dist-electron', 'dist'],
+
   mac: {
-    icon: 'public/icon.icns',
+    icon: 'public/icons/icon.icns',
     artifactName: '${productName}_${version}.${ext}',
     target: ['dmg'],
   },
   win: {
-    icon: 'public/icon.ico',
+    icon: 'public/icons/icon.ico',
     target: [
       {
         target: 'nsis',

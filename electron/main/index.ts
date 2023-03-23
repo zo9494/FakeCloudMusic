@@ -209,7 +209,12 @@ class Main {
   }
 
   private createTray() {
-    const icon = nativeImage.createFromPath('public/icon.png');
+    // electron-builder extraResources
+    const icon = nativeImage.createFromPath(
+      isDevelopment
+        ? 'public/icons/icon.png'
+        : join(app.getAppPath(), '/dist/icons/icon.png')
+    );
     Main.tray = new Tray(icon);
     const contextMenu = Menu.buildFromTemplate([{ label: '退出' }]);
 
