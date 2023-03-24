@@ -47,7 +47,6 @@ class Main {
   static tray: Tray;
   canClose = false;
   constructor() {
-    app.disableDomainBlockingFor3DAPIs();
     app.whenReady().then(async () => {
       this.createServer();
       this.createWindow();
@@ -105,6 +104,15 @@ class Main {
       if (url.startsWith('https:')) shell.openExternal(url);
       return { action: 'deny' };
     });
+    // 主窗口 app:before-quit => browserWindow:close
+    // mac 红绿灯 会触发close事件
+    Main.win.on('close', e => {
+      console.log('close');
+      if (isMac) {
+        app.hide();
+        e.preventDefault();
+      }
+    });
     return;
   }
   private async createServer() {
@@ -118,9 +126,11 @@ class Main {
   // 全局事件
   private registerAppEvent() {
     app.on('window-all-closed', () => {
-      Main.win = null;
+      console.log('window-all-closed');
+      return;
       if (process.platform !== 'darwin') {
         app.quit();
+        Main.win = null;
         Main.neteaseApi.close(() => {
           console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
         });
@@ -146,24 +156,39 @@ class Main {
     });
 
     app.on('ready', () => {
+      app.disableDomainBlockingFor3DAPIs();
       console.log(chalk.red('ready'));
     });
+    // mac 右键退出触发 app：before-quit => browserWindow:close
     app.on('before-quit', e => {
       console.log(chalk.red('before-quit'));
       // todo 退出确认
-      Main.win.webContents.send(EVENT.BEFORE_CLOSE);
-      console.log(this.canClose);
+      // win平台
+      if (isWin) {
+        Main.win.webContents.send(EVENT.BEFORE_CLOSE);
+        console.log(this.canClose);
 
-      if (!this.canClose) {
-        e.preventDefault();
+        if (!this.canClose) {
+          e.preventDefault();
+        }
       }
+      // mac平台
+      if (isMac) {
+        app.exit();
+      }
+    });
+    app.on('will-quit', () => {
+      console.log('will-quit');
+    });
+    app.on('quit', () => {
+      console.log('quit');
     });
   }
   /**
-   * 全局handle
+   * 注册事件
    */
   private registerHandle() {
-    // window
+    // window平台
     ipcMain.handle(EVENT.WINDOW_CLOSE, (_, value = false) => {
       this.canClose = value;
       app.quit();
@@ -182,16 +207,18 @@ class Main {
       Main.win.minimize();
     });
 
+    ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, () => {
+      setTimeout(() => {
+        Main.win.hide();
+      }, 100);
+    });
+    // window平台
+
     ipcMain.handle(EVENT.LOGIN, () => {
       new Login({ parent: Main.win });
     });
     ipcMain.handle(EVENT.RELOAD_USER, (_, args) => {
       return Main.win.webContents.executeJavaScript('window.loadUser()');
-    });
-    ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, () => {
-      setTimeout(() => {
-        Main.win.hide();
-      }, 100);
     });
 
     Login.registerHandle();
@@ -220,7 +247,11 @@ class Main {
 
     Main.tray.setContextMenu(contextMenu);
     Main.tray.on('click', () => {
-      Main.win.show();
+      if (isMac) {
+        app.show();
+      } else {
+        Main.win.show();
+      }
     });
   }
 }
