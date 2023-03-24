@@ -29,13 +29,16 @@ function handleResizable() {
   });
 }
 
-let close = false;
-let tip = true;
-function confirm(val: boolean) {
+let close: boolean | null = null;
+let tip: boolean = true;
+function confirm(val: boolean | null = null) {
   dialog.destroyAll();
   close = val;
 }
 function onAfterLeave() {
+  if (close === null) {
+    return;
+  }
   if (close) {
     window.electron.window.close(true);
   } else {
@@ -47,6 +50,8 @@ function handleClose() {
     dialog.create({
       showIcon: false,
       autoFocus: false,
+      closeOnEsc: false,
+      maskClosable: false,
       // closable: false,
       transformOrigin: 'center',
       onAfterLeave,
