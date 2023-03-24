@@ -24,9 +24,7 @@ function handleMinimize() {
   window.electron.window.minimize();
 }
 function handleResizable() {
-  window.electron.window.resizable().then(value => {
-    isMaximized.value = value;
-  });
+  window.electron.window.resizable();
 }
 
 let close: boolean | null = null;
@@ -64,6 +62,15 @@ function handleClose() {
     onAfterLeave();
   }
 }
+
+window.electron.window.beforeClose(() => {
+  window.electron.window.show();
+  handleClose();
+});
+
+window.electron.window.maximizeChange(val => {
+  isMaximized.value = val;
+});
 </script>
 
 <style lang="scss" scoped>

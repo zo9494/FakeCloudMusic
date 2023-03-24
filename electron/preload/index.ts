@@ -20,6 +20,20 @@ const window = {
   minimizeToTray() {
     return ipcRenderer.invoke(EVENT.MINIMIZE_TO_TRAY);
   },
+  setTitle(title?: string) {
+    return ipcRenderer.invoke(EVENT.SET_TITLE, title);
+  },
+  beforeClose(cb: () => void) {
+    ipcRenderer.on(EVENT.BEFORE_CLOSE, cb);
+  },
+  show() {
+    return ipcRenderer.invoke(EVENT.WINDOW_SHOW);
+  },
+  maximizeChange(cb: (val: boolean) => void) {
+    ipcRenderer.on(EVENT.maximize, (e, val) => {
+      cb(val);
+    });
+  },
 };
 contextBridge.exposeInMainWorld('electron', {
   window,

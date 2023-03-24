@@ -11,6 +11,10 @@ interface window {
   createLoginWin: () => Promise<any>;
   closeLoginWin: () => Promise<any>;
   minimizeToTray: () => void;
+  setTitle: (title: string) => void;
+  beforeClose: (cb: () => void) => void;
+  show: () => void;
+  maximizeChange: (cb: (val: boolean) => void) => void;
 }
 
 export default interface ElectronApi {

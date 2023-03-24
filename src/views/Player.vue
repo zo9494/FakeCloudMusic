@@ -6,7 +6,7 @@ import VolumeIcon from '@/components/player/PlayerVolumeIcon.vue';
 import List from '@/components/player/Playerlist.vue';
 import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
-import { reactive, watch, computed, onMounted } from 'vue'
+import { reactive, watch, computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { usePlayerStore } from '@/store/player';
 import { formatDuringMS } from '@/utils/time';
@@ -40,36 +40,39 @@ const data = reactive<Data>({
   showPlaylist: false,
   bgColor: [245, 245, 245],
 });
-
 watch(
   () => currentSong.value.songUrl?.url,
   url => {
     if (!url) {
       return;
     }
-
     if (data.node) {
       data.node.src = url;
     } else {
       data.node = FA({ src: url });
     }
     data.node.volume = data.volume;
-    setMediaMetadata({
-      artist: currentSong.value.song?.arName,
-      album: currentSong.value.song?.al?.name,
-      alPicUrl: currentSong.value.song?.al?.picUrl,
-      title: currentSong.value.song?.name,
-    });
   }
 );
-watch(
-  () => currentSong.value?.song?.al?.picUrl,
 
-  val => {
-    if (val) {
-      setBgColor(val);
+watch(
+  () => currentSong.value?.song,
+
+  song => {
+    console.log('change', song);
+
+    if (song) {
+      setBgColor(song.al?.picUrl as string);
+      setMediaMetadata({
+        artist: song?.arName,
+        album: song?.al?.name,
+        alPicUrl: song?.al?.picUrl,
+        title: song?.name,
+      });
+      window.electron.window.setTitle(`${song?.name} - ${song?.arName}`);
     }
-  }
+  },
+  { deep: true }
 );
 
 function setBgColor(url: string) {
@@ -77,12 +80,7 @@ function setBgColor(url: string) {
     data.bgColor = rgb;
   });
 }
-// volume
-// const volumeChange = throttle((value: number) => {
-//   if (data.node) {
-//     data.node.volume = value;
-//   }
-// }, 100);
+
 watch(
   () => data.volume,
   value => {

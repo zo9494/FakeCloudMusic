@@ -46,7 +46,9 @@ class Main {
   static neteaseApi: any;
   static tray: Tray;
   canClose = false;
+  title: string;
   constructor() {
+    this.title = 'FakeCloudMusic';
     app.whenReady().then(async () => {
       this.createServer();
       this.createWindow();
@@ -72,7 +74,7 @@ class Main {
         preload,
         nodeIntegration: true,
       },
-      title: 'FakeCloudMusic',
+      title: this.title,
       frame: isMac,
       width: 1000,
       height: 600,
@@ -107,11 +109,25 @@ class Main {
     // 主窗口 app:before-quit => browserWindow:close
     // mac 红绿灯 会触发close事件
     Main.win.on('close', e => {
-      console.log('close');
+      console.log('main-browserWindow: close');
+
       if (isMac) {
-        app.hide();
         e.preventDefault();
+        app.hide();
+        return;
       }
+
+      if (isWin) {
+        e.preventDefault();
+        Main.win.webContents.send(EVENT.BEFORE_CLOSE);
+        return;
+      }
+    });
+    Main.win.on('maximize', () => {
+      Main.win.webContents.send(EVENT.maximize, true);
+    });
+    Main.win.on('unmaximize', () => {
+      Main.win.webContents.send(EVENT.maximize, false);
     });
     return;
   }
@@ -156,9 +172,11 @@ class Main {
       console.log(chalk.red('before-quit'));
       // win平台
       if (isWin) {
-        if (!this.canClose) {
-          e.preventDefault();
-        }
+        console.log('this.canClose: ', this.canClose);
+
+        // if (!this.canClose) {
+        //   e.preventDefault();
+        // }
       }
       // mac平台
       if (isMac) {
@@ -170,20 +188,20 @@ class Main {
     });
     app.on('quit', () => {
       console.log('quit');
-      Main.win = null;
+      Main.win = undefined;
       Main.neteaseApi.close(() => {
         console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
       });
+      Main.neteaseApi = undefined;
     });
   }
   /**
-   * 注册事件
+   * 注册渲染进程事件
    */
   private registerHandle() {
     // window平台
-    ipcMain.handle(EVENT.WINDOW_CLOSE, (_, value = false) => {
-      this.canClose = value;
-      app.quit();
+    ipcMain.handle(EVENT.WINDOW_CLOSE, () => {
+      app.exit();
     });
     ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
       const { win } = Main;
@@ -192,7 +210,6 @@ class Main {
       } else {
         win.maximize();
       }
-      return win.isMaximized();
     });
 
     ipcMain.handle(EVENT.WINDOW_MIN, () => {
@@ -209,8 +226,18 @@ class Main {
     ipcMain.handle(EVENT.LOGIN, () => {
       new Login({ parent: Main.win });
     });
-    ipcMain.handle(EVENT.RELOAD_USER, (_, args) => {
+    ipcMain.handle(EVENT.RELOAD_USER, () => {
       return Main.win.webContents.executeJavaScript('window.loadUser()');
+    });
+    // 修改title
+    ipcMain.handle(EVENT.SET_TITLE, (_, title?: string) => {
+      if (title) {
+        Main.tray.setToolTip(title);
+        Main.win.setTitle(title);
+      }
+    });
+    ipcMain.handle(EVENT.WINDOW_SHOW, () => {
+      Main.win.show();
     });
 
     Login.registerHandle();
@@ -228,16 +255,23 @@ class Main {
   }
 
   private createTray() {
+    let iconPath: string = join(app.getAppPath(), '/dist/icons/icon.png');
+    if (isMac) {
+      iconPath = join(app.getAppPath(), '/dist/icons/iconTemplate.png');
+    }
+    if (isWin) {
+      iconPath = join(app.getAppPath(), '/dist/icons/icon.ico');
+    }
+
     // electron-builder extraResources
     const icon = nativeImage.createFromPath(
-      isDevelopment
-        ? 'public/icons/icon.png'
-        : join(app.getAppPath(), '/dist/icons/icon.png')
+      isDevelopment ? 'public/icons/icon.png' : iconPath
     );
     Main.tray = new Tray(icon);
     const contextMenu = Menu.buildFromTemplate([{ label: '退出' }]);
 
     Main.tray.setContextMenu(contextMenu);
+    Main.tray.setToolTip(this.title);
     Main.tray.on('click', () => {
       if (isMac) {
         app.show();

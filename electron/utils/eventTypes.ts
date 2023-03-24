@@ -7,4 +7,8 @@ export const EVENT = {
   RELOAD_USER: 'RELOAD_USER',
   SEND: 'SEND',
   MINIMIZE_TO_TRAY: 'MINIMIZE_TO_TRAY',
+  SET_TITLE: 'SET_TITLE',
+  BEFORE_CLOSE: 'BEFORE_CLOSE',
+  WINDOW_SHOW: 'WINDOW_SHOW',
+  maximize: 'maximize',
 };
