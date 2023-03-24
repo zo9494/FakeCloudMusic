@@ -13,8 +13,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, h } from 'vue';
+import { useDialog } from 'naive-ui';
+import CloseTip from '@/components/CloseTip.vue';
+
 const isMaximized = ref(false);
+const dialog = useDialog();
 
 function handleMinimize() {
   window.electron.window.minimize();
@@ -24,8 +28,36 @@ function handleResizable() {
     isMaximized.value = value;
   });
 }
+
+let close = false;
+let tip = true;
+function confirm(val: boolean) {
+  dialog.destroyAll();
+  close = val;
+}
+function onAfterLeave() {
+  if (close) {
+    window.electron.window.close(true);
+  } else {
+    window.electron.window.minimizeToTray();
+  }
+}
 function handleClose() {
-  window.electron.window.close();
+  if (tip) {
+    dialog.create({
+      showIcon: false,
+      autoFocus: false,
+      // closable: false,
+      transformOrigin: 'center',
+      onAfterLeave,
+      content: () =>
+        h(CloseTip, {
+          confirm,
+        }),
+    });
+  } else {
+    onAfterLeave();
+  }
 }
 </script>
 

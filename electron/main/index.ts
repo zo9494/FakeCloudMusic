@@ -127,14 +127,6 @@ class Main {
   private registerAppEvent() {
     app.on('window-all-closed', () => {
       console.log('window-all-closed');
-      return;
-      if (process.platform !== 'darwin') {
-        app.quit();
-        Main.win = null;
-        Main.neteaseApi.close(() => {
-          console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
-        });
-      }
     });
 
     app.on('second-instance', () => {
@@ -162,12 +154,8 @@ class Main {
     // mac 右键退出触发 app：before-quit => browserWindow:close
     app.on('before-quit', e => {
       console.log(chalk.red('before-quit'));
-      // todo 退出确认
       // win平台
       if (isWin) {
-        Main.win.webContents.send(EVENT.BEFORE_CLOSE);
-        console.log(this.canClose);
-
         if (!this.canClose) {
           e.preventDefault();
         }
@@ -182,6 +170,10 @@ class Main {
     });
     app.on('quit', () => {
       console.log('quit');
+      Main.win = null;
+      Main.neteaseApi.close(() => {
+        console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
+      });
     });
   }
   /**

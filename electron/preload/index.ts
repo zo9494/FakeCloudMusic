@@ -15,12 +15,7 @@ const window = {
     return ipcRenderer.invoke(EVENT.LOGIN);
   },
   closeLoginWin() {
-    console.log('close');
-
     return ipcRenderer.invoke(EVENT.LOGIN_CLOSE);
-  },
-  beforeClose(cb?: () => void) {
-    return ipcRenderer.on(EVENT.BEFORE_CLOSE, cb);
   },
   minimizeToTray() {
     return ipcRenderer.invoke(EVENT.MINIMIZE_TO_TRAY);

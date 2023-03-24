@@ -10,7 +10,6 @@ interface window {
   minimize: () => Promise<any>;
   createLoginWin: () => Promise<any>;
   closeLoginWin: () => Promise<any>;
-  beforeClose: (cb: () => void) => void;
   minimizeToTray: () => void;
 }
 

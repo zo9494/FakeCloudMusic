@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { h } from 'vue';
-import { useDialog } from 'naive-ui';
 import AppBar from './components/AppBar.vue';
 import ScrollBar from './components/ScrollBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
 import Player from '@/views/Player.vue';
-import CloseTip from '@/components/CloseTip.vue';
 import { RouterView } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
@@ -14,39 +11,11 @@ import { useUserStore } from '@/store/user';
 
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
-const dialog = useDialog();
+
 window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount();
 };
-let afterClose: Promise<boolean>;
-function confirm(val: boolean) {
-  dialog.destroyAll();
-  afterClose = Promise.resolve(val);
-}
-function onAfterLeave() {
-  afterClose.then(value => {
-    if (value) {
-      window.electron.window.close(true);
-    } else {
-      window.electron.window.minimizeToTray();
-    }
-  });
-}
-window.electron.window.beforeClose(function () {
-  console.log('from main: before-close');
-  dialog.create({
-    showIcon: false,
-    autoFocus: false,
-    // closable: false,
-    transformOrigin: 'center',
-    onAfterLeave,
-    content: () =>
-      h(CloseTip, {
-        confirm,
-      }),
-  });
-});
 </script>
 
 <template>
