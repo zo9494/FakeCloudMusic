@@ -13,13 +13,13 @@
           @click.stop="handleClick"
         />
       </template>
-      <ScrollBar class="search-panel" way="always">
+      <div class="search-panel scrollbar-always">
         <SearchSuggest v-show="data.value" :keywords="data.value" />
         <div v-show="!data.value">
           <SearchHistory />
           <HotSearch />
         </div>
-      </ScrollBar>
+      </div>
     </Popover>
   </div>
 </template>
@@ -29,7 +29,6 @@ import { onBeforeMount, reactive, onBeforeUnmount, ref } from 'vue';
 import FInput from '@/components/Input.vue';
 import Popover from '@/components/popover/Popover.vue';
 import { getHotSearch } from '@/api/search';
-import ScrollBar from '@/components/ScrollBar.vue';
 import HotSearch from '@/components/search/HotSearch.vue';
 import SearchHistory from '@/components/search/SearchHistory.vue';
 import SearchSuggest from '@/components/search/SearchSuggest.vue';

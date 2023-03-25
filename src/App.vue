@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppBar from './components/AppBar.vue';
-import ScrollBar from './components/ScrollBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
 import Player from '@/views/Player.vue';
@@ -24,18 +23,14 @@ window.loadUser = () => {
     <div class="user">
       <UserLogin />
     </div>
-    <ScrollBar>
+    <aside class="scrollbar">
       <Menu :menu="order"></Menu>
-      <div style="height: 80px"></div>
-    </ScrollBar>
+    </aside>
   </aside>
   <div class="container-right-view">
     <AppBar></AppBar>
     <div class="container-right-view-inner">
-      <ScrollBar way="always">
-        <RouterView></RouterView>
-        <div style="height: 80px"></div>
-      </ScrollBar>
+      <RouterView></RouterView>
     </div>
   </div>
   <div class="container-player">
