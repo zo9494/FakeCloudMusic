@@ -42,6 +42,7 @@
           <span>我喜欢的音乐</span>
         </RouterLink>
       </li>
+
       <li>
         <RouterLink draggable="false" to="/下载管理">
           <i class="bi bi-download" />
@@ -78,6 +79,7 @@
       </li>
     </ul>
   </div>
+  <div class="app-bottom-space"></div>
 </template>
 
 <script setup lang="ts">

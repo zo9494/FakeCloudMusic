@@ -102,15 +102,23 @@ watch(() => data.currentIndex, handleScroll);
 function handleScroll() {
   if (scrollRef.value) {
     if (data.currentIndex === -1) {
-      scrollRef.value.scrollTop = 0;
+      // scrollRef.value.scrollTop = 0;
       return;
     }
     try {
       const currentEl = document.querySelector(
         '.item-active'
       ) as HTMLDivElement;
-      scrollRef.value.scrollTop =
-        currentEl.offsetTop - scrollRef.value.offsetHeight / 1.4;
+      scrollRef.value.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+      scrollRef.value.scrollTo({
+        top: currentEl.offsetTop - scrollRef.value.offsetHeight / 1.5,
+        behavior: 'smooth',
+      });
+      // scrollRef.value.scrollTop =
+      //   currentEl.offsetTop - scrollRef.value.offsetHeight / 1.4;
     } catch {}
   }
 }
