@@ -179,7 +179,7 @@
           />
           <div
             class="text-overflow ar"
-            :title="item.ar.map(it => it.origin_name).join('/')"
+            :title="item.ar.map((it:Base) => it.origin_name).join('/')"
           >
             <span v-for="ar in item.ar" :key="ar.id" v-html="ar.name" />
           </div>
@@ -338,7 +338,6 @@
 </template>
 
 <script setup lang="ts">
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import Image from '@/components/PlaylistImage.vue';
 import FInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
