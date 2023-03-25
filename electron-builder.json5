@@ -10,7 +10,7 @@
   files: ['dist-electron', 'dist'],
 
   mac: {
-    icon: 'public/icons/icon.icns',
+    icon: 'public/icons/icon.png',
     artifactName: '${productName}_${version}.${ext}',
     target: ['dmg'],
   },
