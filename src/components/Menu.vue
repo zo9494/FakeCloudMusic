@@ -37,7 +37,7 @@
     <div class="nav-item-title">我的音乐</div>
     <ul>
       <li>
-        <RouterLink draggable="false" :to="`/playlist/${menu.myLike.id}`">
+        <RouterLink draggable="false" to="/playlist/like">
           <i class="bi bi-heart" />
           <span>我喜欢的音乐</span>
         </RouterLink>

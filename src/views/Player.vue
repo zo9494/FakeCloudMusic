@@ -8,10 +8,12 @@ import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/store/user';
 import { usePlayerStore } from '@/store/player';
 import { formatDuringMS } from '@/utils/time';
 import { FA, FAudio } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
+const userStore = useUserStore();
 const playerStore = usePlayerStore();
 const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
 
@@ -19,7 +21,6 @@ interface Data {
   node?: FAudio;
   progress: number;
   cacheProgress: number;
-  heart: boolean;
   play: boolean;
   volume: number;
   duration: number;
@@ -32,7 +33,6 @@ interface Data {
 const data = reactive<Data>({
   progress: 0,
   cacheProgress: 0,
-  heart: false,
   play: false,
   volume: 0.3,
   duration: 0,
@@ -183,6 +183,13 @@ function setMediaMetadata(params: Partial<mediaData>) {
 function handleShowLyric() {
   data.showLyric = true;
 }
+
+// like
+function updateLike(song: Track | undefined, isDel = false) {
+  if (song) {
+    userStore.updateLike(song, isDel);
+  }
+}
 </script>
 
 <template>
@@ -213,9 +220,17 @@ function handleShowLyric() {
       </div>
 
       <div class="f-player-heart">
-        <span @click="handleDev">
-          <i v-show="data.heart" class="bi bi-heart-fill" />
-          <i v-show="!data.heart" class="bi bi-heart" />
+        <span>
+          <i
+            v-if="userStore.hasLike(currentSong.song?.id as number)"
+            @click="updateLike(currentSong.song as any, true)"
+            class="bi bi-heart-fill"
+          />
+          <i
+            v-else
+            class="bi bi-heart"
+            @click="updateLike(currentSong.song as any)"
+          />
         </span>
       </div>
 
@@ -467,7 +482,7 @@ button {
       color: #666666;
 
       &-fill {
-        color: #ec4141;
+        color: variables.$primaryColor;
       }
     }
 

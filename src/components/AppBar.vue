@@ -6,6 +6,9 @@
       </div>
       <div class="app-bar-options-buttons no-drag">
         <button @click="clickSetting">
+          <i class="bi bi-palette"></i>
+        </button>
+        <button @click="clickSetting">
           <i class="bi bi-gear" />
         </button>
       </div>
@@ -51,6 +54,7 @@ function clickSetting() {
       display: flex;
       height: 30px;
       align-items: center;
+      gap: 15px;
       button {
         height: 20px;
         width: 20px;

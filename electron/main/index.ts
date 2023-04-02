@@ -268,7 +268,14 @@ class Main {
       isDevelopment ? 'public/icons/icon.png' : iconPath
     );
     Main.tray = new Tray(icon);
-    const contextMenu = Menu.buildFromTemplate([{ label: '退出' }]);
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: '退出',
+        click: () => {
+          app.exit();
+        },
+      },
+    ]);
 
     Main.tray.setContextMenu(contextMenu);
     Main.tray.setToolTip(this.title);

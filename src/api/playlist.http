@@ -1,0 +1,7 @@
+@baseUrl=http://localhost:35011
+@Cookie=MUSIC_U=3449ae18ea9eaa5920f4b0623c5af8c620e07f37125501c47070351e07cb6721993166e004087dd338e87977be6d3dba4baad43734a8f93b4bc417e7cf32b3a555ecebd66669c36ca0d2166338885bd7
+
+
+### hot search
+GET {{baseUrl}}/playlist/tracks?op=add&pid=476938492&tracks=453843751
+Cookie: {{Cookie}}

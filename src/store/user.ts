@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia';
 import { getUserAccount, getSubCount } from '@/api/user';
+import { OP, updatePlaylist } from '@/api/playlist';
+import { getPlaylistDetail } from '@/api/playlist';
+type UserPlaylist = Omit<Playlist, 'tracks'> & {
+  tracks: Map<number, Track>;
+};
+
 interface userState {
   profile: {
     nickname?: string;
@@ -10,13 +16,19 @@ interface userState {
     id?: number;
   };
   order: {
-    myLike: Playlist | {};
+    myLike: Partial<Playlist>;
     myCreate: Playlist[] | [];
     myCollect: Playlist[] | [];
   };
+  userPlaylist: Partial<Playlist>;
+  likeMap: Map<number, boolean>;
+  refreshTime: number;
 }
 interface userActions {
   getUserAccount: () => void;
+  storeUserLikePlaylist: (id: number) => void;
+  hasLike: (id: number) => boolean;
+  updateLike: (val: Track, isDel?: boolean) => Promise<boolean>;
 }
 export const useUserStore = defineStore<'user', userState, {}, userActions>(
   'user',
@@ -30,6 +42,9 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
         myCreate: [],
         myCollect: [],
       },
+      userPlaylist: {},
+      likeMap: new Map(),
+      refreshTime: Date.now(),
     }),
     actions: {
       async getUserAccount() {
@@ -54,7 +69,7 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
               item.name.indexOf('喜欢的音乐') === -1 &&
               item.userId === profile.userId
           );
-
+          myLike?.id && this.storeUserLikePlaylist(myLike?.id);
           this.$patch({
             order: {
               myCollect,
@@ -67,6 +82,50 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
           profile,
           account,
         });
+      },
+      async storeUserLikePlaylist(id) {
+        const data = await getPlaylistDetail({
+          id: id.toString(),
+          timestamp: this.refreshTime,
+        });
+
+        if (data?.playlist) {
+          data.playlist.tracks.forEach(item => {
+            this.likeMap.set(item.id, true);
+          });
+          this.userPlaylist = data.playlist;
+        }
+      },
+      hasLike(id) {
+        return this.likeMap.has(id);
+      },
+      async updateLike(song, isDel) {
+        this.refreshTime = Date.now();
+        let op: OP = OP.add;
+        if (isDel) {
+          op = OP.del;
+        }
+        try {
+          updatePlaylist({
+            op,
+            pid: this.order.myLike.id as number,
+            tracks: song.id.toString(),
+          });
+          if (isDel) {
+            this.likeMap.delete(song.id);
+            this.userPlaylist.tracks = this.userPlaylist.tracks?.filter(
+              item => item.id !== song.id
+            );
+          } else {
+            this.likeMap.set(song.id, true);
+            this.userPlaylist.tracks?.unshift(song);
+          }
+        } catch (error) {
+          console.log(error);
+          return false;
+        }
+
+        return true;
       },
     },
   }

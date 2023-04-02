@@ -1,10 +1,9 @@
 <template>
   <div class="playlist">
-    <DynamicScroller
+    <RecycleScroller
       class="scrollbar scroller"
       key-field="id"
       :items="data.playlist.tracks || []"
-      :emit-update="true"
       :item-size="40"
       :min-item-size="40"
     >
@@ -163,13 +162,18 @@
       </template>
       <template v-slot="{ item, index }">
         <div
-          :class="{ 'playlist-list-item': true, color: index % 2 }"
+          :class="{ 'playlist-list-item': true, color: item.index % 2 }"
           :key="item.id"
           @dblclick="handlePlay(index, data.playlist.tracks)"
         >
-          <div class="index">{{ index + 1 }}</div>
+          <div class="index">{{ item.index }}</div>
           <div class="opt">
-            <i @click="handleDev" class="bi bi-heart"></i>
+            <i
+              v-if="userStore.hasLike(item.id)"
+              @click="updateLike(item, true)"
+              class="bi bi-heart-fill"
+            ></i>
+            <i v-else @click="updateLike(item)" class="bi bi-heart"></i>
             <i @click="handleDev" class="bi bi-download"></i>
           </div>
           <div
@@ -189,151 +193,7 @@
           <div class="text-overflow dt">{{ formatDuring(item.dt) }}</div>
         </div>
       </template>
-    </DynamicScroller>
-    <!--
-     <Transition name="fade-slide-down">
-      <div v-show="data.headerFixed" class="playlist-header-fixed">
-        <div class="title">{{ data.playlist.name }}</div>
-        <div class="options">
-          <button class="options-all" @click="handleDev">
-            <i class="bi bi-play-fill"></i>
-          </button>
-          <button
-            @click="handleDev"
-            :class="`options-collect ${
-              profile.userId === data.playlist.userId ? 'disable' : null
-            }`"
-          >
-            <i class="bi bi-folder-check"></i>
-          </button>
-          <button @click="handleDev" class="optins-share">
-            <i class="bi bi-share"></i>
-          </button>
-          <button @click="handleDev" class="options-download">
-            <i class="bi bi-download"></i>
-          </button>
-        </div>
-      </div>
-    </Transition>
-    <div class="playlist-header" ref="playlistHeaderRef">
-      <div class="playlist-header-left">
-        <Image :src="data.playlist.coverImgUrl" class="cover" />
-      </div>
-
-      <div class="playlist-header-right">
-        <div class="title">{{ data.playlist.name }}</div>
-        <div class="create-info">
-          <div class="creator">
-            <Avatar :src="data.playlist.creator?.avatarUrl" />
-            <span>{{ data.playlist.creator?.nickname }}</span>
-          </div>
-          <span class="create-time"
-            >{{ formatDate(data.playlist.createTime) }}创建</span
-          >
-        </div>
-        <div class="options">
-          <button class="options-all">
-            <div @click="handleDev" class="options-all-left">
-              <i class="bi bi-play-circle"></i>
-              <span>播放全部</span>
-            </div>
-            <div @click="handleDev" class="options-all-right">
-              <i class="bi bi-plus-lg"></i>
-            </div>
-          </button>
-          <button
-            @click="handleDev"
-            :class="`options-collect ${
-              profile.userId === data.playlist.userId ? 'disable' : null
-            }`"
-          >
-            <i class="bi bi-folder-check"></i>
-
-            <span v-if="data.playlist.subscribed"
-              >已收藏({{ formatNumber(data.playlist.subscribedCount) }})</span
-            >
-            <span v-else
-              >收藏({{ formatNumber(data.playlist.subscribedCount) }})</span
-            >
-          </button>
-          <button @click="handleDev" class="optins-share">
-            <i class="bi bi-share"></i>
-            <span>分享 ({{ formatNumber(data.playlist.shareCount) }})</span>
-          </button>
-          <button @click="handleDev" class="options-download">
-            <i class="bi bi-download"></i>
-            <span>下载全部</span>
-          </button>
-        </div>
-        <div class="tags"
-          >标签:
-          <span
-            class="tags-item"
-            v-for="item in data.playlist.tags"
-            :key="item"
-            >{{ item }}</span
-          >
-        </div>
-        <div class="count">
-          歌曲数：<span>{{ data.playlist.trackCount }}</span> 播放数：<span>{{
-            formatNumber(data.playlist.playCount)
-          }}</span>
-        </div>
-        <div class="desc">
-          <span>简介：</span>
-          <span
-            :class="{
-              'desc-inner': true,
-              'text-overflow': true,
-              expand: data.isExpand,
-            }"
-            ref="desRef"
-            >{{ lineClamp(data.playlist.description, data.isExpand) }}</span
-          >
-          <i
-            v-if="data.canExpand"
-            :class="{
-              bi: true,
-              'bi-caret-up-fill': data.isExpand,
-              'bi-caret-down-fill': !data.isExpand,
-            }"
-            @click="toggleDesc"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="playlist-opt">
-      <FInput
-        class="playlist-opt-input"
-        v-model="searchVal"
-        placeholder="搜索歌单歌曲"
-      />
-    </div>
-
-    <div class="playlist-list">
-      <div class="playlist-list-header">
-        <div class="playlist-list-item">
-          <div></div>
-          <div></div>
-          <div>音乐标题</div>
-          <div>歌手</div>
-          <div>专辑</div>
-          <div>时长</div>
-        </div>
-      </div>
-      <div class="playlist-list-body">
-        <div v-if="data.loading" class="loading">
-          <div class="loading-content">
-            <LoadingSVG width="20px" height="20px"></LoadingSVG>
-            <span>加载中...</span>
-          </div>
-        </div>
-        <div v-if="data.netErr" class="net-err"
-          >网络不给力哦，请检查你的网络设置~</div
-        >
-      </div>
-    </div> -->
+    </RecycleScroller>
   </div>
 </template>
 
@@ -342,7 +202,7 @@ import Image from '@/components/PlaylistImage.vue';
 import FInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
 import LoadingSVG from '@/assets/svg/loading.svg?component';
-import { DynamicScroller } from 'vue-virtual-scroller';
+import { RecycleScroller } from 'vue-virtual-scroller';
 import { onBeforeMount, onMounted, watch, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
@@ -386,29 +246,48 @@ const data = reactive<PlaylistDetail>({
 async function loadPlaylist(params: { id: string }) {
   data.netErr = false;
   data.loading = true;
+  if (params.id === 'like') {
+    watch(() => userStore.userPlaylist.id, loadPlaylistFromStore, {
+      immediate: true,
+    });
+    return;
+  }
   try {
     const res = await getPlaylistDetail(params);
     if (!res?.playlist) {
       return;
     }
     const { playlist } = res;
-    playlist.tracks.forEach(song => {
-      song.origin_name = song.name;
-      // ar
-      song.ar.forEach(it => {
-        it.origin_name = it.name;
-      });
-      // al
-      song.al.origin_name = song.al.name;
-    });
-    data.playlist = playlist;
-    origin = playlist.tracks;
+    setPlaylist(playlist);
   } catch (error) {
     data.netErr = true;
   } finally {
     data.loading = false;
   }
 }
+
+function loadPlaylistFromStore() {
+  const playlist = { ...userStore.userPlaylist };
+  if (playlist.tracks) {
+    setPlaylist(playlist as Playlist);
+  }
+}
+
+function setPlaylist(playlist: Playlist) {
+  playlist.tracks.forEach((song, index) => {
+    song.index = index + 1;
+    song.origin_name = song.name;
+    // ar
+    song.ar.forEach(it => {
+      it.origin_name = it.name;
+    });
+    // al
+    song.al.origin_name = song.al.name;
+  });
+  data.playlist = playlist;
+  origin = playlist.tracks;
+}
+
 function resetData() {
   data.playlist = {};
   data.netErr = false;
@@ -417,7 +296,9 @@ function resetData() {
 }
 
 onBeforeMount(() => {
-  loadPlaylist({ id: route.params.id as string });
+  loadPlaylist({
+    id: route.params.id as string,
+  });
 });
 watch<string>(
   () => route.params.id as string,
@@ -464,6 +345,7 @@ function search() {
     const replaceValue = `<span class="s">$1</span>`;
     const searchReg = new RegExp(`(${searchVal.value})`, 'ig');
     const tempTracks = cloneDeep(origin);
+    let index = 1;
     data.playlist.tracks = tempTracks.filter(song => {
       let flag = false;
       // name
@@ -486,6 +368,11 @@ function search() {
       if (song.al.name !== newAlName) {
         flag = true;
         song.al.name = newAlName;
+      }
+
+      if (flag) {
+        song.index = index;
+        index++;
       }
       return flag;
     });
@@ -538,6 +425,11 @@ function lineClamp(str?: string, expand = false) {
     data.canExpand = true;
   }
   return str;
+}
+
+// like
+function updateLike(song: Track, isDel = false) {
+  userStore.updateLike(song, isDel);
 }
 </script>
 
@@ -788,6 +680,9 @@ function lineClamp(str?: string, expand = false) {
         place-items: center;
         gap: 4px;
         color: #bbb;
+        .bi {
+          cursor: pointer;
+        }
       }
 
       .name {

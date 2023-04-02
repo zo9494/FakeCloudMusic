@@ -56,7 +56,9 @@ button {
 .s {
   color: #0c73c2;
 }
-
+.bi-heart-fill {
+  color: variables.$primaryColor;
+}
 .scrollbar {
   height: 100%;
   overflow: auto;
@@ -71,7 +73,7 @@ button {
   }
   &::-webkit-scrollbar-thumb {
     background-color: transparent;
-    border-radius: 10px;
+    border-radius: 3px;
     &:hover {
       background-color: variables.$scrollbarHoverColor;
     }
@@ -86,7 +88,7 @@ button {
     }
 
     &::-webkit-scrollbar-thumb {
-      border-radius: 10px;
+      border-radius: 3px;
       background: variables.$scrollbarColor;
       &:hover {
         background-color: variables.$scrollbarHoverColor;

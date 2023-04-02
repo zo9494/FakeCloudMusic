@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import './Loading';
+import './loading';
 import { EVENT } from '../utils/eventTypes';
 const window = {
   close(value: boolean) {

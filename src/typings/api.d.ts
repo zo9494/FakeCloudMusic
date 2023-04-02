@@ -11,6 +11,7 @@ interface Base {
   origin_name?: string;
 }
 interface Track {
+  index: number;
   id: number;
   name: string;
   origin_name?: string;
