@@ -118,10 +118,11 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
             );
           } else {
             this.likeMap.set(song.id, true);
-            this.userPlaylist.tracks?.unshift(song);
+            if (this.userPlaylist.tracks) {
+              this.userPlaylist.tracks = [song, ...this.userPlaylist.tracks];
+            }
           }
         } catch (error) {
-          console.log(error);
           return false;
         }
 

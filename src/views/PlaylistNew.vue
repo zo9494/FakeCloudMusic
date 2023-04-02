@@ -203,7 +203,14 @@ import FInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
 import LoadingSVG from '@/assets/svg/loading.svg?component';
 import { RecycleScroller } from 'vue-virtual-scroller';
-import { onBeforeMount, onMounted, watch, reactive, ref } from 'vue';
+import {
+  onBeforeMount,
+  onMounted,
+  watch,
+  reactive,
+  ref,
+  WatchStopHandle,
+} from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { cloneDeep, throttle } from 'lodash';
@@ -229,6 +236,7 @@ interface PlaylistDetail {
   observer?: IntersectionObserver;
   isExpand: boolean;
   canExpand: boolean;
+  watchFlag?: WatchStopHandle;
 }
 
 let origin: Track[] = [];
@@ -247,10 +255,16 @@ async function loadPlaylist(params: { id: string }) {
   data.netErr = false;
   data.loading = true;
   if (params.id === 'like') {
-    watch(() => userStore.userPlaylist.id, loadPlaylistFromStore, {
-      immediate: true,
-    });
+    data.watchFlag = watch(
+      () => userStore.userPlaylist.tracks,
+      loadPlaylistFromStore,
+      {
+        immediate: true,
+      }
+    );
     return;
+  } else {
+    data.watchFlag?.();
   }
   try {
     const res = await getPlaylistDetail(params);
