@@ -10,7 +10,7 @@
       <template #before>
         <div>
           <Transition name="fade-slide-down">
-            <div v-show="data.headerFixed" class="playlist-header-fixed">
+            <div v-show="isFixed" class="playlist-header-fixed">
               <div class="title">{{ data.playlist.name }}</div>
               <div class="options">
                 <button class="options-all" @click="handleDev">
@@ -108,21 +108,20 @@
                   :class="{
                     'desc-inner': true,
                     'text-overflow': true,
-                    expand: data.isExpand,
+                    expand: isExpand,
                   }"
-                  ref="desRef"
-                  >{{
-                    lineClamp(data.playlist.description, data.isExpand)
-                  }}</span
+                  ref="contentRef"
+                  v-if="data.playlist.description"
+                  >{{ data.playlist.description }}</span
                 >
                 <i
-                  v-if="data.canExpand"
+                  v-if="canExpand"
                   :class="{
                     bi: true,
-                    'bi-caret-up-fill': data.isExpand,
-                    'bi-caret-down-fill': !data.isExpand,
+                    'bi-caret-up-fill': isExpand,
+                    'bi-caret-down-fill': !isExpand,
                   }"
-                  @click="toggleDesc"
+                  @click="toggleExpand"
                 />
               </div>
             </div>
@@ -131,7 +130,7 @@
           <div class="playlist-opt">
             <FInput
               class="playlist-opt-input"
-              v-model="searchVal"
+              v-model="value"
               placeholder="搜索歌单歌曲"
             />
           </div>
@@ -232,10 +231,7 @@ interface PlaylistDetail {
   playlist: Partial<Playlist>;
   netErr: boolean;
   loading: boolean;
-  headerFixed: boolean;
   observer?: IntersectionObserver;
-  isExpand: boolean;
-  canExpand: boolean;
   watchFlag?: WatchStopHandle;
 }
 
@@ -245,11 +241,8 @@ const data = reactive<PlaylistDetail>({
   playlist: {
     tracks: [],
   },
-  headerFixed: false,
   netErr: false,
   loading: false,
-  isExpand: false,
-  canExpand: false,
 });
 async function loadPlaylist(params: { id: string }) {
   data.netErr = false;
@@ -262,7 +255,6 @@ async function loadPlaylist(params: { id: string }) {
         immediate: true,
       }
     );
-    return;
   } else {
     data.watchFlag?.();
   }
@@ -305,8 +297,8 @@ function setPlaylist(playlist: Playlist) {
 function resetData() {
   data.playlist = {};
   data.netErr = false;
-  data.isExpand = false;
-  data.canExpand = false;
+  isExpand.value = false;
+  canExpand.value = false;
 }
 
 onBeforeMount(() => {
@@ -322,128 +314,187 @@ watch<string>(
   }
 );
 
-//
-const playlistHeaderRef = ref<HTMLDivElement>();
-onMounted(() => {
-  if (playlistHeaderRef.value) {
-    data.observer = new window.IntersectionObserver(
-      intersectionObserverCallback,
-      {
-        root: document.querySelector('.container-right-view'),
-        rootMargin: '0px 0px 80px 0px',
+//#region 歌单头部固定
+/**
+ *
+ * @param rootEl class name
+ */
+function useHeaderAutoFixed(rootEl: string) {
+  const childRef = ref<HTMLDivElement>();
+  const isFixed = ref(false);
+  const intersectionObserverCallback = (
+    entries: IntersectionObserverEntry[]
+  ) => {
+    if (entries[0].intersectionRatio === 0) {
+      isFixed.value = true;
+    } else {
+      isFixed.value = false;
+    }
+  };
+  onMounted(() => {
+    if (childRef.value) {
+      const observer = new window.IntersectionObserver(
+        intersectionObserverCallback,
+        {
+          root: document.querySelector(rootEl),
+          rootMargin: '0px 0px 80px 0px',
+        }
+      );
+      observer.observe(childRef.value);
+    }
+  });
+  return { isFixed, childRef };
+}
+
+const { isFixed, childRef: playlistHeaderRef } = useHeaderAutoFixed(
+  '.container-right-view'
+);
+//#endregion
+
+//#region 在本地歌单中搜索
+function useSearch(data: PlaylistDetail) {
+  const searchVal = ref('');
+  const search = () => {
+    if (!searchVal.value) {
+      data.playlist.tracks = origin;
+      return;
+    }
+    if (origin) {
+      const replaceValue = `<span class="s">$1</span>`;
+      const searchReg = new RegExp(`(${searchVal.value})`, 'ig');
+      const tempTracks = cloneDeep(origin);
+      let index = 1;
+      data.playlist.tracks = tempTracks.filter(song => {
+        let flag = false;
+        // name
+        const newName = song.name.replaceAll(searchReg, replaceValue);
+        if (song.name !== newName) {
+          flag = true;
+          song.name = newName;
+        }
+        // ar
+        song.ar = song.ar.map(it => {
+          const newArName = it.name.replaceAll(searchReg, replaceValue);
+          if (it.name !== newArName) {
+            flag = true;
+            it.name = newArName;
+          }
+          return it;
+        });
+        // al
+        const newAlName = song.al.name.replaceAll(searchReg, replaceValue);
+        if (song.al.name !== newAlName) {
+          flag = true;
+          song.al.name = newAlName;
+        }
+
+        if (flag) {
+          song.index = index;
+          index++;
+        }
+        return flag;
+      });
+    }
+  };
+
+  const searchThrottle = throttle(search, 500);
+  watch(searchVal, val => {
+    searchThrottle();
+  });
+  return { value: searchVal };
+}
+const { value } = useSearch(data);
+//#endregion
+
+function handlePlay(index: number, list?: Track[]) {
+  playerStore.play(index, data.playlist.tracks);
+}
+
+//#region 控制展开详情
+function useDescExpand() {
+  const desRef = ref<HTMLSpanElement>();
+  const isExpand = ref(false);
+  const canExpand = ref(false);
+  let expandStr: string;
+  let firstStr: string;
+  const lineClamp = (str?: string) => {
+    str = str?.trim();
+
+    if (!str) {
+      canExpand.value = false;
+      return;
+    }
+    if (!desRef.value) {
+      canExpand.value = false;
+      return;
+    }
+
+    const strArr = str.split('\n');
+    const firstLine = strArr[0];
+
+    const style = window.getComputedStyle(desRef.value);
+    const width = desRef.value?.clientWidth;
+    const height = desRef.value?.clientHeight;
+    const fontSize = parseFloat(style.fontSize);
+    const lineHeight = parseFloat(style.lineHeight);
+    const endIndex = (width / fontSize) >>> 0;
+    // 多行
+    if (strArr.length > 1) {
+      canExpand.value = true;
+      firstStr = firstLine.substring(0, endIndex - 3) + '...';
+      desRef.value.innerText = firstStr;
+      return;
+    }
+    // 单行
+    if (str.length > endIndex) {
+      canExpand.value = true;
+      firstStr = str;
+      desRef.value.style.whiteSpace = 'nowrap';
+      desRef.value.innerText = str;
+    }
+  };
+  const toggleExpand = () => {
+    isExpand.value = !isExpand.value;
+    console.log(isExpand.value, expandStr);
+
+    if (!desRef.value) {
+      return;
+    }
+
+    if (isExpand.value) {
+      desRef.value.style.whiteSpace = 'pre-line';
+      desRef.value.style.height = 'auto';
+      desRef.value.innerText = expandStr;
+    } else {
+      desRef.value.style.height = '';
+      desRef.value.style.whiteSpace = 'nowrap';
+      desRef.value.innerText = firstStr;
+    }
+  };
+  watch(
+    () => desRef.value,
+    () => {
+      if (desRef.value) {
+        expandStr = desRef.value.innerText;
+        lineClamp(expandStr);
       }
-    );
-    data.observer.observe(playlistHeaderRef.value);
-  }
-});
-function intersectionObserverCallback(entries: IntersectionObserverEntry[]) {
-  if (entries[0].intersectionRatio === 0) {
-    data.headerFixed = true;
-  } else {
-    data.headerFixed = false;
-  }
+    }
+  );
+
+  return { isExpand, canExpand, contentRef: desRef, toggleExpand };
+}
+
+const { isExpand, canExpand, contentRef, toggleExpand } = useDescExpand();
+//#endregion
+
+// like
+function updateLike(song: Track, isDel = false) {
+  userStore.updateLike(song, isDel);
 }
 
 // dev
 function handleDev() {
   window.alert('功能开发中...');
-}
-// search-start
-const searchVal = ref('');
-function search() {
-  if (!searchVal.value) {
-    data.playlist.tracks = origin;
-    return;
-  }
-  if (origin) {
-    const replaceValue = `<span class="s">$1</span>`;
-    const searchReg = new RegExp(`(${searchVal.value})`, 'ig');
-    const tempTracks = cloneDeep(origin);
-    let index = 1;
-    data.playlist.tracks = tempTracks.filter(song => {
-      let flag = false;
-      // name
-      const newName = song.name.replaceAll(searchReg, replaceValue);
-      if (song.name !== newName) {
-        flag = true;
-        song.name = newName;
-      }
-      // ar
-      song.ar = song.ar.map(it => {
-        const newArName = it.name.replaceAll(searchReg, replaceValue);
-        if (it.name !== newArName) {
-          flag = true;
-          it.name = newArName;
-        }
-        return it;
-      });
-      // al
-      const newAlName = song.al.name.replaceAll(searchReg, replaceValue);
-      if (song.al.name !== newAlName) {
-        flag = true;
-        song.al.name = newAlName;
-      }
-
-      if (flag) {
-        song.index = index;
-        index++;
-      }
-      return flag;
-    });
-  }
-}
-
-function handlePlay(index: number, list?: Track[]) {
-  playerStore.play(index, data.playlist.tracks);
-}
-const searchThrottle = throttle(search, 500);
-watch(searchVal, val => {
-  searchThrottle();
-});
-//  search-end
-
-// desc
-const desRef = ref<HTMLSpanElement>();
-function toggleDesc() {
-  data.isExpand = !data.isExpand;
-}
-
-function lineClamp(str?: string, expand = false) {
-  str = str?.trim();
-  if (!str) {
-    return str;
-  }
-  if (!desRef.value) {
-    return str;
-  }
-  if (expand) {
-    return str;
-  }
-
-  const strArr = str.split('\n');
-  const firstLine = strArr[0];
-
-  const style = window.getComputedStyle(desRef.value);
-  const width = desRef.value?.clientWidth;
-  const height = desRef.value?.clientHeight;
-  const fontSize = parseFloat(style.fontSize);
-  const lineHeight = parseFloat(style.lineHeight);
-  const endIndex = (width / fontSize) >>> 0;
-
-  if (strArr.length > 1) {
-    data.canExpand = true;
-    return firstLine.substring(0, endIndex - 3) + '...';
-  }
-
-  if (str.length > endIndex) {
-    data.canExpand = true;
-  }
-  return str;
-}
-
-// like
-function updateLike(song: Track, isDel = false) {
-  userStore.updateLike(song, isDel);
 }
 </script>
 
@@ -647,10 +698,7 @@ function updateLike(song: Track, isDel = false) {
         &-inner {
           display: inline-block;
           height: 20px;
-          &.expand {
-            white-space: pre-line;
-            height: auto;
-          }
+          white-space: pre-line;
         }
         > * {
           line-height: 20px;
