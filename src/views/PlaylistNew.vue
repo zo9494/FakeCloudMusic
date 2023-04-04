@@ -437,20 +437,24 @@ function useDescExpand() {
     const height = desRef.value?.clientHeight;
     const fontSize = parseFloat(style.fontSize);
     const lineHeight = parseFloat(style.lineHeight);
-    const endIndex = (width / fontSize) >>> 0;
+    const maxIndex = Math.ceil(width / fontSize);
     // 多行
     if (strArr.length > 1) {
       canExpand.value = true;
-      firstStr = firstLine.substring(0, endIndex - 3) + '...';
+      firstStr = firstLine.substring(0, maxIndex - 3) + '...';
       desRef.value.innerText = firstStr;
       return;
-    }
-    // 单行
-    if (str.length > endIndex) {
-      canExpand.value = true;
-      firstStr = str;
+    } else {
+      // 单行
+      if (str.length <= maxIndex) {
+        canExpand.value = false;
+      } else {
+        canExpand.value = true;
+      }
+
+      firstStr = firstLine;
       desRef.value.style.whiteSpace = 'nowrap';
-      desRef.value.innerText = str;
+      desRef.value.innerText = firstLine;
     }
   };
   const toggleExpand = () => {
