@@ -209,6 +209,7 @@ import {
   reactive,
   ref,
   WatchStopHandle,
+  nextTick,
 } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
@@ -310,7 +311,9 @@ watch<string>(
   () => route.params.id as string,
   id => {
     resetData();
-    loadPlaylist({ id });
+    nextTick(() => {
+      loadPlaylist({ id });
+    });
   }
 );
 
@@ -459,8 +462,6 @@ function useDescExpand() {
   };
   const toggleExpand = () => {
     isExpand.value = !isExpand.value;
-    console.log(isExpand.value, expandStr);
-
     if (!desRef.value) {
       return;
     }

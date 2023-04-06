@@ -35,30 +35,35 @@ export class FAudio {
     this.callbackMaps[e] = cb;
   }
   private listener() {
-    this.audioNode.addEventListener('progress', () => {
-      this.callbackMaps.progress?.(
-        (this.audioNode.buffered.end(0) / this.audioNode.duration) * 100
-      );
-    });
-    this.audioNode.addEventListener(
-      'timeupdate',
-      throttle(() => {
+    const map: { [propName: string]: any } = {
+      progress: () => {
+        this.callbackMaps.progress?.(
+          (this.audioNode.buffered.end(0) / this.audioNode.duration) * 100
+        );
+      },
+      timeupdate: throttle(() => {
         this.callbackMaps.timeupdate?.(round(this.audioNode.currentTime, 3));
-      }, 1000)
-    );
-    this.audioNode.addEventListener('ended', () => {
-      this.callbackMaps.ended?.();
-      this.callbackMaps.paused?.(true);
-    });
-    this.audioNode.addEventListener('canplay', () => {
-      this.callbackMaps.canplay?.();
-    });
-    this.audioNode.addEventListener('paused', () => {
-      this.callbackMaps.paused?.(true);
-    });
-    this.audioNode.addEventListener('playing', () => {
-      this.callbackMaps.playing?.(false);
-    });
+      }, 1000),
+      ended: () => {
+        this.callbackMaps.ended?.();
+        this.callbackMaps.paused?.(true);
+      },
+      canplay: () => {
+        this.callbackMaps.canplay?.();
+      },
+      paused: () => {
+        this.callbackMaps.paused?.(true);
+      },
+      playing: () => {
+        this.callbackMaps.playing?.(false);
+      },
+    };
+
+    for (const key in map) {
+      if (Object.prototype.hasOwnProperty.call(map, key)) {
+        this.audioNode.addEventListener(key, map[key]);
+      }
+    }
   }
   get currentTime() {
     return round(this.audioNode.currentTime, 3);
@@ -68,6 +73,9 @@ export class FAudio {
   }
   set src(src: string) {
     this.audioNode.src = src;
+  }
+  get src() {
+    return this.audioNode.src;
   }
   get duration() {
     return round(this.audioNode.duration, 3);

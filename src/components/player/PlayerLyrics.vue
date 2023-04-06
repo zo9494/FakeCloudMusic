@@ -85,7 +85,7 @@ watch(
 
 function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   if (!process || lyrics.length === 0) {
-    return -1;
+    return -2;
   }
 
   let index = lyrics.length - 1;
@@ -101,18 +101,18 @@ watch(() => data.currentIndex, handleScroll);
 
 function handleScroll() {
   if (scrollRef.value) {
-    if (data.currentIndex === -1) {
-      // scrollRef.value.scrollTop = 0;
+    if (data.currentIndex < 0) {
+      scrollRef.value.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
       return;
     }
     try {
       const currentEl = document.querySelector(
         '.item-active'
       ) as HTMLDivElement;
-      scrollRef.value.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+
       scrollRef.value.scrollTo({
         top: currentEl.offsetTop - scrollRef.value.offsetHeight / 1.5,
         behavior: 'smooth',
