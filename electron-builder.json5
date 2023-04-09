@@ -8,10 +8,9 @@
     output: 'release/${version}',
   },
   files: ['dist-electron', 'dist'],
-
   mac: {
     icon: 'public/icons/icon.png',
-    artifactName: '${productName}_${version}.${ext}',
+    artifactName: 'FakeCloudMusic_${version}.${ext}',
     target: ['dmg'],
   },
   win: {
@@ -22,11 +21,10 @@
         arch: ['x64'],
       },
     ],
-    artifactName: '${productName}_${version}.${ext}',
+    artifactName: 'FakeCloudMusic_${version}.${ext}',
   },
   linux: {
     target: ['deb', 'snap'],
-    icon: 'public/icons/icon.ico',
   },
   nsis: {
     oneClick: false,
