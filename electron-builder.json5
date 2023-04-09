@@ -24,6 +24,10 @@
     ],
     artifactName: '${productName}_${version}.${ext}',
   },
+  linux: {
+    target: ['deb', 'snap'],
+    icon: 'public/icons/icon.ico',
+  },
   nsis: {
     oneClick: false,
     perMachine: false,
