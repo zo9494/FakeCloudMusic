@@ -13,7 +13,7 @@
         </button>
       </div>
     </div>
-    <div v-if="isWin" class="app-bar-button no-drag">
+    <div v-if="showCustomFrame" class="app-bar-button no-drag">
       <WindowButton />
     </div>
   </header>
@@ -23,9 +23,9 @@
 <script lang="ts" setup>
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
-let isWin = false;
-if (process.platform === 'win32') {
-  isWin = true;
+let showCustomFrame = false;
+if (process.platform !== 'darwin') {
+  showCustomFrame = true;
 }
 
 function clickSetting() {

@@ -85,6 +85,8 @@ watch(
 
 function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   if (!process || lyrics.length === 0) {
+    console.log(JSON.stringify(lyrics));
+
     return -2;
   }
 
