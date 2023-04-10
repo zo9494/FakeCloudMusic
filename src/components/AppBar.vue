@@ -1,23 +1,24 @@
 <template>
-  <header class="app-bar drag">
-    <div class="app-bar-options">
-      <div class="app-bar-options-search no-drag">
-        <Search />
+  <header :style="{ height: showCustomFrame ? '35px' : '45px' }">
+    <div class="app-bar drag">
+      <div :class="{ 'app-bar-options': true, mac: !showCustomFrame }">
+        <div class="app-bar-options-search no-drag">
+          <Search />
+        </div>
+        <div class="app-bar-options-buttons no-drag">
+          <button @click="clickSetting">
+            <i class="bi bi-palette"></i>
+          </button>
+          <button @click="clickSetting">
+            <i class="bi bi-gear" />
+          </button>
+        </div>
       </div>
-      <div class="app-bar-options-buttons no-drag">
-        <button @click="clickSetting">
-          <i class="bi bi-palette"></i>
-        </button>
-        <button @click="clickSetting">
-          <i class="bi bi-gear" />
-        </button>
+      <div v-if="showCustomFrame" class="app-bar-button no-drag">
+        <WindowButton />
       </div>
-    </div>
-    <div v-if="showCustomFrame" class="app-bar-button no-drag">
-      <WindowButton />
     </div>
   </header>
-  <!-- <component :is="appBar" /> -->
 </template>
 
 <script lang="ts" setup>
@@ -44,6 +45,9 @@ function clickSetting() {
   &-options {
     display: flex;
     justify-content: flex-end;
+    &.mac {
+      padding-top: 10px;
+    }
     &-search {
       padding-top: 5px;
       display: flex;

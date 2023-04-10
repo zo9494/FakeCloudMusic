@@ -54,7 +54,7 @@ window.loadUser = () => {
   }
 
   &-right-view {
-    padding: 40px 2px 0 2px;
+    padding: 0 2px 0 2px;
     height: 100%;
     overflow: hidden;
     position: relative;
