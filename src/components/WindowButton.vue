@@ -27,6 +27,7 @@ function handleResizable() {
   window.electron.window.resizable();
 }
 
+//
 let close: boolean | null = null;
 let tip: boolean = true;
 function confirm(val: boolean | null = null) {
@@ -40,7 +41,9 @@ function onAfterLeave() {
   if (close) {
     window.electron.window.close(true);
   } else {
-    window.electron.window.minimizeToTray();
+    setTimeout(() => {
+      window.electron.window.minimizeToTray();
+    }, 150);
   }
 }
 function handleClose() {
@@ -53,10 +56,14 @@ function handleClose() {
       // closable: false,
       transformOrigin: 'center',
       onAfterLeave,
-      content: () =>
-        h(CloseTip, {
+      content() {
+        return h(CloseTip, {
           confirm,
-        }),
+        });
+      },
+      onClose() {
+        confirm();
+      },
     });
   } else {
     onAfterLeave();

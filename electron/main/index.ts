@@ -217,9 +217,7 @@ class Main {
     });
 
     ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, () => {
-      setTimeout(() => {
-        Main.win.hide();
-      }, 100);
+      Main.win.hide();
     });
     // window平台
 
