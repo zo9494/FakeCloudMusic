@@ -104,24 +104,10 @@
               </div>
               <div class="desc">
                 <span>简介：</span>
-                <span
-                  :class="{
-                    'desc-inner': true,
-                    'text-overflow': true,
-                    expand: isExpand,
-                  }"
-                  ref="contentRef"
+                <Ellipsis
                   v-if="data.playlist.description"
-                  >{{ data.playlist.description }}</span
-                >
-                <i
-                  v-if="canExpand"
-                  :class="{
-                    bi: true,
-                    'bi-caret-up-fill': isExpand,
-                    'bi-caret-down-fill': !isExpand,
-                  }"
-                  @click="toggleExpand"
+                  class="desc-content"
+                  :content="data.playlist.description"
                 />
               </div>
             </div>
@@ -200,6 +186,7 @@
 import Image from '@/components/PlaylistImage.vue';
 import FInput from '@/components/Input.vue';
 import Avatar from '@/components/Avatar.vue';
+import Ellipsis from '@/components/Ellipsis.vue';
 import LoadingSVG from '@/assets/svg/loading.svg?component';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import {
@@ -298,8 +285,6 @@ function setPlaylist(playlist: Playlist) {
 function resetData() {
   data.playlist = {};
   data.netErr = false;
-  isExpand.value = false;
-  canExpand.value = false;
 }
 
 onBeforeMount(() => {
@@ -412,85 +397,6 @@ const { value } = useSearch(data);
 function handlePlay(index: number, list?: Track[]) {
   playerStore.play(index, data.playlist.tracks);
 }
-
-//#region 控制展开详情
-function useDescExpand() {
-  const desRef = ref<HTMLSpanElement>();
-  const isExpand = ref(false);
-  const canExpand = ref(false);
-  let expandStr: string;
-  let firstStr: string;
-  const lineClamp = (str?: string) => {
-    str = str?.trim();
-
-    if (!str) {
-      canExpand.value = false;
-      return;
-    }
-    if (!desRef.value) {
-      canExpand.value = false;
-      return;
-    }
-
-    const strArr = str.split('\n');
-    const firstLine = strArr[0];
-
-    const style = window.getComputedStyle(desRef.value);
-    const width = desRef.value?.clientWidth;
-    const height = desRef.value?.clientHeight;
-    const fontSize = parseFloat(style.fontSize);
-    const lineHeight = parseFloat(style.lineHeight);
-    const maxIndex = Math.ceil(width / fontSize);
-    // 多行
-    if (strArr.length > 1) {
-      canExpand.value = true;
-      firstStr = firstLine.substring(0, maxIndex - 3) + '...';
-      desRef.value.innerText = firstStr;
-      return;
-    } else {
-      // 单行
-      if (str.length <= maxIndex) {
-        canExpand.value = false;
-      } else {
-        canExpand.value = true;
-      }
-
-      firstStr = firstLine;
-      desRef.value.style.whiteSpace = 'nowrap';
-      desRef.value.innerText = firstLine;
-    }
-  };
-  const toggleExpand = () => {
-    isExpand.value = !isExpand.value;
-    if (!desRef.value) {
-      return;
-    }
-
-    if (isExpand.value) {
-      desRef.value.style.whiteSpace = 'pre-line';
-      desRef.value.style.height = 'auto';
-      desRef.value.innerText = expandStr;
-    } else {
-      desRef.value.style.height = '';
-      desRef.value.style.whiteSpace = 'nowrap';
-      desRef.value.innerText = firstStr;
-    }
-  };
-  watch(
-    () => desRef.value,
-    () => {
-      if (desRef.value) {
-        expandStr = desRef.value.innerText;
-        lineClamp(expandStr);
-      }
-    }
-  );
-
-  return { isExpand, canExpand, contentRef: desRef, toggleExpand };
-}
-
-const { isExpand, canExpand, contentRef, toggleExpand } = useDescExpand();
-//#endregion
 
 // like
 function updateLike(song: Track, isDel = false) {
@@ -699,14 +605,8 @@ function handleDev() {
 
       .desc {
         display: grid;
-        grid-template-columns: 36px auto 30px;
-        &-inner {
-          display: inline-block;
-          height: 20px;
-          white-space: pre-line;
-        }
-        > * {
-          line-height: 20px;
+        grid-template-columns: 36px auto;
+        &-content {
           color: #666;
         }
       }
