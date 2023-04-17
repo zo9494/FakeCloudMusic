@@ -89,7 +89,7 @@ button {
 
     &::-webkit-scrollbar-thumb {
       border-radius: 3px;
-      background: variables.$scrollbarColor;
+      background-color: variables.$scrollbarColor;
       &:hover {
         background-color: variables.$scrollbarHoverColor;
       }

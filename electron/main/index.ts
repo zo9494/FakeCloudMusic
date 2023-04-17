@@ -270,7 +270,8 @@ class Main {
       {
         label: '退出',
         click: () => {
-          app.exit();
+          // app.exit();
+          Main.win.webContents.send(EVENT.BEFORE_CLOSE);
         },
       },
     ]);

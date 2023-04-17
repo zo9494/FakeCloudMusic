@@ -1,11 +1,13 @@
 .n-modal.fade-in-scale-up-transition-leave-active {
   transform-origin: inherit;
-  transition: opacity 0.16s cubic-bezier(0.4, 0, 1, 1),
-    transform 0.16s cubic-bezier(0.4, 0, 1, 1);
+  transition: none;
+  // transition: opacity 0.16s cubic-bezier(0.4, 0, 1, 1),
+  // transform 0.16s cubic-bezier(0.4, 0, 1, 1);
 }
 
 .n-modal.fade-in-scale-up-transition-enter-active {
   transform-origin: inherit;
-  transition: opacity 0.16s cubic-bezier(0, 0, 0.2, 1),
-    transform 0.16s cubic-bezier(0, 0, 0.2, 1);
+  transition: none;
+  // transition: opacity 0.16s cubic-bezier(0, 0, 0.2, 1),
+  // transform 0.16s cubic-bezier(0, 0, 0.2, 1);
 }
