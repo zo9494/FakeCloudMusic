@@ -18,6 +18,6 @@
     },
     "types": ["vite-svg-loader"]
   },
-  "include": ["src"],
+  "include": ["electron/utils/eventTypes.ts", "src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

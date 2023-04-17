@@ -1,8 +1,9 @@
 import * as Electron from 'electron';
-
+import { EVENT } from '../../electron/utils/eventTypes';
 /**
  * Should match main/preload.ts for typescript support in renderer
  */
+type channelType = keyof typeof EVENT;
 
 interface window {
   close: (value?: boolean) => Promise<any>;
@@ -16,10 +17,20 @@ interface window {
   show: () => void;
   maximizeChange: (cb: (val: boolean) => void) => void;
 }
-
+interface IpcRenderer {
+  invoke: (channel: channelType, ...arg: any[]) => void;
+  on: (
+    channel: channelType,
+    listener: (event: Electron.IpcRendererEvent, ...args: any[]) => void,
+    ...arg: any[]
+  ) => void;
+}
 export default interface ElectronApi {
-  // ipcRenderer: Electron.IpcRenderer;
+  /**
+   * @deprecated 将弃用该属性
+   */
   window: window;
+  ipcRenderer: IpcRenderer;
   reloadUser: () => void;
 }
 

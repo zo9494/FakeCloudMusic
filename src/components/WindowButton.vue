@@ -21,10 +21,12 @@ const isMaximized = ref(false);
 const dialog = useDialog();
 
 function handleMinimize() {
-  window.electron.window.minimize();
+  window.electron.ipcRenderer.invoke('WINDOW_MIN');
+  // window.electron.window.minimize();
 }
 function handleResizable() {
-  window.electron.window.resizable();
+  window.electron.ipcRenderer.invoke('WINDOW_RESIZ');
+  // window.electron.window.resizable();
 }
 
 //
@@ -39,10 +41,12 @@ function onAfterLeave() {
     return;
   }
   if (close) {
-    window.electron.window.close(true);
+    // window.electron.window.close(true);
+    window.electron.ipcRenderer.invoke('WINDOW_CLOSE', true);
   } else {
     setTimeout(() => {
-      window.electron.window.minimizeToTray();
+      window.electron.ipcRenderer.invoke('MINIMIZE_TO_TRAY');
+      // window.electron.window.minimizeToTray();
     }, 150);
   }
 }
@@ -70,14 +74,21 @@ function handleClose() {
   }
 }
 
-window.electron.window.beforeClose(() => {
-  window.electron.window.show();
+// window.electron.window.beforeClose(() => {
+//   window.electron.window.show();
+//   handleClose();
+// });
+
+window.electron.ipcRenderer.on('BEFORE_CLOSE', () => {
+  window.electron.ipcRenderer.invoke('WINDOW_SHOW');
   handleClose();
 });
-
-window.electron.window.maximizeChange(val => {
+window.electron.ipcRenderer.on('MAXIMIZE', (e, val) => {
   isMaximized.value = val;
 });
+// window.electron.window.maximizeChange(val => {
+//   isMaximized.value = val;
+// });
 </script>
 
 <style lang="scss" scoped>

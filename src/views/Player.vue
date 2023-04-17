@@ -69,7 +69,11 @@ watch(
         alPicUrl: song?.al?.picUrl,
         title: song?.name,
       });
-      window.electron.window.setTitle(`${song?.name} - ${song?.arName}`);
+      window.electron.ipcRenderer.invoke(
+        'SET_TITLE',
+        `${song?.name} - ${song?.arName}`
+      );
+      // window.electron.window.setTitle(`${song?.name} - ${song?.arName}`);
     }
   },
   { deep: true }

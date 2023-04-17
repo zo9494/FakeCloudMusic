@@ -124,10 +124,10 @@ class Main {
       }
     });
     Main.win.on('maximize', () => {
-      Main.win.webContents.send(EVENT.maximize, true);
+      Main.win.webContents.send(EVENT.MAXIMIZE, true);
     });
     Main.win.on('unmaximize', () => {
-      Main.win.webContents.send(EVENT.maximize, false);
+      Main.win.webContents.send(EVENT.MAXIMIZE, false);
     });
     return;
   }
@@ -204,6 +204,7 @@ class Main {
       app.exit();
     });
     ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
+      debugger;
       const { win } = Main;
       if (win.isMaximized()) {
         win.restore();

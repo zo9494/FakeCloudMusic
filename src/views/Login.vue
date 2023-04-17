@@ -92,7 +92,8 @@ function init() {
 
 function close() {
   window.clearTimeout(timer.value);
-  window.electron.window.closeLoginWin();
+  window.electron.ipcRenderer.invoke('LOGIN_CLOSE');
+  // window.electron.window.closeLoginWin();
   window.close();
 }
 

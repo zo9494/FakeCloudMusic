@@ -10,5 +10,5 @@ export const EVENT = {
   SET_TITLE: 'SET_TITLE',
   BEFORE_CLOSE: 'BEFORE_CLOSE',
   WINDOW_SHOW: 'WINDOW_SHOW',
-  maximize: 'maximize',
+  MAXIMIZE: 'MAXIMIZE',
 };

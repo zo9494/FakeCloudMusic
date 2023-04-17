@@ -46,7 +46,8 @@ const visible = ref(false);
 function openLogin() {
   message();
   if (!profile.value.userId) {
-    window.electron.window.createLoginWin();
+    window.electron.ipcRenderer.invoke('LOGIN');
+    // window.electron.window.createLoginWin();
   } else {
     visible.value = true;
   }
