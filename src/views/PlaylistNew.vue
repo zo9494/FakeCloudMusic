@@ -428,8 +428,10 @@ function handleDev() {
   }
 }
 .disable {
-  color: #d9d9d9;
-  border: 1px solid #d9d9d9;
+  color: var(--button-text-color-disabled);
+  background-color: var(--button-color-disabled);
+  opacity: var(--opacity-disabled);
+  border: var(--button-border-disabled);
 }
 
 .playlist {
@@ -446,14 +448,14 @@ function handleDev() {
     top: 0;
     left: 0;
     right: 0;
-    background-color: #fff;
+    background-color: var(--bg-color);
     padding: 20px;
-    border-bottom: 1px solid #dfdfdf;
+    border-bottom: 1px solid var(--playlist-header-border-bottom-color);
     z-index: 10;
     .title {
       font-size: 22px;
       font-weight: bold;
-      color: #333;
+      color: var(--font-color);
     }
     .options {
       margin: 10px 0;
@@ -502,7 +504,7 @@ function handleDev() {
       .title {
         font-size: 22px;
         font-weight: bold;
-        color: #333;
+        color: var(--font-color);
       }
 
       .create-info {
@@ -534,14 +536,14 @@ function handleDev() {
           max-width: 140px;
           &:not(.options-all) {
             border-radius: 50px;
-            border: 1px solid #e1e1e1;
+            background-color: var(--button-color);
             display: grid;
             grid-template-columns: 14px auto;
             place-items: center;
             padding-left: 10px;
-
+            border: var(--button-border);
             &:not(.disable):hover {
-              background-color: #f3f3f3;
+              background-color: var(--app-bar-button-hover);
             }
           }
         }
@@ -625,19 +627,19 @@ function handleDev() {
   .playlist-list {
     &-header {
       color: #888888;
-      border-bottom: 1px solid #dfdfdf;
+      border-bottom: 1px solid var(--playlist-item-header-border-color);
     }
 
     &-item {
       &.color {
-        background-color: #f8f8f8;
+        background-color: var(--playlist-item-eve-color);
       }
 
       &:hover {
-        background-color: #f2f2f2;
+        background-color: var(--playlist-item-hover-color);
       }
       .index {
-        color: #bbb;
+        color: var(--playlist-item-index-font-color);
       }
 
       .opt {
@@ -646,18 +648,18 @@ function handleDev() {
         grid-template-columns: repeat(2, auto);
         place-items: center;
         gap: 4px;
-        color: #bbb;
+        color: var(--playlist-item-index-font-color);
         .bi {
           cursor: pointer;
         }
       }
 
       .name {
-        color: #000;
+        color: var(--playlist-item-name-font-color);
       }
 
       .ar {
-        color: #666;
+        color: var(--playlist-item-ar-font-color);
 
         span {
           cursor: pointer;
@@ -676,7 +678,7 @@ function handleDev() {
       }
 
       .al {
-        color: #888;
+        color: var(--playlist-item-al-font-color);
 
         span {
           cursor: pointer;
@@ -684,7 +686,7 @@ function handleDev() {
       }
 
       .dt {
-        color: #bbb;
+        color: var(--playlist-item-dt-font-color);
       }
     }
   }

@@ -50,7 +50,7 @@ function handleClick() {
   margin: 10px 0;
   &-header {
     font-size: 14px;
-    color: #777;
+    color: var(--menu-title-color);
     margin: 5px 0;
     padding-left: 15px;
   }
@@ -59,13 +59,13 @@ function handleClick() {
       &-item {
         padding-left: 15px;
         font-size: 12px;
-        color: #333;
+        color: var(--font-color);
         display: grid;
         grid-template-columns: 30px auto;
         grid-template-rows: 50px;
         align-items: center;
         &:hover {
-          background-color: #f2f2f2;
+          background-color: var(--menu-hover-bg-color);
         }
         &-index {
           font-size: 14px;

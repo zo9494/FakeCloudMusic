@@ -110,7 +110,7 @@ export default defineConfig(({ command }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: '@use "./src/style/variables.scss";',
+          additionalData: '@use "./src/assets/style/variables.scss";',
         },
       },
     },

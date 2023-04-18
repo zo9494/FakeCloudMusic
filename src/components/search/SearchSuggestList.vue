@@ -85,7 +85,7 @@ function getAlbumName(album: HotSearchSuggest.Album) {
 .search-suggest-list {
   font-size: 14px;
   font-weight: 100;
-  color: #888;
+  color: var(--menu-title-color);
   .bi {
     margin: 0 5px;
   }
@@ -99,10 +99,10 @@ function getAlbumName(album: HotSearchSuggest.Album) {
       line-height: 35px;
       padding-left: 40px;
       overflow: hidden;
-      color: #000;
+      color: var(--font-color);
       font-size: 12.5px;
       &:hover {
-        background-color: #f2f2f2;
+        background-color: var(--menu-hover-bg-color);
       }
     }
   }

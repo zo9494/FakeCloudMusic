@@ -1,7 +1,7 @@
 <template>
   <span class="f-input">
     <div class="f-input-prefix">
-      <i class="bi bi-x-lg icon" v-if="props.modelValue" />
+      <i class="bi bi-x-lg icon" v-if="props.modelValue" @click="handleClear" />
       <i class="bi bi-search icon" v-else />
     </div>
     <input
@@ -38,10 +38,10 @@ function handleClear() {
 .f-input {
   height: 100%;
   width: 100%;
-  background-color: #ededed;
+  background-color: var(--input-color);
   padding: 2px 3px;
   border-radius: 50px;
-  color: #333333;
+  color: var(--input-text-color);
   display: grid;
   grid-template-columns: 15px auto;
   place-items: center;
@@ -58,12 +58,16 @@ function handleClear() {
   input {
     width: 100%;
     height: 100%;
-    color: #333333;
+    color: var(--input-text-color);
     font-size: 12px;
     border: none;
     outline-style: none;
     background-color: transparent;
     cursor: text;
+    &::placeholder {
+      opacity: 0.5;
+      color: var(--input-text-color);
+    }
   }
 }
 </style>

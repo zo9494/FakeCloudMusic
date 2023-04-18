@@ -32,11 +32,10 @@ watch(
   img {
     width: 100%;
     height: 100%;
-    border: 1px solid #e0e0e0;
   }
 
   &-error {
-    background-color: #e0e0e0;
+    background-color: var(--playlist-img-color);
     width: 100%;
     height: 100%;
     display: grid;

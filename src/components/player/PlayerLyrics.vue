@@ -2,7 +2,7 @@
   <div
     class="f-lyrics-bg"
     :style="{
-      backgroundImage: `linear-gradient(0deg,rgb(${props.bgColor.join(
+      '--bg-img': `linear-gradient(0deg,rgb(${props.bgColor.join(
         ','
       )}),rgb(245,245,245))`,
     }"
@@ -139,10 +139,17 @@ defineExpose({ handleScroll });
   bottom: 0;
   z-index: -1;
 }
+:root[data-theme='dark'] {
+  .f-lyrics {
+    &-bg {
+      background-image: none;
+    }
+  }
+}
 .f-lyrics {
   &-bg {
-    // background-color: whitesmoke;
-    // background-size: cover;
+    background-color: var(--bg-color);
+    background-image: var(--bg-img);
     position: relative;
   }
   width: 100%;
@@ -150,8 +157,8 @@ defineExpose({ handleScroll });
   background-size: cover;
   background-position: center;
   padding: 40px 30px 30px;
-  background-color: rgba(255, 255, 255, 0.6);
   display: grid;
+  background-color: var(--lyrics-color);
   gap: 10px;
   grid-template-rows: 100px calc(100% - 110px);
   overflow: hidden;
@@ -199,7 +206,7 @@ defineExpose({ handleScroll });
       .item {
         min-height: 20px;
         font-size: 14.8px;
-        color: #555;
+        color: var(--lyrics-font-color);
         margin: 15px 0;
         transition: all ease-in-out 220ms;
         p {
@@ -207,7 +214,7 @@ defineExpose({ handleScroll });
         }
         &-active {
           font-weight: bold;
-          color: #000;
+          color: var(--lyrics-font-active-color);
         }
       }
     }

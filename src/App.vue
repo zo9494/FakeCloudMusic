@@ -50,7 +50,7 @@ window.loadUser = () => {
     overflow: hidden;
     display: grid;
     grid-template-rows: 20px 50px auto;
-    background-color: variables.$appBgColor;
+    background-color: var(--menu-color);
   }
 
   &-right-view {
@@ -75,7 +75,7 @@ window.loadUser = () => {
   }
 
   .user {
-    background-color: variables.$appBgColor;
+    background-color: var(--menu-color);
   }
 }
 </style>

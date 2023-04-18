@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<PropsType>(), {
       margin: 0;
       font-size: 18px;
       font-weight: bold;
-      color: #333;
+      color: var(--font-color);
     }
   }
   &-body {

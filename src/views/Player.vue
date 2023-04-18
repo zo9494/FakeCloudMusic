@@ -202,9 +202,9 @@ function updateLike(song: Track | undefined, isDel = false) {
       v-show="!data.showLyric"
       class="f-player"
       :style="{
-        backgroundImage: `linear-gradient(90deg,rgba(${data.bgColor.join(
+        '--player-img': `linear-gradient(90deg,rgba(${data.bgColor.join(
           ','
-        )},0.2),rgb(245,245,245))`,
+        )},0.2),var(--bg-color))`,
       }"
     >
       <div class="f-player-info">
@@ -328,7 +328,7 @@ function updateLike(song: Track | undefined, isDel = false) {
         <button
           class="arrow-down"
           @click="data.showLyric = false"
-          style="color: #000"
+          style="color: var(--font-color)"
         >
           <i class="icon-arrow-down-bold iconfont"></i>
         </button>
@@ -400,25 +400,18 @@ function updateLike(song: Track | undefined, isDel = false) {
   width: 100vw;
 }
 
-button {
-  margin: 0;
-  padding: 0;
-  background-color: transparent;
-  color: #666666;
-}
-
 .f-player {
-  color: #666666;
+  color: var(--font-color);
   padding: 5px 10px;
   height: 100%;
   width: 100%;
   display: grid;
   grid-template-columns: 160px 25px 130px auto 300px;
-  background-color: whitesmoke;
-  // backdrop-filter: blur(3px);
+  background-color: var(--bg-color);
+  background-image: var(--player-img);
   gap: 10px;
   place-items: center;
-  border-top: 1px solid #dfdfdf;
+  border-top: 1px solid var(--player-border-color-top);
 
   &-info {
     display: grid;
@@ -560,50 +553,48 @@ button {
       }
     }
   }
+}
+.vue-slider {
+  .vue-slider-process-cache {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: var(--player-cache-track-color);
+    border-radius: 15px;
+    width: 0%;
+  }
 
-  .vue-slider {
-    .vue-slider-process-cache {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      background-color: #cecece;
-      border-radius: 15px;
-      width: 0%;
-    }
+  .vue-slider-dot-handle {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
+    visibility: hidden;
+  }
 
+  .vue-slider-rail {
+    background-color: var(--player-track-color);
+  }
+
+  .vue-slider-process {
+    background-color: #ec4141;
+  }
+
+  &:hover {
     .vue-slider-dot-handle {
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background-color: #fff;
-      box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
-      visibility: hidden;
+      visibility: visible;
     }
+  }
 
-    .vue-slider-rail {
-      background-color: #e5e5e5;
-    }
-
-    .vue-slider-process {
-      background-color: #ec4141;
-    }
-
-    &:hover {
-      .vue-slider-dot-handle {
-        visibility: visible;
-      }
-    }
-
-    &:active {
-      .vue-slider-dot-handle {
-        visibility: visible;
-      }
+  &:active {
+    .vue-slider-dot-handle {
+      visibility: visible;
     }
   }
 }
-
 .arrow-down {
   padding: 3px 15px;
   cursor: pointer;
@@ -624,37 +615,9 @@ button {
   &-slider {
     display: flex;
     gap: 5px;
-
+    align-items: center;
     &-bar {
       width: 100%;
-
-      .vue-slider {
-        .vue-slider-dot-handle {
-          cursor: pointer;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          background-color: #fff;
-          box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
-          visibility: hidden;
-        }
-
-        .vue-slider-process {
-          background-color: #eae7e6;
-        }
-
-        &:hover {
-          .vue-slider-dot-handle {
-            visibility: visible;
-          }
-        }
-
-        &:active {
-          .vue-slider-dot-handle {
-            visibility: visible;
-          }
-        }
-      }
     }
   }
 

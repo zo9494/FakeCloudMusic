@@ -6,8 +6,9 @@
           <Search />
         </div>
         <div class="app-bar-options-buttons no-drag">
-          <button @click="clickSetting">
-            <i class="bi bi-palette"></i>
+          <button @click="toggleTheme">
+            <i v-show="theme === themes.dark" class="bi bi-moon"></i>
+            <i v-show="theme === themes.light" class="bi bi-sun"></i>
           </button>
           <button @click="clickSetting">
             <i class="bi bi-gear" />
@@ -22,6 +23,7 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
 let showCustomFrame = false;
@@ -32,6 +34,26 @@ if (process.platform !== 'darwin') {
 function clickSetting() {
   alert('功能开发中...');
 }
+
+function useTheme() {
+  enum themes {
+    dark = 'dark',
+    light = 'light',
+  }
+  const theme = ref(themes.light);
+  const toggleTheme = () => {
+    if (theme.value === themes.dark) {
+      theme.value = themes.light;
+    } else {
+      theme.value = themes.dark;
+    }
+    document.documentElement.dataset.theme = theme.value;
+  };
+  document.documentElement.dataset.theme = themes.light;
+  return { themes, theme, toggleTheme };
+}
+
+const { themes, theme, toggleTheme } = useTheme();
 </script>
 <style lang="scss" scoped>
 .app-bar {
@@ -65,7 +87,7 @@ function clickSetting() {
         font-size: 15px;
         border-radius: 100%;
         &:hover {
-          background-color: rgba($color: #000000, $alpha: 0.1);
+          background-color: var(--app-bar-button-hover);
         }
       }
     }

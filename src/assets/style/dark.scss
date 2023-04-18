@@ -1,0 +1,55 @@
+:root[data-theme='dark'] {
+  // scrollbar
+  --scrollbar-thumb-color: #333;
+  --scrollbar-thumb-color-hover: #555;
+  --body-bg-color: #191919;
+  --bg-color: #191919;
+
+  --font-color: rgba(255, 255, 255, 0.9);
+
+  // app bar button hover
+  --app-bar-button-hover: #2c2c2c;
+
+  // left menu
+  --menu-color: #222;
+  --menu-title-color: #ddd;
+  --menu-font-color: #eee;
+  --menu-actvie-bg-color: #eeeeee;
+  --menu-hover-bg-color: #2f2f2f;
+  --menu-actvie-bg-color: #2e2e2e;
+  --menu-active-font-color: #e40029;
+
+  // playlist img
+
+  --playlist-img-color: #222;
+  // playlist page
+  --playlist-item-eve-color: #202020;
+  --playlist-item-hover-color: #111;
+  --playlist-item-index-font-color: #888;
+  --playlist-item-name-font-color: #fff;
+  --playlist-item-ar-font-color: #ddd;
+  --playlist-item-al-font-color: #aaa;
+  --playlist-item-dt-font-color: #888;
+  --playlist-item-header-border-color: rgba(255, 255, 255, 0.09);
+  --playlist-header-border-bottom-color: rgba(255, 255, 255, 0.09);
+
+  // player
+  --lyrics-img:none
+  --lyrics-color: none;
+  --player-border-color-top: #333;
+  --player-cache-track-color: #888;
+  --player-track-color: #555;
+  --lyrics-font-color: #999;
+  --lyrics-font-active-color: #fff;
+  // button
+  --button-text-color-disabled:rgba(255, 255, 255, 0.82);
+  --button-color-disabled:#191919;
+  --opacity-disabled:0.38;
+  --button-border-disabled:1px solid rgba(255, 255, 255, 0.24);
+  --button-color:#222;
+  --button-border: 1px solid rgba(255, 255, 255, 0.24);
+
+  // input
+  --input-color:#222;
+  --input-text-color:#bbb;
+}

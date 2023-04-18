@@ -115,7 +115,7 @@ window.electron.ipcRenderer.on('MAXIMIZE', (e, val) => {
   }
 
   button:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--app-bar-button-hover);
   }
 
   .close:hover {

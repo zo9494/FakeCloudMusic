@@ -48,7 +48,6 @@ const rememberSelect = ref(false);
 type RadioThemeOverrides = NonNullable<RadioGroupProps['themeOverrides']>;
 type CheckboxThemeOverrides = NonNullable<CheckboxProps['themeOverrides']>;
 const radioThemeOverrides: RadioThemeOverrides = {
-  textColor: '#333',
   dotColorActive: '#ec4141',
   boxShadowHover: 'inset 0 0 0 1px #ec4141',
   boxShadowActive: 'inset 0 0 0 1px #ec4141',

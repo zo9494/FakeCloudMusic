@@ -106,7 +106,7 @@ const { menu } = withDefaults(defineProps<menuType>(), {
 .nav-item {
   &-title {
     margin-left: 15px;
-    color: #888888;
+    color: var(--menu-title-color);
     font-size: 12px;
     padding: 5px 0;
   }
@@ -131,7 +131,7 @@ const { menu } = withDefaults(defineProps<menuType>(), {
     }
 
     &:hover {
-      background-color: variables.$menuHover;
+      background-color: var(--menu-hover-bg-color);
     }
 
     a {
@@ -149,6 +149,6 @@ const { menu } = withDefaults(defineProps<menuType>(), {
 
 .router-link-exact-active {
   color: #e40029;
-  background-color: variables.$menuActive;
+  background-color: var(--menu-actvie-bg-color);
 }
 </style>
