@@ -35,7 +35,7 @@ import Popover from '@/components/popover/Popover.vue';
 import { useUserStore } from '@/store/user';
 import { storeToRefs } from 'pinia';
 import Avatar from '@/components/Avatar.vue';
-import { message } from '@/components/message/message';
+
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);
 
@@ -44,7 +44,6 @@ onBeforeMount(() => {
 });
 const visible = ref(false);
 function openLogin() {
-  message();
   if (!profile.value.userId) {
     window.electron.ipcRenderer.invoke('LOGIN');
     // window.electron.window.createLoginWin();

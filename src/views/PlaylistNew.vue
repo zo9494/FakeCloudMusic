@@ -696,6 +696,7 @@ function handleDev() {
     display: flex;
     justify-content: flex-end;
     &-input {
+      height: 22px;
       width: 180px;
     }
   }

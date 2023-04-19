@@ -1,8 +1,7 @@
 <template>
   <span class="f-input">
     <div class="f-input-prefix">
-      <i class="bi bi-x-lg icon" v-if="props.modelValue" @click="handleClear" />
-      <i class="bi bi-search icon" v-else />
+      <i class="bi bi-search icon" @click="handleSearch" />
     </div>
     <input
       type="text"
@@ -10,6 +9,10 @@
       @input="handleInput"
       :placeholder="props.placeholder"
     />
+
+    <div class="f-input-suffix">
+      <i class="bi bi-x-lg icon" v-if="props.modelValue" @click="handleClear" />
+    </div>
   </span>
 </template>
 
@@ -18,6 +21,7 @@ import { InputHTMLAttributes } from 'vue';
 interface InputProps {
   placeholder?: any;
   modelValue?: any;
+  onSearch?: () => any;
 }
 
 interface InputEmits {
@@ -32,6 +36,12 @@ function handleInput(e: Event) {
 function handleClear() {
   props.modelValue && emit('update:modelValue', '');
 }
+function handleSearch(e: MouseEvent) {
+  if (props.onSearch) {
+    e.stopPropagation();
+    props.onSearch?.();
+  }
+}
 </script>
 
 <style lang="scss">
@@ -39,22 +49,18 @@ function handleClear() {
   height: 100%;
   width: 100%;
   background-color: var(--input-color);
-  padding: 2px 3px;
+  padding: 0px 3px;
   border-radius: 50px;
   color: var(--input-text-color);
-  display: grid;
-  grid-template-columns: 15px auto;
-  place-items: center;
-
+  display: flex;
   &-prefix {
-    width: 100%;
-    text-align: center;
-    .icon {
-      width: 11px;
-      height: 11px;
-    }
+    display: flex;
+    align-items: center;
   }
-
+  &-suffix {
+    display: flex;
+    align-items: center;
+  }
   input {
     width: 100%;
     height: 100%;

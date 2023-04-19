@@ -8,9 +8,12 @@
   font-family: 'FluentIcon';
 }
 * {
-  cursor: default;
+  // cursor: default;
   user-select: none;
   box-sizing: border-box;
+}
+img {
+  pointer-events: none;
 }
 body {
   box-sizing: border-box;
@@ -133,7 +136,17 @@ button {
   opacity: 0;
   transform: translateY(-100%);
 }
+// scale
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.2s ease-out;
+}
 
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
 // overwrite
 @import './overwriteNaive.scss';
 

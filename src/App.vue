@@ -34,7 +34,11 @@ nextTick(() => {
   <div class="container-right-view">
     <AppBar></AppBar>
     <div class="container-right-view-inner">
-      <RouterView></RouterView>
+      <RouterView v-slot="{ Component, route }">
+        <transition name="scale" mode="out-in">
+          <component :is="Component" :key="route.path" />
+        </transition>
+      </RouterView>
     </div>
   </div>
   <div class="container-player">

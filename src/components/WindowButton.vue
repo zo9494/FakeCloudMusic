@@ -47,7 +47,7 @@ function onAfterLeave() {
     setTimeout(() => {
       window.electron.ipcRenderer.invoke('MINIMIZE_TO_TRAY');
       // window.electron.window.minimizeToTray();
-    }, 150);
+    }, 180);
   }
 }
 function handleClose() {

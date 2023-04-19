@@ -2,34 +2,34 @@
   <div class="nav-item">
     <ul>
       <li>
-        <RouterLink draggable="false" to="/">
+        <NavLink draggable="false" to="/">
           <NeteaseLogoSVG class="svg-netease_logo" />
           <span>发现音乐</span>
-        </RouterLink>
+        </NavLink>
       </li>
       <li>
-        <RouterLink draggable="false" to="/播客">
+        <NavLink draggable="false" to="/播客">
           <i class="bi bi-broadcast" />
           <span>播客</span>
-        </RouterLink>
+        </NavLink>
       </li>
       <li>
-        <RouterLink draggable="false" to="/私人FM">
+        <NavLink draggable="false" to="/私人FM">
           <RadioSVG class="svg-radio" />
           <span>私人FM</span>
-        </RouterLink>
+        </NavLink>
       </li>
       <li>
-        <RouterLink draggable="false" to="/视频">
+        <NavLink draggable="false" to="/视频">
           <i class="bi bi-play-btn" />
           <span>视频</span>
-        </RouterLink>
+        </NavLink>
       </li>
       <li>
-        <RouterLink draggable="false" to="/关注">
+        <NavLink draggable="false" to="/关注">
           <i class="bi bi-people" />
           <span>关注</span>
-        </RouterLink>
+        </NavLink>
       </li>
     </ul>
   </div>
@@ -37,23 +37,23 @@
     <div class="nav-item-title">我的音乐</div>
     <ul>
       <li>
-        <RouterLink draggable="false" to="/playlist/like">
+        <NavLink draggable="false" to="/playlist/like">
           <i class="bi bi-heart" />
           <span>我喜欢的音乐</span>
-        </RouterLink>
+        </NavLink>
       </li>
 
       <li>
-        <RouterLink draggable="false" to="/下载管理">
+        <NavLink draggable="false" to="/下载管理">
           <i class="bi bi-download" />
           <span>下载管理</span>
-        </RouterLink>
+        </NavLink>
       </li>
       <li>
-        <RouterLink draggable="false" to="/最近播放">
+        <NavLink draggable="false" to="/最近播放">
           <i class="bi bi-clock-history" />
           <span>最近播放</span>
-        </RouterLink>
+        </NavLink>
       </li>
     </ul>
   </div>
@@ -61,10 +61,10 @@
     <div class="nav-item-title">创建的歌单</div>
     <ul>
       <li v-for="item in menu.myCreate" :key="item.id">
-        <RouterLink draggable="false" :to="`/playlist/${item.id}`">
+        <NavLink draggable="false" :to="`/playlist/${item.id}`">
           <i class="bi bi-music-note-list" />
           <span class="text-overflow">{{ item.name }}</span>
-        </RouterLink>
+        </NavLink>
       </li>
     </ul>
   </div>
@@ -72,10 +72,10 @@
     <div class="nav-item-title">收藏的歌单</div>
     <ul>
       <li v-for="item in menu.myCollect" :key="item.id">
-        <RouterLink draggable="false" :to="`/playlist/${item.id}`">
+        <NavLink draggable="false" :to="`/playlist/${item.id}`">
           <i class="bi bi-music-note-list" />
           <span class="text-overflow">{{ item.name }}</span>
-        </RouterLink>
+        </NavLink>
       </li>
     </ul>
   </div>
@@ -84,7 +84,7 @@
 
 <script setup lang="ts">
 import { withDefaults } from 'vue';
-import { RouterLink } from 'vue-router';
+import NavLink from '@/components/NavLink.vue';
 import NeteaseLogoSVG from '@/assets/svg/netease_logo.svg?component';
 import RadioSVG from '@/assets/svg/radio.svg?component';
 interface menuType {

@@ -11,6 +11,7 @@
           class="search-input"
           :placeholder="data.placeholder"
           @click.stop="handleClick"
+          :on-search="Search"
         />
       </template>
       <div class="search-panel scrollbar-always">
@@ -25,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from '@/hooks/customRouter';
 import { onBeforeMount, reactive, onBeforeUnmount, ref } from 'vue';
 import FInput from '@/components/Input.vue';
 import Popover from '@/components/popover/Popover.vue';
@@ -38,7 +40,7 @@ interface DataType {
   timer: number;
   visible: boolean;
 }
-
+const router = useRouter();
 const data = reactive<DataType>({
   value: '',
   placeholder: '搜索',
@@ -85,10 +87,16 @@ function handleClick() {
 }
 const searchRef = ref<HTMLDivElement>();
 function clickOutSide(e: MouseEvent) {
-  const isSelf = searchRef.value?.contains(e.target as Node);
-  if (!isSelf) {
-    data.visible = false;
-  }
+  // const isSelf = searchRef.value?.contains(e.target as Node);
+  // if (!isSelf) {
+  //   data.visible = false;
+  // }
+  data.visible = false;
+  console.log(e);
+}
+
+function Search() {
+  router.push('/search/' + (data.value || data.placeholder));
 }
 </script>
 

@@ -1,6 +1,13 @@
 <template>
   <header :style="{ height: showCustomFrame ? '35px' : '45px' }">
     <div class="app-bar drag">
+      <div class="app-bar-front">
+        <span v-show="canBack" class="back no-drag">
+          <button class="back-inner" @click="handleBack">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+        </span>
+      </div>
       <div :class="{ 'app-bar-options': true, mac: !showCustomFrame }">
         <div class="app-bar-options-search no-drag">
           <Search />
@@ -10,11 +17,12 @@
             <i v-show="theme === themes.dark" class="bi bi-moon"></i>
             <i v-show="theme === themes.light" class="bi bi-sun"></i>
           </button>
-          <button @click="clickSetting">
+          <button @click="Setting">
             <i class="bi bi-gear" />
           </button>
         </div>
       </div>
+      <div v-if="showCustomFrame" class="app-bar-button-blank"> </div>
       <div v-if="showCustomFrame" class="app-bar-button no-drag">
         <WindowButton />
       </div>
@@ -24,15 +32,14 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
+
+import { useRouter, useHistory } from '@/hooks/customRouter';
+
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
 let showCustomFrame = false;
 if (process.platform !== 'darwin') {
   showCustomFrame = true;
-}
-
-function clickSetting() {
-  alert('功能开发中...');
 }
 
 function useTheme() {
@@ -56,16 +63,36 @@ function useTheme() {
 }
 
 const { themes, theme, toggleTheme } = useTheme();
+const router = useRouter();
+const { canBack } = useHistory();
+function Setting() {
+  router.push({ name: 'SettingPage' });
+}
+function handleBack() {
+  router.back();
+}
 </script>
 <style lang="scss" scoped>
+.back {
+  font-size: 16px;
+  &-inner {
+    padding: 4px 7px;
+    border-radius: 10px;
+    &:hover {
+      background-color: var(--app-bar-button-hover);
+    }
+  }
+}
 .app-bar {
-  left: 0px;
-  right: 0px;
-  top: 0px;
-  z-index: 999;
-  position: absolute;
+  width: 100%;
   display: flex;
   justify-content: end;
+  &-front {
+    padding-left: 10px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
   &-options {
     display: flex;
     justify-content: flex-end;
@@ -94,9 +121,14 @@ const { themes, theme, toggleTheme } = useTheme();
       }
     }
   }
-  &-button {
+  [class^='app-bar-button'] {
     width: 140px;
     height: 30px;
+  }
+  &-button {
+    right: 0;
+    position: absolute;
+    z-index: 999;
   }
 }
 // .app_bar {
