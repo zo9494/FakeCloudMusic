@@ -7,13 +7,7 @@ import '@/assets/style/iconfont.css';
 import './normalize.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { router } from '@/router';
-createApp(App)
-  .use(store)
-  .use(router)
-  .mount('#app')
-  .$nextTick(() => {
-    postMessage({ payload: 'removeLoading' }, '*');
-  });
+createApp(App).use(store).use(router).mount('#app');
 
 window.getCookie = () => {
   const str: string | undefined = localStorage.cookie;

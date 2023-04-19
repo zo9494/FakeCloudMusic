@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nextTick } from 'vue';
 import AppBar from './components/AppBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
@@ -15,6 +16,9 @@ window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount();
 };
+nextTick(() => {
+  postMessage({ payload: 'removeLoading' }, '*');
+});
 </script>
 
 <template>

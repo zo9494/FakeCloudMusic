@@ -40,16 +40,18 @@ function useTheme() {
     dark = 'dark',
     light = 'light',
   }
-  const theme = ref(themes.light);
+
+  const theme = ref(localStorage.theme || themes.light);
   const toggleTheme = () => {
     if (theme.value === themes.dark) {
       theme.value = themes.light;
     } else {
       theme.value = themes.dark;
     }
+    localStorage.theme = theme.value;
     document.documentElement.dataset.theme = theme.value;
   };
-  document.documentElement.dataset.theme = themes.light;
+  document.documentElement.dataset.theme = theme.value;
   return { themes, theme, toggleTheme };
 }
 

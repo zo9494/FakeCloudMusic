@@ -9,6 +9,5 @@
 <style scoped lang="scss">
 .not-found {
   padding: 20px;
-  color: #333;
 }
 </style>

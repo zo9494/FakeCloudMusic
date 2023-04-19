@@ -34,6 +34,13 @@ const safeDOM = {
  * https://matejkustec.github.io/SpinThatShit
  */
 function useLoading() {
+  const theme = localStorage.theme;
+  let color = '#ededed';
+  let spinColor = 'rgba(0, 0, 0, 0.8)';
+  if (theme === 'dark') {
+    spinColor = 'rgba(255, 255, 255, 0.8)';
+    color = '#191919';
+  }
   const styleContent = `
 .app-loading-wrap {
   position: fixed;
@@ -44,7 +51,7 @@ function useLoading() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ededed;
+  background-color:${color};
   z-index: 9;
 }
 .loading {
@@ -55,8 +62,8 @@ function useLoading() {
   border-width:4px;
   border-top-color: transparent;
   border-bottom-color: transparent;
-  border-right-color: rgba(0, 0, 0, 0.8);
-  border-left-color: rgba(0, 0, 0, 0.8);
+  border-right-color: ${spinColor};
+  border-left-color: ${spinColor};
   border-radius: 100%;
 
   animation: circle infinite 0.75s linear;
@@ -73,8 +80,10 @@ function useLoading() {
 
     `;
   const oStyle = document.createElement('style');
+  const style = document.createElement('style');
   const oDiv = document.createElement('div');
 
+  style.innerHTML = `body{background-color: ${color}}`;
   oStyle.id = 'app-loading-style';
   oStyle.innerHTML = styleContent;
   oDiv.className = 'app-loading-wrap';
@@ -85,10 +94,14 @@ function useLoading() {
   return {
     appendLoading() {
       safeDOM.append(document.head, oStyle);
+      safeDOM.append(document.head, style);
       safeDOM.append(document.body, oDiv);
     },
     removeLoading() {
       safeDOM.remove(document.head, oStyle);
+      setTimeout(() => {
+        safeDOM.remove(document.head, style);
+      }, 5000);
       safeDOM.remove(document.body, oDiv);
     },
   };
@@ -103,4 +116,4 @@ window.onmessage = ev => {
   ev.data.payload === 'removeLoading' && removeLoading();
 };
 
-setTimeout(removeLoading, 4999);
+setTimeout(removeLoading, 9000);

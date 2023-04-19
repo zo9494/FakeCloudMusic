@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import { defineComponent, h } from 'vue';
-import Playlist from '@/views/Playlist.vue';
+
 import PlaylistNew from '@/views/PlaylistNew.vue';
 import FindMusic from '@/views/FindMusic.vue';
 import NotFoundPage from '@/views/404.vue';
