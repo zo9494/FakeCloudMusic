@@ -147,6 +147,21 @@ button {
   opacity: 0;
   transform: scale(0.9);
 }
+
+.text-scroll > * {
+  animation: var(--words-roll-time, 5s) textScroll linear;
+}
+
+@keyframes textScroll {
+  from {
+    transform: translateX(0%);
+  }
+
+  to {
+    transform: translateX(calc(-100% - var(--text-gap, 10px)));
+  }
+}
+
 // overwrite
 @import './overwriteNaive.scss';
 

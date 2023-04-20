@@ -13,10 +13,15 @@ import { usePlayerStore } from '@/store/player';
 import { formatDuringMS } from '@/utils/time';
 import { FA, FAudio } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
+import { useTextScroll } from '@/hooks/textOverflowScroll';
 const userStore = useUserStore();
 const playerStore = usePlayerStore();
 const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
 
+onMounted(() => {
+  useTextScroll('.f-player-info-song-name');
+  useTextScroll('.f-player-info-song-ar');
+});
 interface Data {
   node?: FAudio;
   progress: number;
@@ -218,11 +223,19 @@ function updateLike(song: Track | undefined, isDel = false) {
           />
         </div>
         <div class="f-player-info-song">
-          <p class="f-player-info-song-name">{{ currentSong.song?.name }}</p>
-          <p class="f-player-info-song-ar">{{ currentSong.song?.arName }}</p>
+          <div
+            class="f-player-info-song-name"
+            v-html="`<span>${currentSong.song?.name || ''}</span>`"
+          >
+          </div>
+          <div
+            class="f-player-info-song-ar"
+            v-html="`<span>${currentSong.song?.arName || ''}</span>`"
+          >
+          </div>
         </div>
       </div>
-
+      <!-- 收藏 -->
       <div class="f-player-heart">
         <span>
           <i
@@ -239,12 +252,14 @@ function updateLike(song: Track | undefined, isDel = false) {
       </div>
 
       <div class="f-player-control">
+        <!-- 上一首 -->
         <button
           @click="previous"
           class="f-player-control-previous f-player-control-btn"
         >
           <i class="icon-play-previous iconfont" />
         </button>
+        <!-- 暂停、播放 -->
         <button
           class="f-player-control-pau-pla f-player-control-btn"
           @click="handlePlay(!data.play)"
@@ -252,6 +267,7 @@ function updateLike(song: Track | undefined, isDel = false) {
           <i v-show="data.play" class="iconfont icon-pause" />
           <i v-show="!data.play" class="iconfont icon-play" />
         </button>
+        <!-- 下一首 -->
         <button
           @click="next"
           class="f-player-control-next f-player-control-btn"
@@ -259,7 +275,7 @@ function updateLike(song: Track | undefined, isDel = false) {
           <i class="icon-play-next iconfont" />
         </button>
       </div>
-
+      <!-- 播放进度 -->
       <div class="f-player-progress">
         <span>{{ formatDuringMS(data.progress) }}</span>
         <div class="f-player-progress-bar">
@@ -406,7 +422,7 @@ function updateLike(song: Track | undefined, isDel = false) {
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: 160px 25px 130px auto 300px;
+  grid-template-columns: 200px 25px 130px auto 300px;
   background-color: var(--bg-color);
   background-image: var(--player-img);
   gap: 10px;
@@ -414,8 +430,9 @@ function updateLike(song: Track | undefined, isDel = false) {
   border-top: 1px solid var(--player-border-color-top);
 
   &-info {
+    width: 100%;
     display: grid;
-    grid-template-columns: 45px 100px;
+    grid-template-columns: 45px auto;
     gap: 5px;
 
     &-cover {
@@ -453,20 +470,24 @@ function updateLike(song: Track | undefined, isDel = false) {
       display: grid;
       grid-template-rows: repeat(2, 1fr);
       align-items: center;
-
-      p {
-        margin: 0;
+      [class^='f-player-info-song-'] {
         overflow: hidden;
         white-space: nowrap;
       }
-
+      --text-gap: 20px;
       &-name {
         font-weight: bold;
+        > * {
+          display: inline-block;
+        }
       }
 
       &-ar {
         font-size: 12px;
         color: #666666;
+        > * {
+          display: inline-block;
+        }
       }
     }
   }
