@@ -35,7 +35,7 @@ const safeDOM = {
  */
 function useLoading() {
   const theme = localStorage.theme;
-  let color = '#ededed';
+  let color = '#fafafa';
   let spinColor = 'rgba(0, 0, 0, 0.8)';
   if (theme === 'dark') {
     spinColor = 'rgba(255, 255, 255, 0.8)';
