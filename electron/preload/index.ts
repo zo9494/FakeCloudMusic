@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { on, invoke } from './commonPreload';
 import './loading';
 import { EVENT } from '../utils/eventTypes';
 const window = {
@@ -37,17 +38,9 @@ const window = {
 };
 
 contextBridge.exposeInMainWorld('electron', {
-  window,
+  // window,
   ipcRenderer: {
-    invoke(channel: string, ...args: any) {
-      return ipcRenderer.invoke(channel, ...args);
-    },
-    on(
-      channel: string,
-      listener: (event: Electron.IpcRendererEvent, ...args: any[]) => void,
-      ...args: any[]
-    ) {
-      return ipcRenderer.on(channel, listener, ...(args as []));
-    },
+    invoke,
+    on,
   },
 });
