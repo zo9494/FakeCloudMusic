@@ -85,8 +85,7 @@ watch(
 
 function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   if (!process || lyrics.length === 0) {
-    console.log(JSON.stringify(lyrics));
-
+    console.table(lyrics);
     return -2;
   }
 
@@ -204,17 +203,25 @@ defineExpose({ handleScroll });
     &-right {
       width: 98%;
       .item {
+        overflow: hidden;
+        width: 100%;
         min-height: 20px;
         font-size: 14.8px;
         color: var(--lyrics-font-color);
         margin: 15px 0;
-        transition: all ease-in-out 220ms;
         p {
+          width: 90%;
+          transition: all ease-in-out 300ms;
+          overflow: hidden;
+          transform-origin: center left;
           margin: 5px 0;
         }
         &-active {
           font-weight: bold;
           color: var(--lyrics-font-active-color);
+          p {
+            transform: scale(1.1);
+          }
         }
       }
     }
