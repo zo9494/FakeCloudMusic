@@ -149,6 +149,6 @@ const { menu } = withDefaults(defineProps<menuType>(), {
 
 .router-link-exact-active {
   color: #e40029;
-  background-color: var(--menu-actvie-bg-color);
+  background-color: var(--menu-active-bg-color);
 }
 </style>

@@ -116,6 +116,17 @@ watch(
     data.node?.on('ended', next);
   }
 );
+watch(
+  () => data.showLyric,
+  val => {
+    if (val) {
+      document.querySelector('.app-bar-options-search')?.classList.remove('no-drag');
+    } else {
+      document.querySelector('.app-bar-options-search')?.classList.add('no-drag');
+    }
+  },
+  { immediate: true }
+);
 // dev
 function handleDev() {
   window.alert('功能开发中...');

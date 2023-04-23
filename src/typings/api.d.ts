@@ -62,9 +62,3 @@ interface SongUrl {
   size: number;
   level: 'standard' | 'higher' | 'exhigh' | 'lossless' | 'hires';
 }
-interface SongUrls {}
-interface Lyric {
-  time: number;
-  lyric: string;
-  tlyric?: string;
-}

@@ -211,7 +211,7 @@ defineExpose({ handleScroll });
         margin: 15px 0;
         p {
           width: 90%;
-          transition: all ease-in-out 300ms;
+          transition: transform ease-in-out 300ms;
           overflow: hidden;
           transform-origin: center left;
           margin: 5px 0;

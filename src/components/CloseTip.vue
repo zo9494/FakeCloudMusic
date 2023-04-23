@@ -98,7 +98,7 @@ function handleConfirm() {
       width: 80px;
       color: #fff;
       border-radius: 100px;
-      padding: 8px 0px;
+      padding: 8px 0;
       background-color: #ec4141;
       &:hover {
         background-color: #d83535;
