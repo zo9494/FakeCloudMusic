@@ -1,39 +1,54 @@
+const timeRegExp = /^\[(?<min>\d+):(?<sec>\d+).(?<millisec>\d+)\]/;
+function transformLyricCore(lyric?: string) {
+  const lyrics: Pick<Lyric, 'lyric' | 'time'>[] = [];
+  if (!lyric) {
+    return lyrics;
+  }
+  const tempLyricArray = lyric.split(/\n/);
+
+  tempLyricArray.forEach(element => {
+    const matches = element.match(timeRegExp);
+    if (matches) {
+      const minute = matches.groups?.min;
+      const sec = matches.groups?.sec;
+      const millisec = matches.groups?.millisec;
+      const time = Number(minute) * 60 + Number(sec) + Number(millisec) / 1000;
+      const lyric = element.slice(matches[0].length);
+      lyrics.push({
+        time,
+        lyric,
+      });
+    }
+  });
+  return lyrics;
+}
 /**
  * 转换歌词
  */
-export function transformLyric(...lyrics: string[]) {
-  let tempLyric = new Map<number, Lyric>();
-  lyrics.forEach(lyric => {
-    if (!lyric) {
-      return;
-    }
+export function transformLyric(lyric: string, tlyric?: string) {
+  let lyrics = transformLyricCore(lyric);
 
-    const tempLyricArray = lyric.split(/\n/);
-    tempLyricArray.forEach(element => {
-      const lyric = element.split(/\]/);
-      let temTime = lyric[0].replace(/\[/g, '').split(/:/);
-      let time = Number(temTime[0]) * 60 + Number(temTime[1]);
-
-      if (!isNaN(time)) {
-        if (tempLyric.has(time)) {
-          // 翻译歌词
-          tempLyric.set(time, {
-            ...(tempLyric.get(time) as Lyric),
-            tlyric: lyric[1],
-          });
-        } else {
-          tempLyric.set(time, {
-            time,
-            lyric: lyric[1],
-          });
-        }
+  if (tlyric) {
+    const temp = new Map<number, Lyric>();
+    lyrics.forEach(item => {
+      temp.set(item.time, item);
+    });
+    const tlyrics = transformLyricCore(tlyric);
+    tlyrics.forEach(item => {
+      if (temp.has(item.time)) {
+        temp.set(item.time, {
+          ...(temp.get(item.time) as Lyric),
+          tlyric: item.lyric,
+        });
       }
     });
-  });
-  let lyric = Array.from(tempLyric.values());
-  lyric.sort((a, b) => a.time - b.time);
 
-  return lyric;
+    lyrics = Array.from(temp.values());
+  }
+
+  lyrics.sort((a, b) => a.time - b.time);
+  console.table(lyrics);
+  return lyrics;
 }
 
 export function getArName(Ar: Base[]) {

@@ -243,18 +243,20 @@ async function loadPlaylist(params: { id: string }) {
         immediate: true,
       }
     );
-    window.electron.ipcRenderer.invoke('LOGIN');
-    return;
+    if (!userStore.account.id) {
+      window.electron.ipcRenderer.invoke('LOGIN');
+    }
+    data.loading = false;
   } else {
     data.watchFlag?.();
   }
   try {
     const res = await getPlaylistDetail(params);
-    if (!res?.playlist) {
-      return;
+
+    if (res) {
+      const { playlist } = res;
+      setPlaylist(playlist);
     }
-    const { playlist } = res;
-    setPlaylist(playlist);
   } catch (error) {
     data.netErr = true;
   } finally {
