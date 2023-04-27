@@ -93,8 +93,6 @@ function init() {
 function close() {
   window.clearTimeout(timer.value);
   window.electron.ipcRenderer.invoke('LOGIN_CLOSE');
-  // window.electron.window.closeLoginWin();
-  window.close();
 }
 
 function checkQRStatus(key: string) {
@@ -107,7 +105,7 @@ function checkQRStatus(key: string) {
     const { code, cookie } = data;
     if (code === 803) {
       localStorage.cookie = cookie;
-      window.electron.reloadUser();
+      // window.electron.reloadUser();
       close();
       return;
     }

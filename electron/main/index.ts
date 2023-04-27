@@ -223,7 +223,8 @@ class Main {
     // window平台
 
     ipcMain.handle(EVENT.LOGIN, () => {
-      new Login({ parent: Main.win });
+      const loginWin = new Login({ parent: Main.win });
+      loginWin.registerHandle();
     });
     ipcMain.handle(EVENT.RELOAD_USER, () => {
       return Main.win.webContents.executeJavaScript('window.loadUser()');
@@ -238,8 +239,6 @@ class Main {
     ipcMain.handle(EVENT.WINDOW_SHOW, () => {
       Main.win.show();
     });
-
-    Login.registerHandle();
   }
   /**
    * 全局快捷键

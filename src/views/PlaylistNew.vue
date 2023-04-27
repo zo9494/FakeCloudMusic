@@ -243,6 +243,8 @@ async function loadPlaylist(params: { id: string }) {
         immediate: true,
       }
     );
+    window.electron.ipcRenderer.invoke('LOGIN');
+    return;
   } else {
     data.watchFlag?.();
   }

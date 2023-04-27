@@ -1,4 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron';
+
 import { join } from 'node:path';
 import { EVENT } from '../utils/eventTypes';
 
@@ -7,17 +8,17 @@ const preloadLogin = join(__dirname, '../preload/login.js');
 const loginHtml = join(process.env.DIST, '/login/index.html');
 
 export class Login {
-  static win: BrowserWindow | null = null;
+  win: BrowserWindow | null = null;
   constructor(options) {
     this.createWindow(options);
   }
-  private async createWindow({ parent }) {
-    if (Login.win) {
-      Login.win.focus();
+  async createWindow({ parent }) {
+    if (this.win) {
+      this.win.focus();
       return;
     }
 
-    Login.win = new BrowserWindow({
+    this.win = new BrowserWindow({
       width: 320,
       height: 520,
       title: '登录',
@@ -25,6 +26,7 @@ export class Login {
       frame: false,
       minimizable: false,
       maximizable: false,
+      modal: true,
       parent,
       webPreferences: {
         preload: preloadLogin,
@@ -32,16 +34,17 @@ export class Login {
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      Login.win.loadURL(url + '/login/');
+      this.win.loadURL(url + '/login/');
     } else {
-      Login.win.loadFile(loginHtml);
+      this.win.loadFile(loginHtml);
     }
     return;
   }
-  static registerHandle() {
+  registerHandle() {
     ipcMain.handle(EVENT.LOGIN_CLOSE, () => {
       this.win.close();
       this.win = null;
+      ipcMain.removeHandler(EVENT.LOGIN_CLOSE);
     });
   }
 }

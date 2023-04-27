@@ -84,6 +84,9 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
         });
       },
       async storeUserLikePlaylist(id) {
+        if (!id) {
+          return;
+        }
         const data = await getPlaylistDetail({
           id: id.toString(),
           timestamp: this.refreshTime,
