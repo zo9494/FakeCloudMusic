@@ -6,13 +6,24 @@
 
 
 # 截图
-## windows
-![歌单页面-暗黑模式](\README-zh_CN.assets\windows-1.png)
 
-![歌词页面-暗黑模式](\README-zh_CN.assets\windows-2.png)
+## Windows
 
-![歌单页面](\README-zh_CN.assets\windows-3.png)
+![歌单页面-暗黑模式](README-zh_CN.assets\windows-1.png)
 
-![歌单页面](\README-zh_CN.assets\windows-4.png)
+![歌词页面-暗黑模式](README-zh_CN.assets\windows-2.png)
+
+![歌单页面](README-zh_CN.assets\windows-3.png)
+
+![歌单页面](README-zh_CN.assets\windows-4.png)
 
 
+## Mac
+
+![歌单页面-暗黑模式](README-zh_CN.assets\mac-1.png)
+
+![歌词页面-暗黑模式](README-zh_CN.assets\mac-2.png)
+
+![歌单页面](README-zh_CN.assets\mac-3.png)
+
+![歌单页面](README-zh_CN.assets\mac-4.png)
