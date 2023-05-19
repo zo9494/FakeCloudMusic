@@ -26,7 +26,6 @@ export class Login {
       frame: false,
       minimizable: false,
       maximizable: false,
-      modal: true,
       parent,
       webPreferences: {
         preload: preloadLogin,

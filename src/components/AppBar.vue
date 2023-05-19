@@ -14,8 +14,8 @@
         </div>
         <div class="app-bar-options-buttons no-drag">
           <button @click="toggleTheme">
-            <i v-show="theme === themes.dark" class="bi bi-moon"></i>
-            <i v-show="theme === themes.light" class="bi bi-sun"></i>
+            <i v-show="theme === themes.light" class="bi bi-moon"></i>
+            <i v-show="theme === themes.dark" class="bi bi-sun"></i>
           </button>
           <button @click="Setting">
             <i class="bi bi-gear" />
