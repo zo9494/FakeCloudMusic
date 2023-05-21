@@ -33,7 +33,7 @@
       </div>
       <p class="tip">{{ steps[stepCode].tip }}</p>
     </main>
-    <div class="other" v-show="stepCode !== '2'">选择其它登录模式</div>
+    <!-- <div class="other" v-show="stepCode !== '2'">选择其它登录模式</div> -->
   </div>
 </template>
 

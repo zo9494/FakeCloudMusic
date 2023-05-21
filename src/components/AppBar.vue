@@ -13,9 +13,9 @@
           <Search />
         </div>
         <div class="app-bar-options-buttons no-drag">
-          <button @click="toggleTheme">
-            <i v-show="theme === themes.light" class="bi bi-moon"></i>
-            <i v-show="theme === themes.dark" class="bi bi-sun"></i>
+          <button @click="props.toggleTheme">
+            <i v-show="props.theme === themes.light" class="bi bi-moon"></i>
+            <i v-show="props.theme === themes.dark" class="bi bi-sun"></i>
           </button>
           <button @click="Setting">
             <i class="bi bi-gear" />
@@ -31,38 +31,22 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-
 import { useRouter, useHistory } from '@/hooks/customRouter';
-
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
 let showCustomFrame = false;
 if (process.platform !== 'darwin') {
   showCustomFrame = true;
 }
-
-function useTheme() {
-  enum themes {
-    dark = 'dark',
-    light = 'light',
-  }
-
-  const theme = ref(localStorage.theme || themes.light);
-  const toggleTheme = () => {
-    if (theme.value === themes.dark) {
-      theme.value = themes.light;
-    } else {
-      theme.value = themes.dark;
-    }
-    localStorage.theme = theme.value;
-    document.documentElement.dataset.theme = theme.value;
-  };
-  document.documentElement.dataset.theme = theme.value;
-  return { themes, theme, toggleTheme };
+interface AppBarProps {
+  toggleTheme?: () => void;
+  theme: keyof typeof themes;
 }
-
-const { themes, theme, toggleTheme } = useTheme();
+const props = defineProps<AppBarProps>();
+enum themes {
+  dark = 'dark',
+  light = 'light',
+}
 const router = useRouter();
 const { canBack } = useHistory();
 function Setting() {

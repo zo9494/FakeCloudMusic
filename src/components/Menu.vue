@@ -42,7 +42,12 @@
           <span>我喜欢的音乐</span>
         </NavLink>
       </li>
-
+      <li>
+        <NavLink draggable="false" to="/local">
+          <i class="bi bi-music-note-beamed" />
+          <span>本地音乐</span>
+        </NavLink>
+      </li>
       <li>
         <NavLink draggable="false" to="/下载管理">
           <i class="bi bi-download" />

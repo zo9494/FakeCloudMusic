@@ -23,7 +23,7 @@
 
     <div class="menu">
       <ul>
-        <li>退出登录</li>
+        <li @click="logout">退出登录</li>
       </ul>
     </div>
   </Popover>
@@ -54,6 +54,10 @@ function openLogin() {
 
 function clickOutSide() {
   visible.value = false;
+}
+function logout() {
+  localStorage.removeItem('cookie');
+  window.location.reload();
 }
 </script>
 
@@ -111,5 +115,13 @@ function clickOutSide() {
 .menu {
   width: 300px;
   padding: 10px 0;
+  ul {
+    li {
+      padding: 8px 0 8px 15px;
+      &:hover {
+        background-color: var(--menu-hover-bg-color);
+      }
+    }
+  }
 }
 </style>

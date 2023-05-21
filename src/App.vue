@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { nextTick } from 'vue';
+import {
+  NConfigProvider,
+  GlobalThemeOverrides,
+  NDialogProvider,
+  darkTheme,
+  lightTheme,
+} from 'naive-ui';
+import { nextTick, ref, computed } from 'vue';
 import AppBar from './components/AppBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
@@ -11,6 +18,57 @@ import { useUserStore } from '@/store/user';
 
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
+const themeOverrides: GlobalThemeOverrides = {
+  Slider: {
+    handleSize: '12px',
+  },
+  Popover: {
+    color: 'var(--bg-color)',
+    textColor: 'var(--font-color)',
+  },
+  Dialog: {
+    closeMargin: '5px',
+    padding: '10px',
+    color: 'var(--bg-color)',
+    textColor: 'var(--font-color)',
+  },
+
+  Radio: {
+    textColor: 'var(--font-color)',
+  },
+  Checkbox: {
+    textColor: 'var(--font-color)',
+  },
+};
+
+//#region theme
+enum themes {
+  dark = 'dark',
+  light = 'light',
+}
+function useTheme() {
+  const theme = ref<keyof typeof themes>(localStorage.theme || themes.light);
+  const toggleTheme = () => {
+    if (theme.value === themes.dark) {
+      theme.value = themes.light;
+    } else {
+      theme.value = themes.dark;
+    }
+    localStorage.theme = theme.value;
+    document.documentElement.dataset.theme = theme.value;
+  };
+  document.documentElement.dataset.theme = theme.value;
+  return { themes, theme, toggleTheme };
+}
+
+const { theme, toggleTheme } = useTheme();
+const naiveUITheme = computed(() => {
+  if (theme.value == themes.dark) {
+    return darkTheme;
+  }
+  return lightTheme;
+});
+//#endregion
 
 window.loadUser = () => {
   console.log('loadUser');
@@ -22,28 +80,37 @@ nextTick(() => {
 </script>
 
 <template>
-  <aside class="container-left-nav">
-    <div class="drag"></div>
-    <div class="user">
-      <UserLogin />
-    </div>
-    <aside class="scrollbar">
-      <Menu :menu="order"></Menu>
-    </aside>
-  </aside>
-  <div class="container-right-view">
-    <AppBar></AppBar>
-    <div class="container-right-view-inner">
-      <RouterView v-slot="{ Component, route }">
-        <transition name="scale" mode="out-in">
-          <component :is="Component" :key="route.path" />
-        </transition>
-      </RouterView>
-    </div>
-  </div>
-  <div class="container-player">
-    <Player />
-  </div>
+  <NConfigProvider
+    tag="main"
+    class="container"
+    :theme="naiveUITheme"
+    :theme-overrides="themeOverrides"
+  >
+    <NDialogProvider>
+      <aside class="container-left-nav">
+        <div class="drag"></div>
+        <div class="user">
+          <UserLogin />
+        </div>
+        <aside class="scrollbar">
+          <Menu :menu="order"></Menu>
+        </aside>
+      </aside>
+      <div class="container-right-view">
+        <AppBar :theme="theme" :toggleTheme="toggleTheme"></AppBar>
+        <div class="container-right-view-inner">
+          <RouterView v-slot="{ Component, route }">
+            <transition name="scale" mode="out-in">
+              <component :is="Component" :key="route.path" />
+            </transition>
+          </RouterView>
+        </div>
+      </div>
+      <div class="container-player">
+        <Player />
+      </div>
+    </NDialogProvider>
+  </NConfigProvider>
 </template>
 
 <style lang="scss">
