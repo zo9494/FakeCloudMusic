@@ -9,6 +9,7 @@ import {
   nativeImage,
   Tray,
   Menu,
+  nativeTheme,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
@@ -49,6 +50,9 @@ class Main {
   title: string;
   constructor() {
     this.title = 'FakeCloudMusic';
+    // todo 深色模式根据系统
+    console.log(nativeTheme.shouldUseDarkColors);
+
     app.whenReady().then(async () => {
       this.createServer();
       this.createWindow();
