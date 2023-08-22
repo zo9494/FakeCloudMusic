@@ -88,7 +88,6 @@
 </template>
 
 <script setup lang="ts">
-import { withDefaults } from 'vue';
 import NavLink from '@/components/NavLink.vue';
 import NeteaseLogoSVG from '@/assets/svg/netease_logo.svg?component';
 import RadioSVG from '@/assets/svg/radio.svg?component';
