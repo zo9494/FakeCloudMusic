@@ -83,16 +83,15 @@ function recordHistory(value: string) {
 }
 
 function handleClick() {
-  data.visible = true;
+  data.visible ? null : (data.visible = true);
 }
 const searchRef = ref<HTMLDivElement>();
 function clickOutSide(e: MouseEvent) {
-  // const isSelf = searchRef.value?.contains(e.target as Node);
-  // if (!isSelf) {
-  //   data.visible = false;
-  // }
-  data.visible = false;
-  console.log(e);
+  const isSelf = searchRef.value?.contains(e.target as Node);
+  if (!isSelf) {
+    data.visible = false;
+    console.log(e);
+  }
 }
 
 function Search() {
