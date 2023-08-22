@@ -1,6 +1,6 @@
 <template>
   <header :style="{ height: showCustomFrame ? '35px' : '45px' }">
-    <div class="app-bar drag">
+    <div class="app-bar" @dblclick="dblclick" @mousedown="moving">
       <div class="app-bar-front">
         <span v-show="canBack" class="back no-drag">
           <button class="back-inner" @click="handleBack">
@@ -54,6 +54,28 @@ function Setting() {
 }
 function handleBack() {
   router.back();
+}
+let timer = 0;
+function moving() {
+  window.clearTimeout(timer);
+  timer = 0;
+  timer = window.setTimeout(() => {
+    console.log('start');
+    window.electron.ipcRenderer.invoke('WINDOW_MOVE_START');
+  }, 100);
+}
+window.addEventListener('mouseup', () => {
+  if (timer) {
+    window.clearTimeout(timer);
+    console.log('end');
+    window.electron.ipcRenderer.invoke('WINDOW_MOVE_END');
+
+    timer = 0;
+  }
+});
+
+function dblclick() {
+  window.electron.ipcRenderer.invoke('WINDOW_RESIZ');
 }
 </script>
 <style lang="scss" scoped>

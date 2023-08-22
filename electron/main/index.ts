@@ -1,3 +1,4 @@
+// todo 重构
 import '../utils/env';
 import {
   app,
@@ -10,6 +11,7 @@ import {
   Tray,
   Menu,
   nativeTheme,
+  screen,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
@@ -243,6 +245,38 @@ class Main {
     ipcMain.handle(EVENT.WINDOW_SHOW, () => {
       Main.win.show();
     });
+    //#region 拖动且顶部可点击 但不能边缘最大化
+    let winStartPosition = { x: 0, y: 0 };
+    let mouseStartPosition = { x: 0, y: 0 };
+    let timer = null;
+    ipcMain.handle(EVENT.WINDOW_MOVE_START, () => {
+      const position = Main.win.getPosition();
+      winStartPosition.x = position[0];
+      winStartPosition.y = position[1];
+      mouseStartPosition = screen.getCursorScreenPoint();
+      const contentBounds = Main.win.getContentBounds();
+      console.log(contentBounds);
+
+      timer = setInterval(() => {
+        const cursorPosition = screen.getCursorScreenPoint();
+        const x = winStartPosition.x + cursorPosition.x - mouseStartPosition.x;
+        const y = winStartPosition.y + cursorPosition.y - mouseStartPosition.y;
+        Main.win.setContentBounds(
+          {
+            width: contentBounds.width,
+            height: contentBounds.height,
+            x,
+            y,
+          },
+          true
+        );
+      }, 10);
+    });
+
+    ipcMain.handle(EVENT.WINDOW_MOVE_END, () => {
+      clearInterval(timer);
+    });
+    //#endregion
   }
   /**
    * 全局快捷键
