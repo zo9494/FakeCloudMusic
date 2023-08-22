@@ -22,9 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, reactive } from 'vue';
+import { onBeforeMount, reactive, inject } from 'vue';
 import { getHotSearchDetail } from '@/api/search';
-
+import type { SearchInjection } from '@/components/search/Search.vue';
+const Search = inject('SearchInjection') as SearchInjection;
 interface DataType {
   hotSearch: HotDetail.Datum[];
 }
@@ -42,6 +43,7 @@ onBeforeMount(() => {
 
 function handleClick() {
   console.log('handleClick');
+  Search.popoverClose();
 }
 </script>
 

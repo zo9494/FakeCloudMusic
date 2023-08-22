@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { useRouter } from '@/hooks/customRouter';
-import { onBeforeMount, reactive, onBeforeUnmount, ref } from 'vue';
+import { onBeforeMount, reactive, onBeforeUnmount, ref, provide } from 'vue';
 import FInput from '@/components/Input.vue';
 import Popover from '@/components/popover/Popover.vue';
 import { getHotSearch } from '@/api/search';
@@ -93,6 +93,16 @@ function clickOutSide(e: MouseEvent) {
     console.log(e);
   }
 }
+
+function popoverClose() {
+  data.visible = false;
+}
+
+export interface SearchInjection {
+  popoverClose: () => {};
+}
+
+provide('SearchInjection', { popoverClose });
 
 function Search() {
   router.push('/search/' + (data.value || data.placeholder));
