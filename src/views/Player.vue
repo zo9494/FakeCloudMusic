@@ -120,9 +120,15 @@ watch(
   () => data.showLyric,
   val => {
     if (val) {
-      document.querySelector('.app-bar-options-search')?.classList.remove('no-drag');
+      document.querySelectorAll('.no-drag-js').forEach(it => {
+        it.classList.remove('no-drag-js');
+        it.classList.add('drag-js');
+      });
     } else {
-      document.querySelector('.app-bar-options-search')?.classList.add('no-drag');
+      document.querySelectorAll('.drag-js').forEach(it => {
+        it.classList.remove('drag-js');
+        it.classList.add('no-drag-js');
+      });
     }
   },
   { immediate: true }
@@ -425,6 +431,8 @@ function updateLike(song: Track | undefined, isDel = false) {
   top: 0;
   height: 100vh;
   width: 100vw;
+  z-index: 100;
+  background-color: rgba($color: #64759a, $alpha: 0.6) !important;
 }
 
 .f-player {

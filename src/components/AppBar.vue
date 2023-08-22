@@ -1,6 +1,6 @@
 <template>
   <header :style="{ height: showCustomFrame ? '35px' : '45px' }">
-    <div class="app-bar" @dblclick="dblclick" @mousedown="moving">
+    <div class="app-bar drag">
       <div class="app-bar-front">
         <span v-show="canBack" class="back no-drag">
           <button class="back-inner" @click="handleBack">
@@ -9,10 +9,10 @@
         </span>
       </div>
       <div :class="{ 'app-bar-options': true, mac: !showCustomFrame }">
-        <div class="app-bar-options-search no-drag">
+        <div class="app-bar-options-search no-drag-js">
           <Search />
         </div>
-        <div class="app-bar-options-buttons no-drag">
+        <div class="app-bar-options-buttons no-drag-js">
           <button @click="props.toggleTheme">
             <i v-show="props.theme === themes.light" class="bi bi-moon"></i>
             <i v-show="props.theme === themes.dark" class="bi bi-sun"></i>
@@ -55,28 +55,28 @@ function Setting() {
 function handleBack() {
   router.back();
 }
-let timer = 0;
-function moving() {
-  window.clearTimeout(timer);
-  timer = 0;
-  timer = window.setTimeout(() => {
-    console.log('start');
-    window.electron.ipcRenderer.invoke('WINDOW_MOVE_START');
-  }, 100);
-}
-window.addEventListener('mouseup', () => {
-  if (timer) {
-    window.clearTimeout(timer);
-    console.log('end');
-    window.electron.ipcRenderer.invoke('WINDOW_MOVE_END');
+// let timer = 0;
+// function moving() {
+//   window.clearTimeout(timer);
+//   timer = 0;
+//   timer = window.setTimeout(() => {
+//     console.log('start');
+//     window.electron.ipcRenderer.invoke('WINDOW_MOVE_START');
+//   }, 100);
+// }
+// window.addEventListener('mouseup', () => {
+//   if (timer) {
+//     window.clearTimeout(timer);
+//     console.log('end');
+//     window.electron.ipcRenderer.invoke('WINDOW_MOVE_END');
 
-    timer = 0;
-  }
-});
+//     timer = 0;
+//   }
+// });
 
-function dblclick() {
-  window.electron.ipcRenderer.invoke('WINDOW_RESIZ');
-}
+// function dblclick() {
+//   window.electron.ipcRenderer.invoke('WINDOW_RESIZ');
+// }
 </script>
 <style lang="scss" scoped>
 .back {
@@ -93,6 +93,7 @@ function dblclick() {
   width: 100%;
   display: flex;
   justify-content: end;
+
   &-front {
     padding-left: 10px;
     flex: 1;
