@@ -19,6 +19,7 @@ import server = require('NeteaseCloudMusicApi/server');
 import { EVENT } from '../utils/eventTypes';
 import { isDevelopment, isLinux, isMac, isWin } from '../utils/platform';
 import { chalk } from '../utils/chalk';
+import { PAGE_TRAY } from '../../const';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { Login } from './login';
@@ -41,7 +42,7 @@ const preload = join(__dirname, '../preload/index.js');
 const url = process.env.VITE_DEV_SERVER_URL;
 
 const indexHtml = join(process.env.DIST, 'index.html');
-
+const trayHtml = join(process.env.DIST, PAGE_TRAY);
 const vue_dev = join(process.cwd(), '/vue_devtools/');
 
 class Main {
@@ -49,6 +50,7 @@ class Main {
   static neteaseApi: any;
   static tray: Tray;
   canClose = false;
+  loginWin: Login | null;
   title: string;
   constructor() {
     this.title = 'FakeCloudMusic';
@@ -89,6 +91,7 @@ class Main {
       titleBarStyle: 'hiddenInset',
       trafficLightPosition: { x: 5, y: 5 },
     });
+
     if (process.env.VITE_DEV_SERVER_URL) {
       await Main.win.loadURL(url);
       // open devtools
@@ -229,8 +232,8 @@ class Main {
     // window平台
 
     ipcMain.handle(EVENT.LOGIN, () => {
-      const loginWin = new Login({ parent: Main.win });
-      loginWin.registerHandle();
+      this.loginWin = new Login({ parent: Main.win });
+      this.loginWin.registerHandle();
     });
     ipcMain.handle(EVENT.RELOAD_USER, () => {
       return Main.win.webContents.executeJavaScript('window.loadUser()');
@@ -285,7 +288,7 @@ class Main {
     if (isDevelopment) {
       globalShortcut.register('F10', () => {
         Main.win && Main.win.webContents.openDevTools();
-        Login.win && Login.win.webContents.openDevTools();
+        this.loginWin.win && this.loginWin.win.webContents.openDevTools();
       });
     }
   }
@@ -331,6 +334,30 @@ class Main {
         Main.win.show();
       }
     });
+    // 使用web模拟菜单
+    // Main.tray.on('right-click', (e, bounds) => {
+    //   console.log(1111, bounds);
+    //   const trayWin = new BrowserWindow({
+    //     width: 240,
+    //     height: 300,
+    //     x: bounds.x,
+    //     y: bounds.y - 300,
+    //     frame: false,
+    //     alwaysOnTop: true,
+    //     transparent: true,
+    //     skipTaskbar: true,
+    //   });
+
+    //   if (isDevelopment) {
+    //     trayWin.loadURL(url + PAGE_TRAY);
+    //     // trayWin.webContents.openDevTools();
+    //   } else {
+    //     trayWin.loadFile(trayHtml);
+    //   }
+    //   trayWin.on('blur', () => {
+    //     trayWin.destroy();
+    //   });
+    // });
   }
 }
 
