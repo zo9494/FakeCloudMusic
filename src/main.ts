@@ -3,6 +3,7 @@ import { store } from '@/store';
 import App from './App.vue';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import './main.scss';
+import '@/assets/style/segoe-fluent-icons.scss';
 import '@/assets/style/iconfont.css';
 import './normalize.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';

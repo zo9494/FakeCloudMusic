@@ -1,13 +1,14 @@
 <template>
   <div class="buttons">
     <button @click="handleMinimize">
-      <i>&#xe921;</i>
+      <i class="icon-fluent icon-fluent-chrome-minimize" />
     </button>
     <button @click="handleResizable">
-      <i v-if="isMaximized">&#xe923;</i> <i v-else>&#xe922;</i>
+      <i v-if="isMaximized" class="icon-fluent icon-fluent-chrome-restore" />
+      <i v-else class="icon-fluent icon-fluent-chrome-maximize" />
     </button>
     <button class="close" @click="handleClose">
-      <i>&#xe8bb;</i>
+      <i class="icon-fluent icon-fluent-chrome-close" />
     </button>
   </div>
 </template>

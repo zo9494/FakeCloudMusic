@@ -1,0 +1,17 @@
+.icon-fluent {
+  font-family: 'FluentIcon';
+  &-chrome {
+    &-close::after {
+      content: '\e8bb';
+    }
+    &-minimize::after {
+      content: '\e921';
+    }
+    &-restore::after {
+      content: '\e923';
+    }
+    &-maximize::after {
+      content: '\e922';
+    }
+  }
+}
