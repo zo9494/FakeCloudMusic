@@ -2,10 +2,10 @@ import { BrowserWindow, ipcMain } from 'electron';
 
 import { join } from 'node:path';
 import { EVENT } from '../utils/eventTypes';
-
+import { PAGE_LOGIN } from '../../const';
 const url = process.env.VITE_DEV_SERVER_URL;
 const preloadLogin = join(__dirname, '../preload/login.js');
-const loginHtml = join(process.env.DIST, '/login/index.html');
+const loginHtml = join(process.env.DIST, PAGE_LOGIN);
 
 export class Login {
   win: BrowserWindow | null = null;
@@ -33,7 +33,7 @@ export class Login {
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      this.win.loadURL(url + '/login/');
+      this.win.loadURL(url + PAGE_LOGIN);
     } else {
       this.win.loadFile(loginHtml);
     }

@@ -5,6 +5,7 @@ import electron from 'vite-plugin-electron';
 import pkg from './package.json';
 import path from 'path';
 import svgLoader from 'vite-svg-loader';
+import { PAGE_LOGIN, PAGE_TRAY } from './const';
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   rmSync('dist-electron', { recursive: true, force: true });
@@ -100,7 +101,7 @@ export default defineConfig(({ command }) => {
       rollupOptions: {
         input: {
           main: path.join(__dirname, '/index.html'),
-          login: path.join(__dirname, '/login/index.html'),
+          login: path.join(__dirname, PAGE_LOGIN),
         },
       },
     },

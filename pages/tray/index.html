@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      user-select: none;
+    }
+
+    html,
+    body {
+      box-sizing: border-box;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+      border-radius: 12px;
+    }
+
+    #root {
+      height: 100%;
+      width: 100%;
+      background-color: white;
+    }
+
+    .menu {
+      margin: 0;
+      list-style: none;
+      padding: 8px 0;
+
+    }
+
+    .menu .menu-item span {
+      display: block;
+      padding: 8px 0
+    }
+
+    .menu .menu-item :hover {
+      background-color: #e5e5e5;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <aside>
+      <ul class="menu">
+        <li class="menu-item">
+          <span>播放</span>
+        </li>
+        <li class="menu-item">
+          <span>
+            上一首
+          </span>
+        </li>
+        <li class="menu-item">
+          <span>下一首</span>
+        </li>
+        <li class="menu-item">
+          <span>退出</span>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</body>
+
+</html>
