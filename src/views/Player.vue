@@ -432,7 +432,6 @@ function updateLike(song: Track | undefined, isDel = false) {
   height: 100vh;
   width: 100vw;
   z-index: 100;
-  background-color: rgba($color: #64759a, $alpha: 0.6) !important;
 }
 
 .f-player {
