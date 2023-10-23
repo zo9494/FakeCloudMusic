@@ -49,7 +49,7 @@
     "vue-virtual-scroller": "^2.0.0-beta.8"
   },
   "dependencies": {
-    "NeteaseCloudMusicApi": "^4.10.1",
+    "NeteaseCloudMusicApi": "4.10.1",
     "chalk": "4"
   }
 }
