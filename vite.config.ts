@@ -106,7 +106,7 @@ export default defineConfig(({ command }) => {
       },
     },
     esbuild: {
-      drop: isBuild ? ['console', 'debugger'] : undefined,
+      // drop: isBuild ? ['console', 'debugger'] : undefined,
     },
     css: {
       preprocessorOptions: {

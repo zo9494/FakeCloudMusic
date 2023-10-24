@@ -44,7 +44,7 @@ interface comfirmDataType {
   isRemember?: boolean;
   selectClose?: boolean;
 }
-let closeInfo: comfirmDataType = JSON.parse(localStorage.close) || {};
+let closeInfo: comfirmDataType = JSON.parse(localStorage.close || '{}');
 
 function onAfterLeave() {}
 function createAskDialog() {

@@ -35,6 +35,7 @@ import { useRouter, useHistory } from '@/hooks/customRouter';
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
 let showCustomFrame = false;
+
 if (process.platform !== 'darwin') {
   showCustomFrame = true;
 }

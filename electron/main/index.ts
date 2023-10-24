@@ -285,7 +285,7 @@ class Main {
    * 全局快捷键
    */
   private registerGlobalShortcut() {
-    if (isDevelopment) {
+    if (isDevelopment || true) {
       globalShortcut.register('F10', () => {
         Main.win && Main.win.webContents.openDevTools();
         this.loginWin.win && this.loginWin.win.webContents.openDevTools();
