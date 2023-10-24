@@ -319,8 +319,8 @@ class Main {
           .resize({ width: 16, height: 16 }),
         // icon:
         click: () => {
-          // app.exit();
-          Main.win.webContents.send(EVENT.BEFORE_CLOSE);
+          app.exit();
+          // Main.win.webContents.send(EVENT.BEFORE_CLOSE);
         },
       },
     ]);

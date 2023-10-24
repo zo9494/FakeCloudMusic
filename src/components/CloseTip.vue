@@ -2,7 +2,7 @@
   <div class="close_tip">
     <p class="close_tip-header"> 关闭提示 </p>
     <div class="close_tip-body">
-      <NRadioGroup v-model:value="exit" class="close_tip-body-content">
+      <NRadioGroup v-model:value="selectClose" class="close_tip-body-content">
         <NRadio
           :theme-overrides="radioThemeOverrides"
           :value="false"
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import {
   NRadio,
   NCheckbox,
@@ -43,8 +43,6 @@ import {
   CheckboxProps,
 } from 'naive-ui';
 
-const exit = ref(false);
-const rememberSelect = ref(false);
 type RadioThemeOverrides = NonNullable<RadioGroupProps['themeOverrides']>;
 type CheckboxThemeOverrides = NonNullable<CheckboxProps['themeOverrides']>;
 const radioThemeOverrides: RadioThemeOverrides = {
@@ -59,12 +57,26 @@ const checkboxThemeOverrides: CheckboxThemeOverrides = {
   borderFocus: 'var(--n-border)',
   boxShadowFocus: 'unset',
 };
+
 interface PropsType {
-  confirm?: (exit: boolean) => void;
+  confirm?: (val: any) => void;
+  closeInfo?: {
+    isRemember?: boolean;
+    selectClose?: boolean;
+  };
 }
+const selectClose = ref(false);
+const rememberSelect = ref(false);
 const props = defineProps<PropsType>();
+onBeforeMount(() => {
+  rememberSelect.value = props.closeInfo?.isRemember || false;
+  selectClose.value = props.closeInfo?.selectClose || false;
+});
 function handleConfirm() {
-  props.confirm?.(exit.value);
+  props.confirm?.({
+    isRemember: rememberSelect.value,
+    selectClose: selectClose.value,
+  });
 }
 </script>
 
