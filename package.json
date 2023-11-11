@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "dist-electron/main/index.js",
   "description": "music player",
-  "author": "zo <zo@outlook.com>",
+  "author": "zo",
   "license": "MIT",
   "private": true,
   "keywords": [

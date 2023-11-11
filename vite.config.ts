@@ -5,7 +5,13 @@ import electron from 'vite-plugin-electron';
 import pkg from './package.json';
 import path from 'path';
 import svgLoader from 'vite-svg-loader';
+
+import dayjs from 'dayjs';
+import type { ResolvedConfig } from 'vite';
+import type { NormalizedOutputOptions, OutputBundle } from 'rollup';
 import { PAGE_LOGIN, PAGE_TRAY } from './const';
+
+let viteConfig: ResolvedConfig;
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   rmSync('dist-electron', { recursive: true, force: true });
@@ -26,6 +32,27 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       vue(),
+      {
+        name: 'myPlugin',
+        configResolved(resolvedConfig: ResolvedConfig) {
+          viteConfig = resolvedConfig;
+        },
+        transformIndexHtml(html: string) {
+          return (
+            `<!--\n  Version:  ${pkg.version}\n  Build:  ${dayjs().format(
+              'YYYY/MM/DD  HH:mm:ss'
+            )}\n  Env:  ${process.env.NODE_ENV}\n-->\n` + html
+          );
+        },
+        async writeBundle(
+          options: NormalizedOutputOptions,
+          bundle: OutputBundle
+        ) {
+          for (const file of Object.entries(bundle)) {
+            const fileName: string = file[0];
+          }
+        },
+      },
       electron([
         {
           // Main-Process entry file of the Electron App.
