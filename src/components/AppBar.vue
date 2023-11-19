@@ -4,7 +4,7 @@
       <div class="app-bar-front">
         <span v-show="canBack" class="back no-drag">
           <button class="back-inner" @click="handleBack">
-            <i class="bi bi-chevron-left"></i>
+            <i class="bi bi-arrow-left"></i>
           </button>
         </span>
       </div>
@@ -82,9 +82,10 @@ function handleBack() {
 <style lang="scss" scoped>
 .back {
   font-size: 16px;
+  color: var(--font-color);
   &-inner {
-    padding: 4px 7px;
-    border-radius: 10px;
+    padding: 4px 6px;
+    border-radius: 6px;
     &:hover {
       background-color: var(--app-bar-button-hover);
     }
@@ -96,7 +97,7 @@ function handleBack() {
   justify-content: end;
 
   &-front {
-    padding-left: 10px;
+    padding-left: 4px;
     flex: 1;
     display: flex;
     align-items: center;
@@ -119,10 +120,11 @@ function handleBack() {
       align-items: center;
       gap: 15px;
       button {
-        height: 20px;
-        width: 20px;
+        // height: 20px;
+        // width: 20px;
+        padding: 4px 6px;
         font-size: 15px;
-        border-radius: 100%;
+        border-radius: 6px;
         &:hover {
           background-color: var(--app-bar-button-hover);
         }

@@ -120,7 +120,9 @@ nextTick(() => {
   overflow: hidden;
   display: grid;
   grid-template-columns: 200px auto;
-
+  .app-bottom-space {
+    height: calc(variables.$appBottomSpace - 40px);
+  }
   &-left-nav {
     overflow: hidden;
     display: grid;
@@ -142,11 +144,12 @@ nextTick(() => {
   }
 
   &-player {
+    width: 95vw;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 20px;
+    left: 50%;
     z-index: 10;
+    transform: translateX(-50%);
   }
 
   .user {

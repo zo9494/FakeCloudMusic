@@ -414,6 +414,9 @@ function handleDev() {
 </script>
 
 <style lang="scss" scoped>
+.app-bottom-space {
+  height: variables.$appBottomSpace;
+}
 .net-err {
   text-align: center;
   color: #666666;

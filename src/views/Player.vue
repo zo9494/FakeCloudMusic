@@ -348,77 +348,80 @@ function updateLike(song: Track | undefined, isDel = false) {
       </div>
     </div>
   </Transition>
-  <Transition name="slide-up">
-    <Lyrics
-      :bg-color="data.bgColor"
-      v-if="data.showLyric"
-      :song="currentSong.song"
-      class="top"
-      :progress="data.progress"
-      :lyrics="lyrics"
-    >
-      <template v-slot:header>
-        <button
-          class="arrow-down"
-          @click="data.showLyric = false"
-          style="color: var(--font-color)"
-        >
-          <i class="icon-arrow-down-bold iconfont"></i>
-        </button>
-      </template>
-      <template v-slot:options>
-        <div class="lyrics-options">
-          <div class="lyrics-options-slider">
-            <span>{{ formatDuringMS(data.progress) }}</span>
-            <div class="lyrics-options-slider-bar">
-              <VueSlider
-                :height="5"
-                :modelValue="data.progress"
-                :lazy="true"
-                @change="handleProgressChange"
-                :min="0"
-                :max="data.duration"
-                :interval="0.001"
-                tooltip="none"
-                :duration="0"
-                :dot-size="10"
-              >
-                <template v-slot:process="{ _, __, style }">
-                  <div class="vue-slider-process" :style="style"> </div>
-                  <div
-                    class="vue-slider-process-cache"
-                    :style="{ width: `${data.cacheProgress}%` }"
-                  ></div>
-                </template>
-              </VueSlider>
+
+  <Teleport to="body">
+    <Transition name="slide-up">
+      <Lyrics
+        :bg-color="data.bgColor"
+        v-if="data.showLyric"
+        :song="currentSong.song"
+        class="top"
+        :progress="data.progress"
+        :lyrics="lyrics"
+      >
+        <template v-slot:header>
+          <button
+            class="arrow-down"
+            @click="data.showLyric = false"
+            style="color: var(--font-color)"
+          >
+            <i class="icon-arrow-down-bold iconfont"></i>
+          </button>
+        </template>
+        <template v-slot:options>
+          <div class="lyrics-options">
+            <div class="lyrics-options-slider">
+              <span>{{ formatDuringMS(data.progress) }}</span>
+              <div class="lyrics-options-slider-bar">
+                <VueSlider
+                  :height="5"
+                  :modelValue="data.progress"
+                  :lazy="true"
+                  @change="handleProgressChange"
+                  :min="0"
+                  :max="data.duration"
+                  :interval="0.001"
+                  tooltip="none"
+                  :duration="0"
+                  :dot-size="10"
+                >
+                  <template v-slot:process="{ _, __, style }">
+                    <div class="vue-slider-process" :style="style"> </div>
+                    <div
+                      class="vue-slider-process-cache"
+                      :style="{ width: `${data.cacheProgress}%` }"
+                    ></div>
+                  </template>
+                </VueSlider>
+              </div>
+              <span>{{ formatDuringMS(data.duration) }}</span>
             </div>
-            <span>{{ formatDuringMS(data.duration) }}</span>
+            <div class="lyrics-options-btn">
+              <button
+                @click="previous"
+                class="f-player-control-previous f-player-control-btn"
+              >
+                <i class="icon-play-previous iconfont" />
+              </button>
+              <button
+                class="f-player-control-pau-pla f-player-control-btn"
+                @click="handlePlay(!data.play)"
+              >
+                <i v-show="data.play" class="iconfont icon-pause" />
+                <i v-show="!data.play" class="iconfont icon-play" />
+              </button>
+              <button
+                @click="next"
+                class="f-player-control-next f-player-control-btn"
+              >
+                <i class="icon-play-next iconfont" />
+              </button>
+            </div>
           </div>
-          <div class="lyrics-options-btn">
-            <button
-              @click="previous"
-              class="f-player-control-previous f-player-control-btn"
-            >
-              <i class="icon-play-previous iconfont" />
-            </button>
-            <button
-              class="f-player-control-pau-pla f-player-control-btn"
-              @click="handlePlay(!data.play)"
-            >
-              <i v-show="data.play" class="iconfont icon-pause" />
-              <i v-show="!data.play" class="iconfont icon-play" />
-            </button>
-            <button
-              @click="next"
-              class="f-player-control-next f-player-control-btn"
-            >
-              <i class="icon-play-next iconfont" />
-            </button>
-          </div>
-        </div>
-      </template>
-    </Lyrics>
-  </Transition>
+        </template>
+      </Lyrics>
+    </Transition>
+  </Teleport>
 </template>
 
 <style lang="scss">
@@ -441,12 +444,14 @@ function updateLike(song: Track | undefined, isDel = false) {
   width: 100%;
   display: grid;
   grid-template-columns: 200px 25px 130px auto 300px;
-  background-color: var(--bg-color);
-  background-image: var(--player-img);
+  // background-color: var(--bg-color);
+  // background-image: var(--player-img);
   gap: 10px;
   place-items: center;
-  border-top: 1px solid var(--player-border-color-top);
-
+  border-radius: 10px;
+  border: 1px solid var(--player-border-color);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   &-info {
     width: 100%;
     display: grid;

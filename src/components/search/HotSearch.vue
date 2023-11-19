@@ -7,8 +7,8 @@
       <div class="list">
         <div
           class="list-item"
-          @click="handleClick"
           v-for="(item, index) in data.hotSearch"
+          @click="handleClick(item)"
         >
           <div class="list-item-index">{{ index + 1 }}</div>
           <div class="list-item-body">
@@ -41,8 +41,8 @@ onBeforeMount(() => {
   });
 });
 
-function handleClick() {
-  console.log('handleClick');
+function handleClick(data: HotDetail.Datum) {
+  console.log('handleClick', data);
   Search.popoverClose();
 }
 </script>
@@ -74,6 +74,7 @@ function handleClick() {
           color: #999;
         }
         &-body {
+          overflow: hidden;
           p {
             margin: 0;
             overflow: hidden;
