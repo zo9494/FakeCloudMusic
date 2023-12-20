@@ -39,6 +39,7 @@ declare global {
     electron: ElectronApi;
     loadUser: () => void;
     getCookie: () => string | null;
+    windowOptions: any;
     [propName: any]: any;
   }
 }

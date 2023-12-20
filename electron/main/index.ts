@@ -28,7 +28,7 @@ import { chalk } from '../utils/chalk';
 import { PAGE_TRAY } from '../../const';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
-import { Login } from './login';
+import { createLogin } from './login';
 // Set application name for Windows 10+ notifications
 if (isWin) app.setAppUserModelId(app.getName());
 
@@ -56,7 +56,6 @@ class Main {
   static neteaseApi: any;
   static tray: Tray;
   canClose = false;
-  loginWin: Login | null;
   title: string;
   constructor() {
     this.title = 'FakeCloudMusic';
@@ -239,7 +238,9 @@ class Main {
     // window平台
 
     ipcMain.handle(EVENT.LOGIN, () => {
-      this.loginWin = new Login({ parent: Main.win });
+      console.log('login');
+
+      createLogin({ parent: Main.win });
     });
     ipcMain.handle(EVENT.RELOAD_USER, () => {
       return Main.win.webContents.executeJavaScript('window.loadUser()');
@@ -293,8 +294,10 @@ class Main {
   private registerGlobalShortcut() {
     if (isDevelopment || true) {
       globalShortcut.register('F10', () => {
-        Main.win && Main.win.webContents.openDevTools();
-        this.loginWin.win && this.loginWin.win.webContents.openDevTools();
+        const wins = BrowserWindow.getAllWindows();
+        wins.forEach(win => {
+          win.webContents.openDevTools();
+        });
       });
     }
   }

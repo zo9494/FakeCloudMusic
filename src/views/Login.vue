@@ -86,7 +86,7 @@ function init() {
 
 function close() {
   window.clearTimeout(timer.value);
-  window.electron.ipcRenderer.invoke('LOGIN_CLOSE');
+  window.electron.ipcRenderer.invoke('LOGIN_CLOSE', window.windowOptions.id);
 }
 
 function checkQRStatus(key: string) {
