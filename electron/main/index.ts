@@ -71,10 +71,10 @@ async function createMainWindow() {
     autoHideMenuBar: true,
   });
   if (process.env.VITE_DEV_SERVER_URL) {
-    await win.loadURL(url);
+    await WIN.loadURL(url);
     // open devtools
     if (isDevelopment) {
-      win.webContents.openDevTools();
+      WIN.webContents.openDevTools();
     }
   } else {
     WIN.loadFile(indexHtml);
