@@ -8,17 +8,18 @@ const preloadLogin = join(__dirname, '../preload/login.js');
 const loginHtml = join(process.env.DIST, PAGE_LOGIN);
 
 export class Login {
-  win: BrowserWindow | null = null;
+  id: number | null;
   constructor(options) {
     this.createWindow(options);
   }
   async createWindow({ parent }) {
-    if (this.win) {
-      this.win.focus();
+    if (this.id) {
+      const win = this.getWindow(this.id);
+      win.focus();
       return;
     }
 
-    this.win = new BrowserWindow({
+    const win = new BrowserWindow({
       width: 320,
       height: 520,
       title: '登录',
@@ -32,20 +33,23 @@ export class Login {
         preload: preloadLogin,
       },
     });
-
+    this.id = win.id;
     if (process.env.VITE_DEV_SERVER_URL) {
-      this.win.loadURL(url + PAGE_LOGIN);
+      win.loadURL(url + PAGE_LOGIN);
     } else {
-      this.win.loadFile(loginHtml);
+      win.loadFile(loginHtml);
     }
     this.registerHandle();
     return;
   }
   registerHandle() {
     ipcMain.handle(EVENT.LOGIN_CLOSE, () => {
-      this.win.close();
-      this.win = null;
+      const win = this.getWindow(this.id);
+      win.close();
       ipcMain.removeHandler(EVENT.LOGIN_CLOSE);
     });
+  }
+  getWindow(id: number) {
+    return BrowserWindow.fromId(id);
   }
 }
