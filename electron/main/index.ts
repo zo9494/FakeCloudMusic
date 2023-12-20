@@ -54,6 +54,32 @@ const vue_dev = join(process.cwd(), '/vue_devtools/');
 let WIN: BrowserWindow;
 let SERVER: any;
 let TRAY: Tray;
+app.disableDomainBlockingFor3DAPIs();
+app.whenReady().then(async () => {
+  createMainWindow();
+  createServer();
+  createTray();
+  if (isDevelopment || true) {
+    globalShortcut.register('F10', () => {
+      const wins = BrowserWindow.getAllWindows();
+      wins.forEach(win => {
+        win.webContents.openDevTools();
+      });
+    });
+
+    console.log('F10', globalShortcut.isRegistered('F10'));
+  }
+  if (isDevelopment) {
+    try {
+      console.log(`vueDevtools:${chalk.green(vue_dev)}`);
+      await session.defaultSession.loadExtension(vue_dev, {
+        allowFileAccess: true,
+      });
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e.toString());
+    }
+  }
+});
 async function createMainWindow() {
   WIN = new BrowserWindow({
     webPreferences: {
@@ -167,7 +193,7 @@ function createTray() {
   const contextMenu = Menu.buildFromTemplate(trayArr);
 
   TRAY.setContextMenu(contextMenu);
-  TRAY.setToolTip(this.title);
+  TRAY.setToolTip('FakeCloudMusic');
   TRAY.on('click', () => {
     if (isMac) {
       app.show();
@@ -176,30 +202,6 @@ function createTray() {
     }
   });
 }
-app.whenReady().then(async () => {
-  createMainWindow();
-  createServer();
-  createTray();
-  app.disableDomainBlockingFor3DAPIs();
-  if (isDevelopment || true) {
-    globalShortcut.register('F10', () => {
-      const wins = BrowserWindow.getAllWindows();
-      wins.forEach(win => {
-        win.webContents.openDevTools();
-      });
-    });
-  }
-  if (isDevelopment) {
-    try {
-      console.log(`vueDevtools:${chalk.green(vue_dev)}`);
-      await session.defaultSession.loadExtension(vue_dev, {
-        allowFileAccess: true,
-      });
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString());
-    }
-  }
-});
 
 app.on('window-all-closed', () => {
   console.log('window-all-closed');
