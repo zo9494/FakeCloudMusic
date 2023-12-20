@@ -55,7 +55,7 @@ let WIN: BrowserWindow;
 let SERVER: any;
 let TRAY: Tray;
 async function createMainWindow() {
-  const win = new BrowserWindow({
+  WIN = new BrowserWindow({
     webPreferences: {
       preload,
       nodeIntegration: true,
@@ -70,7 +70,6 @@ async function createMainWindow() {
     trafficLightPosition: { x: 5, y: 5 },
     autoHideMenuBar: true,
   });
-  WIN = win;
   if (process.env.VITE_DEV_SERVER_URL) {
     await win.loadURL(url);
     // open devtools
@@ -78,24 +77,24 @@ async function createMainWindow() {
       win.webContents.openDevTools();
     }
   } else {
-    win.loadFile(indexHtml);
+    WIN.loadFile(indexHtml);
   }
 
   // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString());
+  WIN.webContents.on('did-finish-load', () => {
+    WIN?.webContents.send('main-process-message', new Date().toLocaleString());
   });
 
   // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  WIN.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:')) shell.openExternal(url);
     return { action: 'deny' };
   });
   // 主窗口 app:before-quit => browserWindow:close
   // mac 红绿灯 会触发close事件
-  win.on('close', e => {
+  WIN.on('close', e => {
     console.log('main-browserWindow: close');
-
+    e.preventDefault();
     if (isMac) {
       e.preventDefault();
       app.hide();
@@ -103,16 +102,18 @@ async function createMainWindow() {
     }
 
     if (isWin) {
-      e.preventDefault();
-      win.webContents.send(EVENT.BEFORE_CLOSE);
+      WIN.webContents.send(EVENT.BEFORE_CLOSE);
       return;
     }
+    if (isLinux) {
+      WIN.hide();
+    }
   });
-  win.on('maximize', () => {
-    win.webContents.send(EVENT.MAXIMIZE, true);
+  WIN.on('maximize', () => {
+    WIN.webContents.send(EVENT.MAXIMIZE, true);
   });
-  win.on('unmaximize', () => {
-    win.webContents.send(EVENT.MAXIMIZE, false);
+  WIN.on('unmaximize', () => {
+    WIN.webContents.send(EVENT.MAXIMIZE, false);
   });
 }
 
@@ -137,7 +138,7 @@ function createTray() {
     isDevelopment ? 'public/icons/icon.png' : iconPath
   );
   TRAY = new Tray(icon);
-  const contextMenu = Menu.buildFromTemplate([
+  const trayArr: Electron.MenuItemConstructorOptions[] = [
     {
       label: '退出',
       icon: nativeImage
@@ -153,7 +154,17 @@ function createTray() {
         // Main.win.webContents.send(EVENT.BEFORE_CLOSE);
       },
     },
-  ]);
+  ];
+  if (isLinux) {
+    trayArr.unshift({
+      label: '显示',
+
+      click: () => {
+        WIN.show();
+      },
+    });
+  }
+  const contextMenu = Menu.buildFromTemplate(trayArr);
 
   TRAY.setContextMenu(contextMenu);
   TRAY.setToolTip(this.title);
