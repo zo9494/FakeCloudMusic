@@ -42,7 +42,8 @@ export class Login {
   }
   registerHandle() {
     ipcMain.handle(EVENT.LOGIN_CLOSE, () => {
-      this.win.close();
+      const win = BrowserWindow.getFocusedWindow();
+      win.close();
       this.win = null;
       ipcMain.removeHandler(EVENT.LOGIN_CLOSE);
     });
