@@ -141,14 +141,14 @@ function createTray() {
   const trayArr: Electron.MenuItemConstructorOptions[] = [
     {
       label: '退出',
-      icon: nativeImage
-        .createFromPath(
-          isDevelopment
-            ? 'public/icons/exit.png'
-            : join(app.getAppPath(), 'dist/icons/exit.png')
-        )
-        .resize({ width: 16, height: 16 }),
-      // icon:
+      // icon: nativeImage
+      //   .createFromPath(
+      //     isDevelopment
+      //       ? 'public/icons/exit.png'
+      //       : join(app.getAppPath(), 'dist/icons/exit.png')
+      //   )
+      //   .resize({ width: 16, height: 16 }),
+      // // icon:
       click: () => {
         app.exit();
         // Main.win.webContents.send(EVENT.BEFORE_CLOSE);
