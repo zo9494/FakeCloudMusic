@@ -38,12 +38,12 @@ export class Login {
     } else {
       this.win.loadFile(loginHtml);
     }
+    this.registerHandle();
     return;
   }
   registerHandle() {
     ipcMain.handle(EVENT.LOGIN_CLOSE, () => {
-      const win = BrowserWindow.getFocusedWindow();
-      win.close();
+      this.win.close();
       this.win = null;
       ipcMain.removeHandler(EVENT.LOGIN_CLOSE);
     });

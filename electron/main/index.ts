@@ -240,7 +240,6 @@ class Main {
 
     ipcMain.handle(EVENT.LOGIN, () => {
       this.loginWin = new Login({ parent: Main.win });
-      this.loginWin.registerHandle();
     });
     ipcMain.handle(EVENT.RELOAD_USER, () => {
       return Main.win.webContents.executeJavaScript('window.loadUser()');
