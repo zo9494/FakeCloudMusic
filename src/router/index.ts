@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
+import FindMusic from '@/views/FindMusic.vue';
 import Playlist from '@/views/PlaylistNew.vue';
 import NotFoundPage from '@/views/404.vue';
 import Result from '@/views/Result.vue';
@@ -7,7 +8,8 @@ import LocalMusic from '@/views/LocalMusic.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: NotFoundPage,
+    name: 'FindMusic',
+    component: FindMusic,
   },
 
   {

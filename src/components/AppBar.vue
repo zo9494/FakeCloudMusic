@@ -36,7 +36,7 @@ import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
 let showCustomFrame = false;
 
-if (process.platform !== 'darwin') {
+if (process.platform == 'win32') {
   showCustomFrame = true;
 }
 interface AppBarProps {
@@ -51,7 +51,7 @@ enum themes {
 const router = useRouter();
 const { canBack } = useHistory();
 function Setting() {
-  router.push({ name: 'SettingPage' });
+  router.push({ name: 'SettingPage' }, true);
 }
 function handleBack() {
   router.back();

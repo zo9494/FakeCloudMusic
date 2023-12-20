@@ -1,5 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron';
-
+import { customWindowHeaderBar } from '../utils/platform';
 import { join } from 'node:path';
 import { EVENT } from '../utils/eventTypes';
 import { PAGE_LOGIN } from '../../const';
@@ -23,7 +23,8 @@ export class Login {
       height: 520,
       title: '登录',
       resizable: false,
-      frame: false,
+      frame: customWindowHeaderBar,
+      autoHideMenuBar: true,
       minimizable: false,
       maximizable: false,
       parent,

@@ -17,7 +17,13 @@ import { release } from 'node:os';
 import { join } from 'node:path';
 import server = require('NeteaseCloudMusicApi/server');
 import { EVENT } from '../utils/eventTypes';
-import { isDevelopment, isLinux, isMac, isWin } from '../utils/platform';
+import {
+  isDevelopment,
+  isLinux,
+  isMac,
+  isWin,
+  customWindowHeaderBar,
+} from '../utils/platform';
 import { chalk } from '../utils/chalk';
 import { PAGE_TRAY } from '../../const';
 // Disable GPU Acceleration for Windows 7
@@ -83,13 +89,14 @@ class Main {
         nodeIntegration: true,
       },
       title: this.title,
-      frame: isMac,
+      frame: customWindowHeaderBar,
       width: 1000,
       height: 600,
       minWidth: 1000,
       minHeight: 600,
       titleBarStyle: 'hiddenInset',
       trafficLightPosition: { x: 5, y: 5 },
+      autoHideMenuBar: true,
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {

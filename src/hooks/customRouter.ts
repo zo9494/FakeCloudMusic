@@ -31,8 +31,10 @@ const history = new History();
 export function useRouter() {
   const router = useVueRouter();
   return {
-    push(to: RouteLocationRaw) {
-      history.push(to);
+    push(to: RouteLocationRaw, rec?: boolean) {
+      if (rec) {
+        history.push(to);
+      }
       return router.push(to);
     },
     back() {

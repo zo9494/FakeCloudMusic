@@ -1,20 +1,9 @@
 <template>
-  <header class="header">
-    <button class="close" @click="close">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        fill="currentColor"
-        class="bi bi-x"
-        viewBox="0 0 16 16"
-      >
-        <path
-          d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
-        />
-      </svg>
-    </button>
+  <header v-if="showCustomFrame" class="header">
     <div class="drag"></div>
+    <button class="close" @click="close">
+      <i class="icon-fluent icon-fluent-chrome-close" />
+    </button>
   </header>
   <div class="login">
     <main class="main">
@@ -42,6 +31,11 @@ import { getQR, checkStatus } from '@/api/user';
 import { onBeforeMount, Ref, ref } from 'vue';
 import img from '@/assets/img/login.png';
 import Loading from '@/components/Loading.vue';
+let showCustomFrame = false;
+
+if (process.platform == 'win32') {
+  showCustomFrame = true;
+}
 const qrimg = ref();
 const timer = ref(0);
 /**
@@ -134,6 +128,7 @@ function refresh() {
   cursor: default;
   user-select: none;
   box-sizing: border-box;
+  font-size: 12px;
 }
 
 .close {
@@ -142,13 +137,8 @@ function refresh() {
   outline-style: none;
   background-color: transparent;
   border: none;
-  cursor: pointer;
   height: 20px;
   width: 20px;
-
-  > svg {
-    cursor: pointer;
-  }
 }
 
 .login {
@@ -225,7 +215,7 @@ function refresh() {
   left: 0;
   right: 0;
   display: grid;
-  grid-template-columns: 50px auto;
+  grid-template-columns: auto 25px;
 }
 
 .drag {

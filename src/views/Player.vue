@@ -220,7 +220,8 @@ function updateLike(song: Track | undefined, isDel = false) {
 
 <template>
   <Transition name="slide-up">
-    <div
+    <div v-show="!data.showLyric" class="f-player">
+      <!-- <div
       v-show="!data.showLyric"
       class="f-player"
       :style="{
@@ -228,7 +229,7 @@ function updateLike(song: Track | undefined, isDel = false) {
           ','
         )},0.2),var(--bg-color))`,
       }"
-    >
+    > -->
       <div class="f-player-info">
         <div class="f-player-info-cover" @click="handleShowLyric">
           <div class="mask">
