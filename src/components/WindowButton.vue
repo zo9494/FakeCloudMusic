@@ -31,7 +31,7 @@ function handleResizable() {
 }
 
 function handleClose() {
-  window.electron.ipcRenderer.invoke('WINDOW_CLOSE');
+  window.electron.ipcRenderer.invoke('APP_CLOSE');
 }
 function handleMinimizeToTray() {
   setTimeout(() => {
