@@ -15,7 +15,7 @@ import {
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
-import server = require('NeteaseCloudMusicApi/server');
+import server = require('NeteaseCloudMusicApi');
 import { EVENT } from '../utils/eventTypes';
 import {
   isDevelopment,
@@ -24,11 +24,11 @@ import {
   isWin,
   customWindowHeaderBar,
 } from '../utils/platform';
-import { chalk } from '../utils/chalk';
-import { PAGE_TRAY } from '../../const';
+// import { chalk } from '../utils/chalk';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { createLogin } from './login';
+import { window } from '../utils/window';
 // Set application name for Windows 10+ notifications
 if (isWin) app.setAppUserModelId(app.getName());
 
@@ -42,13 +42,11 @@ if (!app.requestSingleInstanceLock()) {
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
 // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-// Here, you can also use other preload
 const preload = join(__dirname, '../preload/index.js');
 
 const url = process.env.VITE_DEV_SERVER_URL;
 
 const indexHtml = join(process.env.DIST, 'index.html');
-const trayHtml = join(process.env.DIST, PAGE_TRAY);
 const vue_dev = join(process.cwd(), '/vue_devtools/');
 
 let WIN: BrowserWindow;
@@ -71,7 +69,7 @@ app.whenReady().then(async () => {
   }
   if (isDevelopment) {
     try {
-      console.log(`vueDevtools:${chalk.green(vue_dev)}`);
+      // console.log(`vueDevtools:${chalk.green(vue_dev)}`);
       await session.defaultSession.loadExtension(vue_dev, {
         allowFileAccess: true,
       });
@@ -147,7 +145,7 @@ async function createServer() {
   const { server: expressApp } = await server.serveNcmApi({
     port: 35011,
   });
-  console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
+  // console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
   SERVER = expressApp;
 }
 function createTray() {
@@ -227,11 +225,11 @@ app.on('activate', () => {
 });
 
 app.on('ready', () => {
-  console.log(chalk.red('ready'));
+  // console.log(chalk.red('ready'));
 });
 // mac 右键退出触发 app：before-quit => browserWindow:close
 app.on('before-quit', e => {
-  console.log(chalk.red('before-quit'));
+  // console.log(chalk.red('before-quit'));
   // win平台
   if (isWin) {
   }
@@ -247,13 +245,13 @@ app.on('quit', () => {
   console.log('quit');
   WIN = undefined;
   SERVER.close(() => {
-    console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
+    // console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
   });
   SERVER = undefined;
 });
 
-// window平台
-ipcMain.handle(EVENT.WINDOW_CLOSE, () => {
+//#region window平台
+ipcMain.handle(EVENT.APP_CLOSE, () => {
   app.exit();
 });
 ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
@@ -273,7 +271,7 @@ ipcMain.handle(EVENT.WINDOW_MIN, () => {
 ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, () => {
   WIN.hide();
 });
-// window平台
+//#endregion
 
 ipcMain.handle(EVENT.LOGIN, () => {
   console.log('login');
@@ -292,4 +290,8 @@ ipcMain.handle(EVENT.SET_TITLE, (_, title?: string) => {
 });
 ipcMain.handle(EVENT.WINDOW_SHOW, () => {
   WIN.show();
+});
+
+ipcMain.handle(EVENT.WINDOW_CLOSE, (_, id) => {
+  window.close(id);
 });

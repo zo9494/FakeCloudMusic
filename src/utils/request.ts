@@ -22,6 +22,7 @@ export class Service {
       config.params = {
         ...config.params,
         cookie: localStorage.cookie,
+        realIP: '116.25.146.177',
       };
       return config;
     });

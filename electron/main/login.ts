@@ -41,9 +41,4 @@ export function createLogin(options) {
   win.webContents.executeJavaScript(
     `window.windowOptions=${JSON.stringify(args)}`
   );
-  ipcMain.handle(EVENT.LOGIN_CLOSE, (_, id) => {
-    const win = BrowserWindow.fromId(id);
-    win.close();
-    ipcMain.removeHandler(EVENT.LOGIN_CLOSE);
-  });
 }

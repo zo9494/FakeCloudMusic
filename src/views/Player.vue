@@ -508,7 +508,7 @@ function updateLike(song: Track | undefined, isDel = false) {
 
       &-ar {
         font-size: 12px;
-        color: #666666;
+        color: var(--playlist-item-ar-font-color);
         > * {
           display: inline-block;
         }
