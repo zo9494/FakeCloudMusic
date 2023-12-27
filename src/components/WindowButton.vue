@@ -7,7 +7,7 @@
       <i v-if="isMaximized" class="icon-fluent icon-fluent-chrome-restore" />
       <i v-else class="icon-fluent icon-fluent-chrome-maximize" />
     </button>
-    <button class="close" @click="createAskDialog">
+    <button class="close" @click="handleClose">
       <i class="icon-fluent icon-fluent-chrome-close" />
     </button>
   </div>
@@ -31,6 +31,9 @@ function handleResizable() {
 }
 
 function handleClose() {
+  window.electron.ipcRenderer.invoke('WINDOW_CLOSE',window.windowOptions.id);
+}
+function handleAPPClose() {
   window.electron.ipcRenderer.invoke('APP_CLOSE');
 }
 function handleMinimizeToTray() {
@@ -66,7 +69,7 @@ function createAskDialog() {
     });
   }
   if (closeInfo.isRemember && closeInfo.selectClose) {
-    handleClose();
+    handleAPPClose();
   } else if (closeInfo.isRemember && !closeInfo.selectClose) {
     handleMinimizeToTray();
   }
@@ -80,7 +83,7 @@ function dialogConfirm(val: comfirmDataType) {
     closeInfo = val;
   }
   if (val.selectClose) {
-    handleClose();
+    handleAPPClose();
   } else {
     handleMinimizeToTray();
   }
@@ -95,6 +98,10 @@ window.electron.ipcRenderer.on('BEFORE_CLOSE', () => {
 window.electron.ipcRenderer.on('MAXIMIZE', (e, val) => {
   isMaximized.value = val;
 });
+window.onbeforeunload = e => {
+  createAskDialog();
+  return true;
+};
 </script>
 
 <style lang="scss" scoped>

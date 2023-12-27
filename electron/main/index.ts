@@ -24,7 +24,7 @@ import {
   isWin,
   customWindowHeaderBar,
 } from '../utils/platform';
-// import { chalk } from '../utils/chalk';
+import { chalk } from '../utils/chalk';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { createLogin } from './login';
@@ -79,13 +79,14 @@ app.whenReady().then(async () => {
   }
 });
 async function createMainWindow() {
+  let args: any = {};
   WIN = new BrowserWindow({
     webPreferences: {
       preload,
       nodeIntegration: true,
     },
     title: 'FakeCloudMusic',
-    frame: customWindowHeaderBar,
+    frame: true,
     width: 1000,
     height: 600,
     minWidth: 1000,
@@ -94,6 +95,7 @@ async function createMainWindow() {
     trafficLightPosition: { x: 5, y: 5 },
     autoHideMenuBar: true,
   });
+  args.id = WIN.id;
   if (process.env.VITE_DEV_SERVER_URL) {
     await WIN.loadURL(url);
     // open devtools
@@ -103,7 +105,9 @@ async function createMainWindow() {
   } else {
     WIN.loadFile(indexHtml);
   }
-
+  WIN.webContents.executeJavaScript(
+    `window.windowOptions=${JSON.stringify(args)}`
+  );
   // Test actively push message to the Electron-Renderer
   WIN.webContents.on('did-finish-load', () => {
     WIN?.webContents.send('main-process-message', new Date().toLocaleString());
@@ -116,23 +120,20 @@ async function createMainWindow() {
   });
   // 主窗口 app:before-quit => browserWindow:close
   // mac 红绿灯 会触发close事件
-  WIN.on('close', e => {
-    console.log('main-browserWindow: close');
-    e.preventDefault();
-    if (isMac) {
-      e.preventDefault();
-      app.hide();
-      return;
-    }
+  // WIN.on('close', e => {
+  //   console.log('main-browserWindow: close');
+  //   e.preventDefault();
 
-    if (isWin) {
-      WIN.webContents.send(EVENT.BEFORE_CLOSE);
-      return;
-    }
-    if (isLinux) {
-      WIN.hide();
-    }
-  });
+  //   switch (process.platform) {
+  //     case 'darwin':
+  //       app.hide();
+  //       return;
+
+  //     default:
+  //       WIN.webContents.send(EVENT.BEFORE_CLOSE);
+  //       return;
+  //   }
+  // });
   WIN.on('maximize', () => {
     WIN.webContents.send(EVENT.MAXIMIZE, true);
   });
@@ -203,6 +204,7 @@ function createTray() {
 
 app.on('window-all-closed', () => {
   console.log('window-all-closed');
+  app.exit();
 });
 
 app.on('second-instance', () => {
@@ -225,11 +227,11 @@ app.on('activate', () => {
 });
 
 app.on('ready', () => {
-  // console.log(chalk.red('ready'));
+  console.log(chalk.red('ready'));
 });
 // mac 右键退出触发 app：before-quit => browserWindow:close
 app.on('before-quit', e => {
-  // console.log(chalk.red('before-quit'));
+  console.log(chalk.red('before-quit'));
   // win平台
   if (isWin) {
   }
@@ -245,7 +247,7 @@ app.on('quit', () => {
   console.log('quit');
   WIN = undefined;
   SERVER.close(() => {
-    // console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
+    console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
   });
   SERVER = undefined;
 });
