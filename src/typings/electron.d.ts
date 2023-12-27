@@ -3,7 +3,7 @@ import { EVENT } from '../../electron/utils/eventTypes';
 /**
  * Should match main/preload.ts for typescript support in renderer
  */
-type channelType = keyof typeof EVENT;
+type channelType = `${EVENT}`;
 
 interface window {
   close: (value?: boolean) => Promise<any>;
