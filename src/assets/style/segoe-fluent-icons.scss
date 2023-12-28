@@ -19,4 +19,15 @@
       content: '\e922';
     }
   }
+  &-volume {
+    &-mute::after {
+      content: '\e992';
+    }
+    &-full::after {
+      content: '\e994';
+    }
+    &-half::after {
+      content: '\e993';
+    }
+  }
 }

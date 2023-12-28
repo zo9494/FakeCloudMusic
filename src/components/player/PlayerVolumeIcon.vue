@@ -1,7 +1,10 @@
 <template>
-  <i class="icons" v-if="props.volume === 0">&#xe992;</i>
-  <i class="icons" v-else-if="props.volume > 0.5">&#xe994;</i>
-  <i class="icons" v-else>&#xe993;</i>
+  <i class="icon-fluent icon-fluent-volume-mute" v-if="props.volume === 0"></i>
+  <i
+    class="icon-fluent icon-fluent-volume-full"
+    v-else-if="props.volume > 0.5"
+  ></i>
+  <i class="icon-fluent icon-fluent-volume-half" v-else></i>
 </template>
 
 <script setup lang="ts">
