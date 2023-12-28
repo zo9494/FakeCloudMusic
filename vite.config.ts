@@ -100,7 +100,7 @@ export default defineConfig(({ command }) => {
           },
         },
         {
-          entry: 'electron/preload/login.ts',
+          entry: 'electron/preload/index.ts',
           onstart(options) {
             options.reload();
           },

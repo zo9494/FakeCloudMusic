@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, ref } from 'vue';
+import { ref } from 'vue';
 import Popover from '@/components/popover/Popover.vue';
 import { useUserStore } from '@/store/user';
 import { storeToRefs } from 'pinia';
@@ -39,9 +39,6 @@ import Avatar from '@/components/Avatar.vue';
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);
 
-onBeforeMount(() => {
-  userStore.getUserAccount();
-});
 const visible = ref(false);
 function openLogin() {
   if (!profile.value.userId) {

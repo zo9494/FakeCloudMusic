@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDialog } from 'naive-ui';
-import { nextTick, h } from 'vue';
+import { h, onBeforeMount } from 'vue';
 import AppBar from './components/AppBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
@@ -12,57 +12,61 @@ import { useUserStore } from '@/store/user';
 
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
-
+onBeforeMount(() => {
+  userStore.getUserAccount();
+});
 //#region 关闭对话框
 const dialog = useDialog();
 interface comfirmDataType {
   isRemember?: boolean;
   selectClose?: boolean;
 }
-let closeInfo: comfirmDataType = JSON.parse(localStorage.close || '{}');
 
-function beforeLeaveDialog(): Promise<comfirmDataType> {
+function beforeLeaveDialog(data: comfirmDataType): Promise<comfirmDataType> {
   return new Promise((resolve, reject) => {
-    if (!closeInfo.isRemember) {
-      dialog.create({
-        showIcon: false,
-        autoFocus: false,
-        closeOnEsc: false,
-        maskClosable: false,
-        // closable: false,
-        transformOrigin: 'center',
-        content() {
-          return h(CloseComponent, {
-            confirm: (val: comfirmDataType) => {
-              dialog.destroyAll();
-              if (val.isRemember) {
-                // remember
-                localStorage.close = JSON.stringify(val);
-                closeInfo = val;
-              }
-              resolve(val);
-            },
-            closeInfo,
-          });
-        },
-      });
-    } else {
-      resolve(closeInfo);
-    }
+    dialog.create({
+      showIcon: false,
+      autoFocus: false,
+      closeOnEsc: false,
+      maskClosable: false,
+      // closable: false,
+      transformOrigin: 'center',
+      content() {
+        return h(CloseComponent, {
+          confirm: (val: comfirmDataType) => {
+            dialog.destroyAll();
+            resolve(val);
+          },
+          data,
+        });
+      },
+    });
   });
 }
-window.electron.ipcRenderer.on('BEFORE_CLOSE', async () => {
-  if (!closeInfo.isRemember) {
-    window.electron.ipcRenderer.invoke('WINDOW_SHOW');
-  }
-  const res = await beforeLeaveDialog();
-  console.log(res);
-  if (res.selectClose) {
+
+function handleCloseOrTray(selectClose?: boolean) {
+  if (selectClose) {
     window.electron.ipcRenderer.invoke('APP_CLOSE');
   } else {
     setTimeout(() => {
       window.electron.ipcRenderer.invoke('MINIMIZE_TO_TRAY');
     }, 180);
+  }
+}
+window.electron.ipcRenderer.on('BEFORE_CLOSE', async () => {
+  let closeInfo: comfirmDataType = JSON.parse(localStorage.close || '{}');
+  if (closeInfo.isRemember) {
+    handleCloseOrTray(closeInfo.selectClose);
+  } else {
+    window.electron.ipcRenderer.invoke('WINDOW_SHOW');
+    const res = await beforeLeaveDialog(closeInfo);
+    console.log(res);
+    if (res.isRemember) {
+      // remember
+      localStorage.close = JSON.stringify(res);
+      closeInfo = res;
+    }
+    handleCloseOrTray(res.selectClose);
   }
 });
 //#endregion

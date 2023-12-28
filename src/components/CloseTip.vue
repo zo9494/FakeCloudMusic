@@ -60,7 +60,7 @@ const checkboxThemeOverrides: CheckboxThemeOverrides = {
 
 interface PropsType {
   confirm?: (val: any) => void;
-  closeInfo?: {
+  data?: {
     isRemember?: boolean;
     selectClose?: boolean;
   };
@@ -69,8 +69,8 @@ const selectClose = ref(false);
 const rememberSelect = ref(false);
 const props = defineProps<PropsType>();
 onBeforeMount(() => {
-  rememberSelect.value = props.closeInfo?.isRemember || false;
-  selectClose.value = props.closeInfo?.selectClose || false;
+  rememberSelect.value = props.data?.isRemember || false;
+  selectClose.value = props.data?.selectClose || false;
 });
 function handleConfirm() {
   props.confirm?.({

@@ -243,24 +243,28 @@ async function loadPlaylist(params: { id: string }) {
         immediate: true,
       }
     );
-    if (!userStore.account.id) {
-      window.electron.ipcRenderer.invoke('LOGIN');
-    }
-    data.loading = false;
+    console.log(userStore.flag);
+
+    userStore.flag?.then(() => {
+      data.loading = false;
+      if (!userStore.account.id) {
+        window.electron.ipcRenderer.invoke('LOGIN');
+      }
+    });
   } else {
     data.watchFlag?.();
-  }
-  try {
-    const res = await getPlaylistDetail(params);
+    try {
+      const res = await getPlaylistDetail(params);
 
-    if (res) {
-      const { playlist } = res;
-      setPlaylist(playlist);
+      if (res) {
+        const { playlist } = res;
+        setPlaylist(playlist);
+      }
+    } catch (error) {
+      data.netErr = true;
+    } finally {
+      data.loading = false;
     }
-  } catch (error) {
-    data.netErr = true;
-  } finally {
-    data.loading = false;
   }
 }
 

@@ -23,6 +23,7 @@ interface userState {
   userPlaylist: Partial<Playlist>;
   likeMap: Map<number, boolean>;
   refreshTime: number;
+  flag: null | Promise<void>;
 }
 interface userActions {
   getUserAccount: () => void;
@@ -45,42 +46,48 @@ export const useUserStore = defineStore<'user', userState, {}, userActions>(
       userPlaylist: {},
       likeMap: new Map(),
       refreshTime: Date.now(),
+      flag: null,
     }),
     actions: {
       async getUserAccount() {
-        const data = await getUserAccount();
-        if (!data) {
-          return;
-        }
-        const { profile, account } = data;
-        getSubCount({ uid: profile.userId }).then(data => {
+        this.flag = new Promise(async resolve => {
+          const data = await getUserAccount();
+          resolve();
           if (!data) {
             return;
           }
-          const myCollect = data.filter(item => item.userId !== profile.userId);
+          const { profile, account } = data;
+          getSubCount({ uid: profile.userId }).then(data => {
+            if (!data) {
+              return;
+            }
+            const myCollect = data.filter(
+              item => item.userId !== profile.userId
+            );
 
-          const myLike = data.find(
-            item =>
-              item.name.indexOf('喜欢的音乐') !== -1 &&
-              item.userId === profile.userId
-          );
-          const myCreate = data.filter(
-            item =>
-              item.name.indexOf('喜欢的音乐') === -1 &&
-              item.userId === profile.userId
-          );
-          myLike?.id && this.storeUserLikePlaylist(myLike?.id);
-          this.$patch({
-            order: {
-              myCollect,
-              myCreate,
-              myLike,
-            },
+            const myLike = data.find(
+              item =>
+                item.name.indexOf('喜欢的音乐') !== -1 &&
+                item.userId === profile.userId
+            );
+            const myCreate = data.filter(
+              item =>
+                item.name.indexOf('喜欢的音乐') === -1 &&
+                item.userId === profile.userId
+            );
+            myLike?.id && this.storeUserLikePlaylist(myLike?.id);
+            this.$patch({
+              order: {
+                myCollect,
+                myCreate,
+                myLike,
+              },
+            });
           });
-        });
-        this.$patch({
-          profile,
-          account,
+          this.$patch({
+            profile,
+            account,
+          });
         });
       },
       async storeUserLikePlaylist(id) {
