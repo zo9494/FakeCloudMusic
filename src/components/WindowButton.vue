@@ -14,94 +14,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h } from 'vue';
-import { useDialog } from 'naive-ui';
-import CloseComponent from '@/components/CloseTip.vue';
+import { ref } from 'vue';
 
 const isMaximized = ref(false);
-const dialog = useDialog();
 
 function handleMinimize() {
   window.electron.ipcRenderer.invoke('WINDOW_MIN');
-  // window.electron.window.minimize();
 }
 function handleResizable() {
   window.electron.ipcRenderer.invoke('WINDOW_RESIZ');
-  // window.electron.window.resizable();
 }
 
 function handleClose() {
-  window.electron.ipcRenderer.invoke('WINDOW_CLOSE',window.windowOptions.id);
-}
-function handleAPPClose() {
-  window.electron.ipcRenderer.invoke('APP_CLOSE');
-}
-function handleMinimizeToTray() {
-  setTimeout(() => {
-    window.electron.ipcRenderer.invoke('MINIMIZE_TO_TRAY');
-  }, 180);
+  window.electron.ipcRenderer.invoke('WINDOW_CLOSE');
 }
 
-//
-interface comfirmDataType {
-  isRemember?: boolean;
-  selectClose?: boolean;
-}
-let closeInfo: comfirmDataType = JSON.parse(localStorage.close || '{}');
-
-function onAfterLeave() {}
-function createAskDialog() {
-  if (!closeInfo.isRemember) {
-    dialog.create({
-      showIcon: false,
-      autoFocus: false,
-      closeOnEsc: false,
-      maskClosable: false,
-      // closable: false,
-      transformOrigin: 'center',
-      onAfterLeave,
-      content() {
-        return h(CloseComponent, {
-          confirm: dialogConfirm,
-          closeInfo,
-        });
-      },
-    });
-  }
-  if (closeInfo.isRemember && closeInfo.selectClose) {
-    handleAPPClose();
-  } else if (closeInfo.isRemember && !closeInfo.selectClose) {
-    handleMinimizeToTray();
-  }
-}
-
-function dialogConfirm(val: comfirmDataType) {
-  dialog.destroyAll();
-  if (val.isRemember) {
-    // remember
-    localStorage.close = JSON.stringify(val);
-    closeInfo = val;
-  }
-  if (val.selectClose) {
-    handleAPPClose();
-  } else {
-    handleMinimizeToTray();
-  }
-}
-
-window.electron.ipcRenderer.on('BEFORE_CLOSE', () => {
-  if (!closeInfo.isRemember) {
-    window.electron.ipcRenderer.invoke('WINDOW_SHOW');
-  }
-  createAskDialog();
-});
 window.electron.ipcRenderer.on('MAXIMIZE', (e, val) => {
   isMaximized.value = val;
 });
-window.onbeforeunload = e => {
-  createAskDialog();
-  return true;
-};
 </script>
 
 <style lang="scss" scoped>

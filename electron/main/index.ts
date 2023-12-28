@@ -28,7 +28,7 @@ import { chalk } from '../utils/chalk';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { createLogin } from './login';
-import { window } from '../utils/window';
+
 // Set application name for Windows 10+ notifications
 if (isWin) app.setAppUserModelId(app.getName());
 
@@ -79,14 +79,13 @@ app.whenReady().then(async () => {
   }
 });
 async function createMainWindow() {
-  let args: any = {};
   WIN = new BrowserWindow({
     webPreferences: {
       preload,
       nodeIntegration: true,
     },
     title: 'FakeCloudMusic',
-    frame: true,
+    frame: customWindowHeaderBar,
     width: 1000,
     height: 600,
     minWidth: 1000,
@@ -95,7 +94,7 @@ async function createMainWindow() {
     trafficLightPosition: { x: 5, y: 5 },
     autoHideMenuBar: true,
   });
-  args.id = WIN.id;
+
   if (process.env.VITE_DEV_SERVER_URL) {
     await WIN.loadURL(url);
     // open devtools
@@ -105,9 +104,7 @@ async function createMainWindow() {
   } else {
     WIN.loadFile(indexHtml);
   }
-  WIN.webContents.executeJavaScript(
-    `window.windowOptions=${JSON.stringify(args)}`
-  );
+
   // Test actively push message to the Electron-Renderer
   WIN.webContents.on('did-finish-load', () => {
     WIN?.webContents.send('main-process-message', new Date().toLocaleString());
@@ -120,20 +117,21 @@ async function createMainWindow() {
   });
   // 主窗口 app:before-quit => browserWindow:close
   // mac 红绿灯 会触发close事件
-  // WIN.on('close', e => {
-  //   console.log('main-browserWindow: close');
-  //   e.preventDefault();
+  WIN.on('close', e => {
+    console.log('main-browserWindow: close');
+    e.preventDefault();
 
-  //   switch (process.platform) {
-  //     case 'darwin':
-  //       app.hide();
-  //       return;
+    switch (process.platform) {
+      case 'darwin':
+        app.hide();
+        break;
 
-  //     default:
-  //       WIN.webContents.send(EVENT.BEFORE_CLOSE);
-  //       return;
-  //   }
-  // });
+      default:
+        WIN.webContents.send(EVENT.BEFORE_CLOSE);
+        break;
+    }
+    return 0;
+  });
   WIN.on('maximize', () => {
     WIN.webContents.send(EVENT.MAXIMIZE, true);
   });
@@ -294,6 +292,7 @@ ipcMain.handle(EVENT.WINDOW_SHOW, () => {
   WIN.show();
 });
 
-ipcMain.handle(EVENT.WINDOW_CLOSE, (_, id) => {
-  window.close(id);
+ipcMain.handle(EVENT.WINDOW_CLOSE, e => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  win.close();
 });

@@ -13,9 +13,9 @@
           <Search />
         </div>
         <div class="app-bar-options-buttons no-drag-js">
-          <button @click="props.toggleTheme">
-            <i v-show="props.theme === themes.light" class="bi bi-moon"></i>
-            <i v-show="props.theme === themes.dark" class="bi bi-sun"></i>
+          <button @click="toggleTheme">
+            <i v-show="theme === themes.light" class="bi bi-moon"></i>
+            <i v-show="theme === themes.dark" class="bi bi-sun"></i>
           </button>
           <button @click="Setting">
             <i class="bi bi-gear" />
@@ -31,19 +31,18 @@
 </template>
 
 <script lang="ts" setup>
+import { inject } from 'vue';
 import { useRouter, useHistory } from '@/hooks/customRouter';
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
 let showCustomFrame = false;
 
+const toggleTheme = inject('toggleTheme') as () => {};
+const theme = inject('theme') as `${themes}`;
 if (process.platform == 'win32') {
   showCustomFrame = true;
 }
-interface AppBarProps {
-  toggleTheme?: () => void;
-  theme: keyof typeof themes;
-}
-const props = defineProps<AppBarProps>();
+
 enum themes {
   dark = 'dark',
   light = 'light',
@@ -56,28 +55,6 @@ function Setting() {
 function handleBack() {
   router.back();
 }
-// let timer = 0;
-// function moving() {
-//   window.clearTimeout(timer);
-//   timer = 0;
-//   timer = window.setTimeout(() => {
-//     console.log('start');
-//     window.electron.ipcRenderer.invoke('WINDOW_MOVE_START');
-//   }, 100);
-// }
-// window.addEventListener('mouseup', () => {
-//   if (timer) {
-//     window.clearTimeout(timer);
-//     console.log('end');
-//     window.electron.ipcRenderer.invoke('WINDOW_MOVE_END');
-
-//     timer = 0;
-//   }
-// });
-
-// function dblclick() {
-//   window.electron.ipcRenderer.invoke('WINDOW_RESIZ');
-// }
 </script>
 <style lang="scss" scoped>
 .back {

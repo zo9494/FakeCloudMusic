@@ -10,7 +10,6 @@ const loginHtml = join(process.env.DIST, PAGE_LOGIN);
 let win: BrowserWindow;
 
 export function createLogin(options) {
-  let args: any = {};
   if (win && !win.isDestroyed()) {
     win.focus();
     return;
@@ -31,14 +30,9 @@ export function createLogin(options) {
       preload: preloadLogin,
     },
   });
-  args.id = win.id;
   if (process.env.VITE_DEV_SERVER_URL) {
     win.loadURL(url + PAGE_LOGIN);
   } else {
     win.loadFile(loginHtml);
   }
-
-  win.webContents.executeJavaScript(
-    `window.windowOptions=${JSON.stringify(args)}`
-  );
 }
