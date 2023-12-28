@@ -70,9 +70,6 @@ window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount();
 };
-nextTick(() => {
-  postMessage({ payload: 'removeLoading' }, '*');
-});
 </script>
 
 <template>

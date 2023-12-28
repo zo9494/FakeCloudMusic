@@ -115,8 +115,7 @@ async function createMainWindow() {
     if (url.startsWith('https:')) shell.openExternal(url);
     return { action: 'deny' };
   });
-  // 主窗口 app:before-quit => browserWindow:close
-  // mac 红绿灯 会触发close事件
+
   WIN.on('close', e => {
     console.log('main-browserWindow: close');
     e.preventDefault();
@@ -227,7 +226,7 @@ app.on('activate', () => {
 app.on('ready', () => {
   console.log(chalk.red('ready'));
 });
-// mac 右键退出触发 app：before-quit => browserWindow:close
+
 app.on('before-quit', e => {
   console.log(chalk.red('before-quit'));
   // win平台
@@ -249,14 +248,12 @@ app.on('quit', () => {
   });
   SERVER = undefined;
 });
-
-//#region window平台
 ipcMain.handle(EVENT.APP_CLOSE, () => {
   app.exit();
 });
-ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
-  debugger;
 
+//#region window平台
+ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
   if (WIN.isMaximized()) {
     WIN.restore();
   } else {

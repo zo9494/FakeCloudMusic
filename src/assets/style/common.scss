@@ -1,0 +1,14 @@
+@import url('./dark.scss');
+@import url('./light.scss');
+* {
+  // cursor: default;
+  user-select: none;
+  box-sizing: border-box;
+}
+body {
+  box-sizing: border-box;
+  background-color: var(--body-bg-color, #fff);
+  color: var(--font-color, #333);
+  font-size: 14px;
+  overflow: hidden;
+}

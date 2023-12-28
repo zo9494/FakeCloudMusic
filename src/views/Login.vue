@@ -86,7 +86,7 @@ function init() {
 
 function close() {
   window.clearTimeout(timer.value);
-  window.electron.ipcRenderer.invoke('WINDOW_CLOSE', window.windowOptions.id);
+  window.electron.ipcRenderer.invoke('WINDOW_CLOSE');
 }
 
 function checkQRStatus(key: string) {
@@ -99,7 +99,7 @@ function checkQRStatus(key: string) {
     const { code, cookie } = data;
     if (code === 803) {
       localStorage.cookie = cookie;
-      // window.electron.reloadUser();
+
       window.electron.ipcRenderer.invoke('RELOAD_USER');
       close();
       return;

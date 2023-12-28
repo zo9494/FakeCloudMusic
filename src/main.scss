@@ -1,22 +1,7 @@
-.icons {
-  font-style: normal;
-  font-family: 'FluentIcon';
-}
-* {
-  // cursor: default;
-  user-select: none;
-  box-sizing: border-box;
-}
 img {
   pointer-events: none;
 }
-body {
-  box-sizing: border-box;
-  background-color: var(--body-bg-color);
-  color: var(--font-color);
-  font-size: 14px;
-  overflow: hidden;
-}
+
 ul {
   list-style: none;
   padding: 0px;
@@ -158,9 +143,4 @@ button {
   }
 }
 
-// overwrite
-@import './assets/style/overwriteNaive.scss';
-
-@import './assets/style/dark.scss';
-@import './assets/style/light.scss';
 /* https://learn.microsoft.com/zh-cn/windows/apps/design/style/segoe-fluent-icons-font */
