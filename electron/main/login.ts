@@ -1,7 +1,6 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow } from 'electron';
 import { customWindowHeaderBar } from '../utils/platform';
 import { join } from 'node:path';
-import { EVENT } from '../utils/eventTypes';
 import { PAGE_LOGIN } from '../../const';
 const url = process.env.VITE_DEV_SERVER_URL;
 const preload = join(__dirname, '../preload/index.js');

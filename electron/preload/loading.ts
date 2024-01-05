@@ -80,10 +80,9 @@ function useLoading() {
 
     `;
   const oStyle = document.createElement('style');
-  const style = document.createElement('style');
+
   const oDiv = document.createElement('div');
 
-  style.innerHTML = `body{background-color: ${color}}`;
   oStyle.id = 'app-loading-style';
   oStyle.innerHTML = styleContent;
   oDiv.className = 'app-loading-wrap';
@@ -94,14 +93,10 @@ function useLoading() {
   return {
     appendLoading() {
       safeDOM.append(document.head, oStyle);
-      safeDOM.append(document.head, style);
       safeDOM.append(document.body, oDiv);
     },
     removeLoading() {
       safeDOM.remove(document.head, oStyle);
-      setTimeout(() => {
-        safeDOM.remove(document.head, style);
-      }, 5000);
       safeDOM.remove(document.body, oDiv);
     },
   };
@@ -110,7 +105,9 @@ function useLoading() {
 // ----------------------------------------------------------------------
 
 const { appendLoading, removeLoading } = useLoading();
-domReady().then(appendLoading);
+domReady().then(() => {
+  appendLoading();
+});
 
 window.onmessage = ev => {
   ev.data.payload === 'removeLoading' && removeLoading();

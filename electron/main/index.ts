@@ -1,4 +1,3 @@
-// todo 重构
 import '../utils/env';
 import {
   app,
@@ -137,6 +136,8 @@ async function createMainWindow() {
   WIN.on('unmaximize', () => {
     WIN.webContents.send(EVENT.MAXIMIZE, false);
   });
+  // TODO:win 媒体控件
+  WIN.setThumbarButtons([]);
 }
 
 async function createServer() {

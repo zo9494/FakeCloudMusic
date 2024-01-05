@@ -12,3 +12,6 @@ body {
   font-size: 14px;
   overflow: hidden;
 }
+button {
+  color: var(--font-color, #333);
+}
