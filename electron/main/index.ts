@@ -14,7 +14,7 @@ import {
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
-import server = require('NeteaseCloudMusicApi');
+import server from 'NeteaseCloudMusicApi';
 import { EVENT } from '../utils/eventTypes';
 import {
   isDevelopment,
@@ -49,12 +49,10 @@ const indexHtml = join(process.env.DIST, 'index.html');
 const vue_dev = join(process.cwd(), '/vue_devtools/');
 
 let WIN: BrowserWindow;
-let SERVER: any;
 let TRAY: Tray;
 app.disableDomainBlockingFor3DAPIs();
 app.whenReady().then(async () => {
   createMainWindow();
-  createServer();
   createTray();
   if (isDevelopment || true) {
     globalShortcut.register('F10', () => {
@@ -140,13 +138,6 @@ async function createMainWindow() {
   WIN.setThumbarButtons([]);
 }
 
-async function createServer() {
-  const { server: expressApp } = await server.serveNcmApi({
-    port: 35011,
-  });
-  // console.log(`[NeteaseCloudMusicApi]: ${chalk.green('started')}`);
-  SERVER = expressApp;
-}
 function createTray() {
   let iconPath: string = join(app.getAppPath(), '/dist/icons/icon.png');
   if (isMac) {
@@ -244,10 +235,6 @@ app.on('will-quit', () => {
 app.on('quit', () => {
   console.log('quit');
   WIN = undefined;
-  SERVER.close(() => {
-    console.log(`[NeteaseCloudMusicApi]: ${chalk.red('closed')}`);
-  });
-  SERVER = undefined;
 });
 ipcMain.handle(EVENT.APP_CLOSE, () => {
   app.exit();
@@ -293,4 +280,9 @@ ipcMain.handle(EVENT.WINDOW_SHOW, () => {
 ipcMain.handle(EVENT.WINDOW_CLOSE, e => {
   const win = BrowserWindow.fromWebContents(e.sender);
   win.close();
+});
+ipcMain.handle(EVENT.HTTP, (_, { url, params }) => {
+  const { cookie, ...args } = params;
+  console.log(url, args);
+  return server[url](params);
 });

@@ -7,6 +7,14 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 const route = useRoute();
+window.electron.ipcRenderer
+  .invoke('HTTP', {
+    url: 'search',
+    params: { keywords: '平凡之路' },
+  })
+  .then(res => {
+    console.log(res);
+  });
 </script>
 
 <style scoped lang="scss">

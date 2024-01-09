@@ -12,4 +12,5 @@ export enum EVENT {
   WINDOW_SHOW = 'WINDOW_SHOW',
   MAXIMIZE = 'MAXIMIZE',
   APP_CLOSE = 'APP_CLOSE',
+  HTTP = 'HTTP',
 }

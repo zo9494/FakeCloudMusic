@@ -7,6 +7,7 @@ export async function getHotSearch() {
       timestamp: dayjs().format('YYYYMMDDHH'),
     },
   });
+
   return data?.result.hots;
 }
 

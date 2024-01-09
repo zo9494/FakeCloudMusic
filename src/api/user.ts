@@ -67,6 +67,7 @@ export async function getUserAccount() {
   const data = await service.get<UserAccount>('/user/account', {
     params: { timestamp: Date.now() },
   });
+
   return data;
 }
 

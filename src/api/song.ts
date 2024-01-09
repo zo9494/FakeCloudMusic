@@ -11,7 +11,7 @@ export async function getSongDetail(ids: Id | Ids) {
   const f = isArray(ids);
   const data = await service.get<SongDetail>('/song/detail', {
     params: {
-      ids: f ? ids.join(',') : ids,
+      ids: f ? ids.join(',') : ids.toString(),
     },
   });
   if (f) {

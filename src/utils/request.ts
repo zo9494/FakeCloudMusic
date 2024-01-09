@@ -1,42 +1,22 @@
-import axios from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+interface Res {
+  status: number;
+  body: any;
+}
 
-type Result<T, D> = T & {
-  code: number;
-  data: D;
-};
-
-type RequestConfig = Omit<AxiosRequestConfig, 'headers'> & {
-  headers?: any;
-};
 export class Service {
-  instance: AxiosInstance;
-
-  constructor(config?: RequestConfig) {
-    this.instance = axios.create({
-      baseURL: 'http://localhost:35011',
-      timeout: 1000 * 10,
-      ...config,
-    });
-    this.instance.interceptors.request.use(config => {
-      config.params = {
-        ...config.params,
-        cookie: localStorage.cookie,
-        realIP: '116.25.146.177',
-      };
-      return config;
-    });
-  }
-
-  public request(config: RequestConfig): Promise<AxiosResponse> {
-    return this.instance.request(config);
-  }
   public async get<T = undefined>(
     url: string,
-    config?: RequestConfig
+    config?: any
   ): Promise<T | null> {
-    const { data } = await this.instance.get(url, config);
-    return data;
+    return window.electron.ipcRenderer
+      .invoke<Res>('HTTP', {
+        url: url.replaceAll('/', '_').slice(1),
+        params: { ...config?.params, cookie: localStorage.cookie },
+      })
+      .then<T>(res => {
+        console.log(url.replaceAll('/', '_').slice(1), res);
+        return res.body;
+      });
   }
 }
 
