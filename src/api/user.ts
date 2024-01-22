@@ -8,7 +8,7 @@ interface QRKeyType {
   };
 }
 export async function getQRKey() {
-  const data = await service.get<QRKeyType>('login/qr/key', {
+  const data = await service.get<QRKeyType>('/login/qr/key', {
     params: {
       timestamp: Date.now(),
     },
@@ -24,7 +24,7 @@ interface QRType {
 export async function getQR() {
   const qrKey = await getQRKey();
 
-  const data = await service.get<QRType>('login/qr/create', {
+  const data = await service.get<QRType>('/login/qr/create', {
     params: {
       key: qrKey?.unikey,
       qrimg: true,
@@ -42,7 +42,7 @@ interface QRCheckType {
   message: string;
 }
 export async function checkStatus(key: string) {
-  const data = await service.get<QRCheckType>('login/qr/check', {
+  const data = await service.get<QRCheckType>('/login/qr/check', {
     params: {
       key,
       timestamp: Date.now(),

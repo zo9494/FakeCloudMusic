@@ -282,6 +282,7 @@ ipcMain.handle(EVENT.WINDOW_CLOSE, e => {
   win.close();
 });
 ipcMain.handle(EVENT.HTTP, (_, { url, params }) => {
+  params.realIP = '116.25.146.177';
   const { cookie, ...args } = params;
   console.log(url, args);
   return server[url](params);

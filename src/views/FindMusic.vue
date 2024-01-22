@@ -35,7 +35,7 @@ interface DataType {
 const data = reactive<DataType>({
   play: [],
 });
-getPersonalized({ limit: 10 }).then(res => {
+getPersonalized({ limit: 20 }).then(res => {
   console.log(res);
   data.play = res?.result;
 });

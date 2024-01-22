@@ -8,13 +8,14 @@ export class Service {
     url: string,
     config?: any
   ): Promise<T | null> {
+    console.log(url, url.replaceAll('/', '_').slice(1));
     return window.electron.ipcRenderer
       .invoke<Res>('HTTP', {
         url: url.replaceAll('/', '_').slice(1),
         params: { ...config?.params, cookie: localStorage.cookie },
       })
       .then<T>(res => {
-        console.log(url.replaceAll('/', '_').slice(1), res);
+        console.log(res);
         return res.body;
       });
   }

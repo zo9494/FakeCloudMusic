@@ -105,7 +105,7 @@ export interface SearchInjection {
 provide('SearchInjection', { popoverClose });
 
 function Search() {
-  router.push('/search/' + (data.value || data.placeholder));
+  router.push('/search/' + (data.value || data.placeholder), true);
 }
 </script>
 
