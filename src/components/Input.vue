@@ -8,6 +8,7 @@
       :value="props.modelValue"
       @input="handleInput"
       :placeholder="props.placeholder"
+      @keyup.enter="handleEnter"
     />
 
     <div class="f-input-suffix">
@@ -35,6 +36,10 @@ function handleInput(e: Event) {
 }
 function handleClear() {
   props.modelValue && emit('update:modelValue', '');
+}
+
+function handleEnter() {
+  props.onSearch?.();
 }
 function handleSearch(e: MouseEvent) {
   if (props.onSearch) {

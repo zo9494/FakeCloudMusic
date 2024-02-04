@@ -287,3 +287,7 @@ ipcMain.handle(EVENT.HTTP, (_, { url, params }) => {
   console.log(url, args);
   return server[url](params);
 });
+
+ipcMain.handle(EVENT.SAVE_SONG, async (_, { id }) => {
+  const url = await server.song_url(id);
+});

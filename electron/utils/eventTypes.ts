@@ -13,4 +13,5 @@ export enum EVENT {
   MAXIMIZE = 'MAXIMIZE',
   APP_CLOSE = 'APP_CLOSE',
   HTTP = 'HTTP',
+  SAVE_SONG = 'SAVE_SONG',
 }

@@ -15,7 +15,7 @@ export class Service {
         params: { ...config?.params, cookie: localStorage.cookie },
       })
       .then<T>(res => {
-        console.log(res);
+        console.log('request:', res);
         return res.body;
       });
   }
