@@ -98,11 +98,20 @@ function popoverClose() {
   data.visible = false;
 }
 
-export interface SearchInjection {
-  popoverClose: () => {};
+function changSearchValue(value: string) {
+  if (!value) {
+    return;
+  }
+  data.value = value;
+  Search();
 }
 
-provide('SearchInjection', { popoverClose });
+export interface SearchInjection {
+  popoverClose: () => {};
+  changSearchValue: (value: string) => {};
+}
+
+provide('SearchInjection', { popoverClose, changSearchValue });
 
 function Search() {
   router.push('/search/' + (data.value || data.placeholder), true);

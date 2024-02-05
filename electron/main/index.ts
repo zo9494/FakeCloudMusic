@@ -14,7 +14,7 @@ import {
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
-import server from 'NeteaseCloudMusicApi';
+import { API } from '../utils/service';
 import { EVENT } from '../utils/eventTypes';
 import {
   isDevelopment,
@@ -24,6 +24,11 @@ import {
   customWindowHeaderBar,
 } from '../utils/platform';
 import { chalk } from '../utils/chalk';
+import {
+  IDownloadBytes,
+  IDownloadFile,
+  downloadMusic,
+} from '../utils/download';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { createLogin } from './login';
@@ -50,6 +55,8 @@ const vue_dev = join(process.cwd(), '/vue_devtools/');
 
 let WIN: BrowserWindow;
 let TRAY: Tray;
+var fileName = '';
+let downloadItemData: IDownloadFile[] = [];
 app.disableDomainBlockingFor3DAPIs();
 app.whenReady().then(async () => {
   createMainWindow();
@@ -74,7 +81,36 @@ app.whenReady().then(async () => {
       console.error('Vue Devtools failed to install:', e.toString());
     }
   }
+
+  session.defaultSession.on('will-download', (event, item, webContents) => {
+    WIN.setProgressBar(item.getReceivedBytes() / item.getTotalBytes(), {
+      mode: 'indeterminate',
+    });
+    // console.log(event, item, webContents);
+
+    const path = join(app.getPath('music'), fileName);
+    console.log(path);
+
+    item.setSavePath(path);
+    item.on('updated', () => {
+      WIN.setProgressBar(item.getReceivedBytes() / item.getTotalBytes());
+    });
+    item.once('done', (event, state) => {
+      if (state === 'completed') {
+        WIN.setProgressBar(1, { mode: 'none' });
+        console.log('Download successfully');
+        WIN.webContents.send(EVENT.APPDOWNLOADDONE);
+
+        shell.showItemInFolder(path);
+      } else {
+        WIN.setProgressBar(0, { mode: 'error' });
+
+        console.log(`Download failed: ${state}`);
+      }
+    });
+  });
 });
+
 async function createMainWindow() {
   WIN = new BrowserWindow({
     webPreferences: {
@@ -281,13 +317,28 @@ ipcMain.handle(EVENT.WINDOW_CLOSE, e => {
   const win = BrowserWindow.fromWebContents(e.sender);
   win.close();
 });
-ipcMain.handle(EVENT.HTTP, (_, { url, params }) => {
-  params.realIP = '116.25.146.177';
-  const { cookie, ...args } = params;
-  console.log(url, args);
-  return server[url](params);
+
+ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
+  try {
+    return await API(url, params);
+  } catch (error) {
+    console.log(111, error);
+    return error;
+  }
 });
 
-ipcMain.handle(EVENT.SAVE_SONG, async (_, { id }) => {
-  const url = await server.song_url(id);
+ipcMain.handle(EVENT.SAVE_SONG, async (_, song) => {
+  try {
+    const res = await API('song_url', { id: song.id });
+    const url = res.body.data[0].url;
+    const artists = song.artists || song.ar;
+    const artist = artists.map(it => it.name).join(',');
+    fileName = `${song.name}-${artist + url.substring(url.lastIndexOf('.'))}`;
+    WIN.webContents.downloadURL(url);
+  } catch (error) {
+    return { error };
+  }
+  // console.log('download:  ', song);
+
+  // downloadMusic('./', song);
 });

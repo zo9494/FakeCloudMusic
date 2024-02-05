@@ -16,7 +16,7 @@
             class="bi bi-heart-fill"
           ></i>
           <i v-else @click="updateLike(item)" class="bi bi-heart"></i>
-          <i @click="download(item.id, item)" class="bi bi-download"></i>
+          <i @click="download(item)" class="bi bi-download"></i>
         </div>
         <div
           class="text-overflow name"
@@ -44,10 +44,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, toRaw } from 'vue';
 import { formatDate, formatDuring } from '@/utils/time';
 import { useRoute } from 'vue-router';
 import { service } from '@/utils/request';
+import { useDialog } from 'naive-ui';
+import { download } from '@/utils/utils';
+const dialog = useDialog();
+
 const route = useRoute();
 const list = ref();
 
@@ -73,10 +77,6 @@ function updateLike(song: Track, isDel = false) {
 
 function handleDev() {
   window.alert('功能开发中...');
-}
-
-function download(id: string | number, song: any) {
-  console.log(id, song);
 }
 
 function handlePlay(index: number, list?: Track[]) {

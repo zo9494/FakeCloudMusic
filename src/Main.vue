@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDialog } from 'naive-ui';
+import { useDialog, NButton } from 'naive-ui';
 import { h, onBeforeMount } from 'vue';
 import AppBar from './components/AppBar.vue';
 import Menu from './components/Menu.vue';
@@ -69,6 +69,7 @@ window.electron.ipcRenderer.on('BEFORE_CLOSE', async () => {
     handleCloseOrTray(res.selectClose);
   }
 });
+
 //#endregion
 window.loadUser = () => {
   console.log('loadUser');

@@ -43,7 +43,7 @@ onBeforeMount(() => {
 
 function handleClick(data: HotDetail.Datum) {
   console.log('handleClick', data);
-  Search.popoverClose();
+  Search.changSearchValue(data.searchWord);
 }
 </script>
 

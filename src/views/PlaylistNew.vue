@@ -159,7 +159,7 @@
               class="bi bi-heart-fill"
             ></i>
             <i v-else @click="updateLike(item)" class="bi bi-heart"></i>
-            <i @click="handleDev" class="bi bi-download"></i>
+            <i @click="download(item)" class="bi bi-download"></i>
           </div>
           <div
             class="text-overflow name"
@@ -208,6 +208,7 @@ import { usePlayerStore } from '@/store/player';
 
 import { formatDate, formatDuring } from '@/utils/time';
 import { formatNumber } from '@/utils/number';
+import { download } from '@/utils/utils';
 
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);

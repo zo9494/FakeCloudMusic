@@ -10,6 +10,7 @@
           class="search-suggest-list-body-item"
           v-for="item in props.data"
           :key="item.id"
+          @click="handleClick(item)"
         >
           <span v-if="props.type === 'songs'">{{ getSongName(item) }}</span>
           <span v-else-if="props.type === 'albums'">{{
@@ -24,6 +25,10 @@
 </template>
 
 <script setup lang="ts">
+import { inject } from 'vue';
+
+import type { SearchInjection } from '@/components/search/Search.vue';
+const Search = inject('SearchInjection') as SearchInjection;
 const OrderType: { [propName: string]: { [propName: string]: string } } = {
   albums: {
     text: '专辑',
@@ -78,6 +83,11 @@ function getSongName(song: HotSearchSuggest.Song) {
 
 function getAlbumName(album: HotSearchSuggest.Album) {
   return `${album.name} - ${album.artist.name}`;
+}
+
+function handleClick(item: any) {
+  console.log(item);
+  Search.changSearchValue(item.name);
 }
 </script>
 

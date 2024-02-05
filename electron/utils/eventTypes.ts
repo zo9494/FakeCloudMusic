@@ -14,4 +14,6 @@ export enum EVENT {
   APP_CLOSE = 'APP_CLOSE',
   HTTP = 'HTTP',
   SAVE_SONG = 'SAVE_SONG',
+  APPDOWNLOADDONE = 'app:download:done',
+  APPDOWNLOAD = 'app:download',
 }
