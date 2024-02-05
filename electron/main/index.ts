@@ -24,11 +24,7 @@ import {
   customWindowHeaderBar,
 } from '../utils/platform';
 import { chalk } from '../utils/chalk';
-import {
-  IDownloadBytes,
-  IDownloadFile,
-  downloadMusic,
-} from '../utils/download';
+
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { createLogin } from './login';
@@ -56,7 +52,7 @@ const vue_dev = join(process.cwd(), '/vue_devtools/');
 let WIN: BrowserWindow;
 let TRAY: Tray;
 var fileName = '';
-let downloadItemData: IDownloadFile[] = [];
+let a = 1;
 app.disableDomainBlockingFor3DAPIs();
 app.whenReady().then(async () => {
   createMainWindow();
@@ -93,6 +89,8 @@ app.whenReady().then(async () => {
 
     item.setSavePath(path);
     item.on('updated', () => {
+      console.log(item);
+
       WIN.setProgressBar(item.getReceivedBytes() / item.getTotalBytes());
     });
     item.once('done', (event, state) => {

@@ -16,7 +16,7 @@
             class="bi bi-heart-fill"
           ></i>
           <i v-else @click="updateLike(item)" class="bi bi-heart"></i>
-          <i @click="download(item)" class="bi bi-download"></i>
+          <i @click="download(toRaw(item))" class="bi bi-download"></i>
         </div>
         <div
           class="text-overflow name"

@@ -123,13 +123,9 @@ export function getImageColor(url: string): Promise<[number, number, number]> {
 }
 
 export function download(song: any) {
-  console.log(toRaw(song));
-
-  window.electron.ipcRenderer
-    .invoke<any>('SAVE_SONG', toRaw(song))
-    .then(res => {
-      if (res && res.error) {
-        alert('下载出错');
-      }
-    });
+  window.electron.ipcRenderer.invoke<any>('SAVE_SONG', song).then(res => {
+    if (res && res.error) {
+      alert('下载出错');
+    }
+  });
 }
