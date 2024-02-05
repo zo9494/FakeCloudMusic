@@ -50,7 +50,6 @@
   },
   "dependencies": {
     "NeteaseCloudMusicApi": "4.14.0",
-    "chalk": "4",
-    "request": "^2.88.2"
+    "chalk": "4"
   }
 }
