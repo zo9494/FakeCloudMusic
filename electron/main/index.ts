@@ -52,7 +52,7 @@ const vue_dev = join(process.cwd(), '/vue_devtools/');
 let WIN: BrowserWindow;
 let TRAY: Tray;
 var fileName = '';
-let a = 1;
+
 app.disableDomainBlockingFor3DAPIs();
 app.whenReady().then(async () => {
   createMainWindow();

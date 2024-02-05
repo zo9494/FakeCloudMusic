@@ -7,6 +7,8 @@ async function getMusicUrl(id: string | number) {
 
 export interface DownloadQueue extends DownloadItem {
   id: string | number;
+  fileName: string;
+  path: string;
 }
 
 export class FCMDownload {
