@@ -62,12 +62,11 @@ import { usePlayerStore } from '@/store/player';
 const playerStore = usePlayerStore();
 
 service
-  .get('/search', {
+  .get<Search.RootObject>('/search', {
     params: { keywords: route.params.keywords },
   })
   .then(res => {
     console.log(res.result);
-
     list.value = res.result.songs;
   });
 
