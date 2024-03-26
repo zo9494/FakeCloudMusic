@@ -1,6 +1,7 @@
 interface Res {
   status: number;
   body: any;
+  error?: any;
 }
 
 export class Service {
@@ -12,11 +13,15 @@ export class Service {
         params: { ...config?.params, cookie: localStorage.cookie },
       })
       .then<T>(res => {
-        console.log('request:', res);
-        if (res) {
-          return res.body;
-        } else {
+        console.log('API:', url, res);
+        if (res.error) {
+          window.$message.warning(res.error, {
+            closable: true,
+            duration: 0,
+          });
+          throw new Error(res.error);
         }
+        return res?.body;
       });
   }
 }

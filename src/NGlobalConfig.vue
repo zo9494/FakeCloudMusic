@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  NMessageProvider,
   NConfigProvider,
   GlobalThemeOverrides,
   NDialogProvider,
@@ -72,8 +73,10 @@ const naiveUITheme = computed(() => {
     :theme="naiveUITheme"
     :theme-overrides="themeOverrides"
   >
-    <NDialogProvider>
-      <MainPage />
-    </NDialogProvider>
+    <NMessageProvider placement="bottom-right">
+      <NDialogProvider>
+        <MainPage />
+      </NDialogProvider>
+    </NMessageProvider>
   </NConfigProvider>
 </template>

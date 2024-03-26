@@ -1,6 +1,6 @@
 import * as Electron from 'electron';
 import { EVENT } from '../../electron/utils/eventTypes';
-
+import type { MessageProviderInst } from 'naive-ui';
 type channelType = `${EVENT}`;
 
 interface IpcRenderer {
@@ -17,6 +17,7 @@ export default interface ElectronApi {
 
 declare global {
   interface Window {
+    $message: MessageProviderInst;
     electron: ElectronApi;
     loadUser: () => void;
     [propName: any]: any;

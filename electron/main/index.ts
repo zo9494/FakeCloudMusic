@@ -24,7 +24,7 @@ import {
   customWindowHeaderBar,
 } from '../utils/platform';
 import { chalk } from '../utils/chalk';
-
+import type { MessageType } from 'naive-ui';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 import { createLogin } from './login';
@@ -97,7 +97,7 @@ app.whenReady().then(async () => {
       if (state === 'completed') {
         WIN.setProgressBar(1, { mode: 'none' });
         console.log('Download successfully');
-        WIN.webContents.send(EVENT.APPDOWNLOADDONE);
+        WIN.webContents.send(EVENT.APP_DOWNLOAD_DONE);
 
         shell.showItemInFolder(path);
       } else {
@@ -321,7 +321,7 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
     return await API(url, params);
   } catch (error) {
     console.log(111, error);
-    return error;
+    return { error };
   }
 });
 
@@ -340,3 +340,7 @@ ipcMain.handle(EVENT.SAVE_SONG, async (_, song) => {
 
   // downloadMusic('./', song);
 });
+
+function sendMessageToWeb(type: MessageType, text?: string) {
+  WIN.webContents.send(EVENT.SEND_MESSAGE, { type, text });
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDialog, NButton } from 'naive-ui';
+import { useDialog, useMessage } from 'naive-ui';
 import { h, onBeforeMount } from 'vue';
 import AppBar from './components/AppBar.vue';
 import Menu from './components/Menu.vue';
@@ -75,6 +75,14 @@ window.loadUser = () => {
   console.log('loadUser');
   userStore.getUserAccount();
 };
+//
+const message = useMessage();
+window.$message = message;
+window.electron.ipcRenderer.on('APP:SEND_MESSAGE', (_, val) => {
+  message.create(val.text, {
+    type: val.type,
+  });
+});
 </script>
 
 <template>
