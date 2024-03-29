@@ -6,7 +6,7 @@ import VolumeIcon from '@/components/player/PlayerVolumeIcon.vue';
 import List from '@/components/player/Playerlist.vue';
 import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
-import { reactive, watch, computed, onMounted } from 'vue';
+import { reactive, watch, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
 import { usePlayerStore } from '@/store/player';
@@ -16,7 +16,7 @@ import { getImageColor } from '@/utils/utils';
 import { useTextScroll } from '@/hooks/textOverflowScroll';
 const userStore = useUserStore();
 const playerStore = usePlayerStore();
-const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
+const { lyrics, currentSong } = storeToRefs(playerStore);
 
 onMounted(() => {
   useTextScroll('.f-player-info-song-name');
@@ -633,7 +633,7 @@ function updateLike(song: Track | undefined, isDel = false) {
 }
 .arrow-button {
   border-radius: 6px;
-  padding: 3px 10px;
+  padding: 3px 8px;
   cursor: pointer;
   &:hover {
     background-color: var(--app-bar-button-hover);

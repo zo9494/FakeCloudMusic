@@ -3,12 +3,12 @@
     <p class="result-title">搜索 {{ route.params.keywords }}</p>
     <div class="content">
       <div
-        v-for="(item, index) in list"
+        v-for="(item, index) in data.list"
         :class="{ 'playlist-list-item': true, color: index % 2 }"
         :key="item.id"
         @dblclick="handlePlay(index, list)"
       >
-        <div class="index">{{ index + 1 }}</div>
+        <div class="index">{{ getIndex(index) }}</div>
         <div class="opt">
           <i
             v-if="userStore.hasLike(item.id)"
@@ -39,36 +39,58 @@
         <div class="text-overflow dt">{{ formatDuring(item.duration) }}</div>
       </div>
     </div>
-    <div></div>
+    <div class="result-pagination">
+      <NPagination
+        v-model:page="data.current"
+        :page-size="data.limit"
+        :item-count="data.total"
+        @update:page="pageChange"
+        :show-quick-jump-dropdown="false"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, toRaw } from 'vue';
+import { ref, toRaw, reactive } from 'vue';
 import { formatDate, formatDuring } from '@/utils/time';
 import { useRoute } from 'vue-router';
 import { service } from '@/utils/request';
-import { useDialog } from 'naive-ui';
+import { useDialog, NPagination } from 'naive-ui';
 import { download } from '@/utils/utils';
+import { getSearch } from '@/api/search';
 const dialog = useDialog();
 
 const route = useRoute();
-const list = ref();
-
+interface DataType {
+  list: any[];
+  total: number;
+  current: number;
+  limit: number;
+}
+const data = reactive<DataType>({
+  list: [],
+  total: 0,
+  current: 1,
+  limit: 30,
+});
 import { useUserStore } from '@/store/user';
 const userStore = useUserStore();
 
 import { usePlayerStore } from '@/store/player';
 const playerStore = usePlayerStore();
 
-service
-  .get<Search.RootObject>('/search', {
-    params: { keywords: route.params.keywords },
-  })
-  .then(res => {
-    console.log(res.result);
-    list.value = res.result.songs;
+function loadData() {
+  getSearch({
+    keywords: route.params.keywords as string,
+    offset: (data.current - 1) * data.limit,
+    limit: data.limit,
+  }).then(res => {
+    console.log(res);
+    data.total = res.songCount;
+    data.list = res.songs;
   });
+}
 
 function updateLike(song: Track, isDel = false) {
   userStore.updateLike(song, isDel);
@@ -81,11 +103,20 @@ function handleDev() {
 function handlePlay(index: number, list?: Track[]) {
   playerStore.play(index, list);
 }
+
+function pageChange() {
+  loadData();
+}
+
+function getIndex(index: number) {
+  return (data.current - 1) * data.limit + index + 1;
+}
+loadData();
 </script>
 
 <style scoped lang="scss">
 .result {
-  padding: 0 0 200px 0;
+  padding: 0 0 150px 0;
   &-title {
     margin: 0;
     font-size: 16px;
@@ -169,6 +200,11 @@ function handlePlay(index: number, list?: Track[]) {
         color: var(--playlist-item-dt-font-color);
       }
     }
+  }
+  &-pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
   }
 }
 </style>

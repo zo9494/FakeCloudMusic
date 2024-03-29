@@ -33,6 +33,11 @@ const themeOverrides: GlobalThemeOverrides = {
   Checkbox: {
     textColor: 'var(--font-color)',
   },
+  Pagination: {
+    itemBorderActive: '1px solid var(--primary-color)',
+    itemTextColorActive: 'var(--primary-color)',
+    itemTextColorHover: 'var(--primary-color)',
+  },
 };
 
 //#region theme
@@ -40,12 +45,21 @@ let isDark = ref(false);
 
 window.electron.ipcRenderer.invoke<boolean>('APP:IS_DARK').then(val => {
   isDark.value = val;
+  updateThemeVal();
 });
 
 async function toggleTheme() {
   isDark.value = await window.electron.ipcRenderer.invoke<boolean>(
     'APP:DARK_MODE_TOGGLE'
   );
+  updateThemeVal();
+}
+function updateThemeVal() {
+  if (isDark.value) {
+    localStorage.theme = themes.dark;
+  } else {
+    localStorage.theme = themes.light;
+  }
 }
 const theme = computed(() => {
   return isDark.value ? themes.dark : themes.light;

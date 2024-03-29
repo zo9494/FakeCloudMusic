@@ -1,5 +1,8 @@
 @import url('./theme/dark.scss');
 @import url('./theme/light.scss');
+:root {
+  --primary-color: #ec4141;
+}
 * {
   // cursor: default;
   user-select: none;
