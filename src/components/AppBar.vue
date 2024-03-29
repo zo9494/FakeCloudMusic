@@ -35,18 +35,17 @@ import { inject } from 'vue';
 import { useRouter, useHistory } from '@/hooks/customRouter';
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
+import { themeKey, themes, toggleThemeKey } from '@/types';
+
 let showCustomFrame = false;
 
-const toggleTheme = inject('toggleTheme') as () => {};
-const theme = inject('theme') as `${themes}`;
+const theme = inject(themeKey);
+const toggleTheme = inject(toggleThemeKey);
+
 if (process.platform == 'win32') {
   showCustomFrame = true;
 }
 
-enum themes {
-  dark = 'dark',
-  light = 'light',
-}
 const router = useRouter();
 const { canBack } = useHistory();
 function Setting() {

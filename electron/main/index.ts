@@ -51,7 +51,7 @@ const vue_dev = join(process.cwd(), '/vue_devtools/');
 
 let WIN: BrowserWindow;
 let TRAY: Tray;
-var fileName = '';
+let fileName = '';
 
 app.disableDomainBlockingFor3DAPIs();
 app.whenReady().then(async () => {
@@ -170,6 +170,8 @@ async function createMainWindow() {
   });
   // TODO:win 媒体控件
   WIN.setThumbarButtons([]);
+
+  // WIN?.webContents.send(EVENT.APP_IS_DARK, nativeTheme.shouldUseDarkColors);
 }
 
 function createTray() {
@@ -340,7 +342,21 @@ ipcMain.handle(EVENT.SAVE_SONG, async (_, song) => {
 
   // downloadMusic('./', song);
 });
+ipcMain.handle(EVENT.DARK_MODE_TOGGLE, () => {
+  if (nativeTheme.shouldUseDarkColors) {
+    nativeTheme.themeSource = 'light';
+  } else {
+    nativeTheme.themeSource = 'dark';
+  }
+  return nativeTheme.shouldUseDarkColors;
+});
+ipcMain.handle(EVENT.DARK_MODE_SYSTEM, () => {
+  nativeTheme.themeSource = 'system';
+});
 
+ipcMain.handle(EVENT.APP_IS_DARK, () => {
+  return nativeTheme.shouldUseDarkColors;
+});
 function sendMessageToWeb(type: MessageType, text?: string) {
   WIN.webContents.send(EVENT.SEND_MESSAGE, { type, text });
 }

@@ -7,8 +7,17 @@ import {
   darkTheme,
   lightTheme,
 } from 'naive-ui';
-import { ref, computed, provide, readonly } from 'vue';
+import {
+  ref,
+  computed,
+  provide,
+  readonly,
+  InjectionKey,
+  ComputedRef,
+  Ref,
+} from 'vue';
 import MainPage from './Main.vue';
+import { themeKey, toggleThemeKey, themes } from '@/types';
 const themeOverrides: GlobalThemeOverrides = {
   Slider: {
     handleSize: '12px',
@@ -35,28 +44,22 @@ const themeOverrides: GlobalThemeOverrides = {
 };
 
 //#region theme
-enum themes {
-  dark = 'dark',
-  light = 'light',
-}
-function useTheme() {
-  const theme = ref<keyof typeof themes>(localStorage.theme || themes.light);
-  const toggleTheme = () => {
-    if (theme.value === themes.dark) {
-      theme.value = themes.light;
-    } else {
-      theme.value = themes.dark;
-    }
-    localStorage.theme = theme.value;
-    document.documentElement.dataset.theme = theme.value;
-  };
-  document.documentElement.dataset.theme = theme.value;
-  return { themes, theme, toggleTheme };
-}
+let isDark = ref(false);
 
-const { theme, toggleTheme } = useTheme();
-provide('toggleTheme', toggleTheme);
-provide('theme', readonly(theme));
+window.electron.ipcRenderer.invoke<boolean>('APP:IS_DARK').then(val => {
+  isDark.value = val;
+});
+
+async function toggleTheme() {
+  isDark.value = await window.electron.ipcRenderer.invoke<boolean>(
+    'APP:DARK_MODE_TOGGLE'
+  );
+}
+const theme = computed(() => {
+  return isDark.value ? themes.dark : themes.light;
+});
+provide(toggleThemeKey, toggleTheme);
+provide(themeKey, readonly(theme));
 const naiveUITheme = computed(() => {
   if (theme.value == themes.dark) {
     return darkTheme;
