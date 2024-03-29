@@ -221,15 +221,6 @@ function updateLike(song: Track | undefined, isDel = false) {
 <template>
   <Transition name="slide-up">
     <div v-show="!data.showLyric" class="f-player">
-      <!-- <div
-      v-show="!data.showLyric"
-      class="f-player"
-      :style="{
-        '--player-img': `linear-gradient(90deg,rgba(${data.bgColor.join(
-          ','
-        )},0.2),var(--bg-color))`,
-      }"
-    > -->
       <div class="f-player-info">
         <div class="f-player-info-cover" @click="handleShowLyric">
           <div class="mask">
@@ -362,7 +353,7 @@ function updateLike(song: Track | undefined, isDel = false) {
       >
         <template v-slot:header>
           <button
-            class="arrow-down"
+            class="arrow-button"
             @click="data.showLyric = false"
             style="color: var(--font-color)"
           >
@@ -640,9 +631,13 @@ function updateLike(song: Track | undefined, isDel = false) {
     }
   }
 }
-.arrow-down {
-  padding: 3px 15px;
+.arrow-button {
+  border-radius: 6px;
+  padding: 3px 10px;
   cursor: pointer;
+  &:hover {
+    background-color: var(--app-bar-button-hover);
+  }
 }
 
 .icon-arrow-down-bold,

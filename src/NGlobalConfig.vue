@@ -7,15 +7,7 @@ import {
   darkTheme,
   lightTheme,
 } from 'naive-ui';
-import {
-  ref,
-  computed,
-  provide,
-  readonly,
-  InjectionKey,
-  ComputedRef,
-  Ref,
-} from 'vue';
+import { ref, computed, provide, readonly } from 'vue';
 import MainPage from './Main.vue';
 import { themeKey, toggleThemeKey, themes } from '@/types';
 const themeOverrides: GlobalThemeOverrides = {

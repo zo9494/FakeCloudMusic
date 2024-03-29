@@ -128,6 +128,13 @@ defineExpose({ handleScroll });
 </script>
 
 <style lang="scss">
+@media (prefers-color-scheme: dark) {
+  .f-lyrics {
+    &-bg {
+      background-image: none !important;
+    }
+  }
+}
 #bg {
   position: absolute;
   width: 100vw;
@@ -138,13 +145,7 @@ defineExpose({ handleScroll });
   bottom: 0;
   z-index: -1;
 }
-:root[data-theme='dark'] {
-  .f-lyrics {
-    &-bg {
-      background-image: none;
-    }
-  }
-}
+
 .f-lyrics {
   &-bg {
     background-color: var(--bg-color);
