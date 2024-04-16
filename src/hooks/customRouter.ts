@@ -31,6 +31,12 @@ const history = new History();
 export function useRouter() {
   const router = useVueRouter();
   return {
+    /**
+     *
+     * @param to
+     * @param rec 是否记录
+     * @returns
+     */
     push(to: RouteLocationRaw, rec?: boolean) {
       if (rec) {
         history.push(to);

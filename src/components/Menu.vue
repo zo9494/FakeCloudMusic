@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRouter, useHistory } from '@/hooks/customRouter';
 import NeteaseLogoSVG from '@/assets/svg/netease_logo.svg?component';
 import RadioSVG from '@/assets/svg/radio.svg?component';
 interface menuType {
@@ -107,6 +107,7 @@ interface menuType {
   };
 }
 const router = useRouter();
+const history = useHistory();
 const { menu } = withDefaults(defineProps<menuType>(), {
   menu: () => ({
     myLike: {},
@@ -122,6 +123,7 @@ function handleClick(to: string, e: Event) {
 
   (e.currentTarget as HTMLButtonElement).classList.add('active');
   router.push({ path: to });
+  history.clear();
 }
 </script>
 <style lang="scss" scoped>
