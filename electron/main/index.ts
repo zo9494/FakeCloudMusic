@@ -9,12 +9,9 @@ import {
   nativeImage,
   Tray,
   Menu,
-  nativeTheme,
-  screen,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
-import { API } from '../utils/service';
 import { EVENT } from '../utils/eventTypes';
 import {
   isDevelopment,
@@ -27,8 +24,8 @@ import { chalk } from '../utils/chalk';
 import type { MessageType } from 'naive-ui';
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
-import { createLogin } from './login';
 
+import './ipcMain';
 // Set application name for Windows 10+ notifications
 if (isWin) app.setAppUserModelId(app.getName());
 
@@ -272,90 +269,13 @@ app.on('quit', () => {
   console.log('quit');
   WIN = undefined;
 });
-ipcMain.handle(EVENT.APP_CLOSE, () => {
-  app.exit();
-});
-
-//#region window平台
-ipcMain.handle(EVENT.WINDOW_RESIZ, () => {
-  if (WIN.isMaximized()) {
-    WIN.restore();
-  } else {
-    WIN.maximize();
-  }
-});
-
-ipcMain.handle(EVENT.WINDOW_MIN, () => {
-  WIN.minimize();
-});
-
-ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, () => {
-  WIN.hide();
-});
-//#endregion
-
-ipcMain.handle(EVENT.LOGIN, () => {
-  console.log('login');
-
-  createLogin({ parent: WIN });
-});
-ipcMain.handle(EVENT.RELOAD_USER, () => {
-  return WIN.webContents.executeJavaScript('window.loadUser()');
-});
 // 修改title
-ipcMain.handle(EVENT.SET_TITLE, (_, title?: string) => {
+ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
   if (title) {
+    const win = BrowserWindow.fromWebContents(e.sender);
     TRAY.setToolTip(title);
-    WIN.setTitle(title);
+    win.setTitle(title);
   }
-});
-ipcMain.handle(EVENT.WINDOW_SHOW, () => {
-  WIN.show();
-});
-
-ipcMain.handle(EVENT.WINDOW_CLOSE, e => {
-  const win = BrowserWindow.fromWebContents(e.sender);
-  win.close();
-});
-
-ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
-  try {
-    return await API(url, params);
-  } catch (error) {
-    console.log(111, error);
-    return { error };
-  }
-});
-
-ipcMain.handle(EVENT.SAVE_SONG, async (_, song) => {
-  try {
-    const res = await API('song_url', { id: song.id });
-    const url = res.body.data[0].url;
-    const artists = song.artists || song.ar;
-    const artist = artists.map(it => it.name).join(',');
-    fileName = `${song.name}-${artist + url.substring(url.lastIndexOf('.'))}`;
-    WIN.webContents.downloadURL(url);
-  } catch (error) {
-    return { error };
-  }
-  // console.log('download:  ', song);
-
-  // downloadMusic('./', song);
-});
-ipcMain.handle(EVENT.DARK_MODE_TOGGLE, () => {
-  if (nativeTheme.shouldUseDarkColors) {
-    nativeTheme.themeSource = 'light';
-  } else {
-    nativeTheme.themeSource = 'dark';
-  }
-  return nativeTheme.shouldUseDarkColors;
-});
-ipcMain.handle(EVENT.DARK_MODE_SYSTEM, () => {
-  nativeTheme.themeSource = 'system';
-});
-
-ipcMain.handle(EVENT.APP_IS_DARK, () => {
-  return nativeTheme.shouldUseDarkColors;
 });
 function sendMessageToWeb(type: MessageType, text?: string) {
   WIN.webContents.send(EVENT.SEND_MESSAGE, { type, text });

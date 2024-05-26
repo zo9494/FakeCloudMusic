@@ -14,4 +14,6 @@ export class WindowManage {
   getWindow(id: number) {
     return BrowserWindow.fromId(id);
   }
+
+  close(id: number) {}
 }

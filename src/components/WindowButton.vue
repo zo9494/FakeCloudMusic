@@ -17,19 +17,19 @@
 import { ref } from 'vue';
 
 const isMaximized = ref(false);
-
+const { invoke, on } = window.electron.ipcRenderer;
 function handleMinimize() {
-  window.electron.ipcRenderer.invoke('WINDOW_MIN');
+  invoke('WINDOW_MIN');
 }
 function handleResizable() {
-  window.electron.ipcRenderer.invoke('WINDOW_RESIZ');
+  invoke('WINDOW_RESIZ');
 }
 
 function handleClose() {
-  window.electron.ipcRenderer.invoke('WINDOW_CLOSE');
+  invoke('WINDOW_CLOSE');
 }
 
-window.electron.ipcRenderer.on('MAXIMIZE', (e, val) => {
+on('MAXIMIZE', (e, val) => {
   isMaximized.value = val;
 });
 </script>
