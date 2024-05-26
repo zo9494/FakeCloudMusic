@@ -3,10 +3,13 @@ import { EVENT } from '../utils/eventTypes';
 import { API } from '../utils/service';
 import { createLogin } from './login';
 
+import { global } from './index';
 let fileName = '';
-function getWinFormWebContents(sender) {
+
+function getWinFormWebContents(sender: Electron.WebContents) {
   return BrowserWindow.fromWebContents(sender);
 }
+
 ipcMain.handle(EVENT.APP_CLOSE, () => {
   app.exit();
 });
@@ -22,34 +25,35 @@ ipcMain.handle(EVENT.WINDOW_RESIZ, e => {
 });
 
 ipcMain.handle(EVENT.WINDOW_MIN, e => {
-  const win = getWinFormWebContents(e.sender);
-  win.minimize();
+  // const win = getWinFormWebContents(e.sender);
+  // win.minimize();
+
+  getWinFormWebContents(e.sender).minimize();
 });
 
 ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, e => {
-  const win = getWinFormWebContents(e.sender);
-  win.hide();
+  // const win = getWinFormWebContents(e.sender);
+  // win.hide();
+
+  getWinFormWebContents(e.sender).hide();
 });
 //#endregion
 
-ipcMain.handle(EVENT.LOGIN, e => {
+ipcMain.handle(EVENT.LOGIN, () => {
   console.log('login');
-  const win = getWinFormWebContents(e.sender);
-  createLogin({ parent: win });
+  createLogin({ parent: global.mainWin });
 });
-ipcMain.handle(EVENT.RELOAD_USER, e => {
-  const win = getWinFormWebContents(e.sender);
-  return win.webContents.executeJavaScript('window.loadUser()');
+ipcMain.handle(EVENT.RELOAD_USER, () => {
+  return global.mainWin.webContents.executeJavaScript('window.loadUser()');
 });
 
 ipcMain.handle(EVENT.WINDOW_SHOW, e => {
-  const win = getWinFormWebContents(e.sender);
-  win.show();
+  // const win = getWinFormWebContents(e.sender);
+  getWinFormWebContents(e.sender).show();
 });
 
 ipcMain.handle(EVENT.WINDOW_CLOSE, e => {
-  const win = BrowserWindow.fromWebContents(e.sender);
-  win.close();
+  getWinFormWebContents(e.sender).close();
 });
 
 ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
@@ -63,7 +67,7 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
 
 ipcMain.handle(EVENT.SAVE_SONG, async (e, song) => {
   try {
-    const win = getWinFormWebContents(e.sender);
+    const win = global.mainWin;
     const res = await API('song_url', { id: song.id });
     const url = res.body.data[0].url;
     const artists = song.artists || song.ar;
@@ -91,4 +95,12 @@ ipcMain.handle(EVENT.DARK_MODE_SYSTEM, () => {
 
 ipcMain.handle(EVENT.APP_IS_DARK, () => {
   return nativeTheme.shouldUseDarkColors;
+});
+// 修改title
+ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
+  if (title) {
+    const win = global.mainWin;
+    global.tray.setToolTip(title);
+    win.setTitle(title);
+  }
 });

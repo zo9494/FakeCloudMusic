@@ -3,7 +3,6 @@ import {
   app,
   BrowserWindow,
   shell,
-  ipcMain,
   globalShortcut,
   session,
   nativeImage,
@@ -22,6 +21,7 @@ import {
 } from '../utils/platform';
 import { chalk } from '../utils/chalk';
 import type { MessageType } from 'naive-ui';
+
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 
@@ -46,9 +46,15 @@ const url = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, 'index.html');
 const vue_dev = join(process.cwd(), '/vue_devtools/');
 
-let WIN: BrowserWindow;
-let TRAY: Tray;
 let fileName = '';
+interface GlobalType {
+  mainWin: BrowserWindow;
+  tray: Tray;
+}
+export const global: GlobalType = {
+  mainWin: null,
+  tray: null,
+};
 
 app.disableDomainBlockingFor3DAPIs();
 app.whenReady().then(async () => {
@@ -106,134 +112,16 @@ app.whenReady().then(async () => {
   });
 });
 
-async function createMainWindow() {
-  WIN = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-    },
-    title: 'FakeCloudMusic',
-    frame: customWindowHeaderBar,
-    width: 1000,
-    height: 600,
-    minWidth: 1000,
-    minHeight: 600,
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 5, y: 5 },
-    autoHideMenuBar: true,
-  });
-
-  if (process.env.VITE_DEV_SERVER_URL) {
-    await WIN.loadURL(url);
-    // open devtools
-    if (isDevelopment) {
-      WIN.webContents.openDevTools();
-    }
-  } else {
-    WIN.loadFile(indexHtml);
-  }
-
-  // Test actively push message to the Electron-Renderer
-  WIN.webContents.on('did-finish-load', () => {
-    WIN?.webContents.send('main-process-message', new Date().toLocaleString());
-  });
-
-  // Make all links open with the browser, not with the application
-  WIN.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:')) shell.openExternal(url);
-    return { action: 'deny' };
-  });
-
-  WIN.on('close', e => {
-    console.log('main-browserWindow: close');
-    e.preventDefault();
-
-    switch (process.platform) {
-      case 'darwin':
-        app.hide();
-        break;
-
-      default:
-        WIN.webContents.send(EVENT.BEFORE_CLOSE);
-        break;
-    }
-    return 0;
-  });
-  WIN.on('maximize', () => {
-    WIN.webContents.send(EVENT.MAXIMIZE, true);
-  });
-  WIN.on('unmaximize', () => {
-    WIN.webContents.send(EVENT.MAXIMIZE, false);
-  });
-  // TODO:win 媒体控件
-  WIN.setThumbarButtons([]);
-
-  // WIN?.webContents.send(EVENT.APP_IS_DARK, nativeTheme.shouldUseDarkColors);
-}
-
-function createTray() {
-  let iconPath: string = join(app.getAppPath(), '/dist/icons/icon.png');
-  if (isMac) {
-    iconPath = join(app.getAppPath(), '/dist/icons/iconTemplate.png');
-  }
-  if (isWin) {
-    iconPath = join(app.getAppPath(), '/dist/icons/icon.ico');
-  }
-
-  // electron-builder extraResources
-  const icon = nativeImage.createFromPath(
-    isDevelopment ? 'public/icons/icon.png' : iconPath
-  );
-  TRAY = new Tray(icon);
-  const trayArr: Electron.MenuItemConstructorOptions[] = [
-    {
-      label: '退出',
-      // icon: nativeImage
-      //   .createFromPath(
-      //     isDevelopment
-      //       ? 'public/icons/exit.png'
-      //       : join(app.getAppPath(), 'dist/icons/exit.png')
-      //   )
-      //   .resize({ width: 16, height: 16 }),
-      // // icon:
-      click: () => {
-        app.exit();
-        // Main.win.webContents.send(EVENT.BEFORE_CLOSE);
-      },
-    },
-  ];
-  if (isLinux) {
-    trayArr.unshift({
-      label: '显示',
-
-      click: () => {
-        WIN.show();
-      },
-    });
-  }
-  const contextMenu = Menu.buildFromTemplate(trayArr);
-
-  TRAY.setContextMenu(contextMenu);
-  TRAY.setToolTip('FakeCloudMusic');
-  TRAY.on('click', () => {
-    if (isMac) {
-      app.show();
-    } else {
-      WIN.show();
-    }
-  });
-}
-
 app.on('window-all-closed', () => {
   console.log('window-all-closed');
   app.exit();
 });
 
 app.on('second-instance', () => {
-  if (WIN) {
+  if (global.mainWin) {
     // Focus on the main window if the user tried to open another
-    if (WIN.isMinimized()) WIN.restore();
-    WIN.focus();
+    if (global.mainWin.isMinimized()) global.mainWin.restore();
+    global.mainWin.focus();
   }
 });
 
@@ -267,16 +155,117 @@ app.on('will-quit', () => {
 });
 app.on('quit', () => {
   console.log('quit');
-  WIN = undefined;
+  global.mainWin = null;
 });
-// 修改title
-ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
-  if (title) {
-    const win = BrowserWindow.fromWebContents(e.sender);
-    TRAY.setToolTip(title);
-    win.setTitle(title);
-  }
-});
+
 function sendMessageToWeb(type: MessageType, text?: string) {
-  WIN.webContents.send(EVENT.SEND_MESSAGE, { type, text });
+  global.mainWin.webContents.send(EVENT.SEND_MESSAGE, { type, text });
+}
+
+async function createMainWindow() {
+  const win = new BrowserWindow({
+    webPreferences: {
+      preload,
+      nodeIntegration: true,
+    },
+    title: 'FakeCloudMusic',
+    frame: customWindowHeaderBar,
+    width: 1000,
+    height: 600,
+    minWidth: 1000,
+    minHeight: 600,
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 5, y: 5 },
+    autoHideMenuBar: true,
+  });
+  global.mainWin = win;
+  if (process.env.VITE_DEV_SERVER_URL) {
+    await win.loadURL(url);
+    // open devtools
+    if (isDevelopment) {
+      win.webContents.openDevTools();
+    }
+  } else {
+    win.loadFile(indexHtml);
+  }
+
+  // Test actively push message to the Electron-Renderer
+  win.webContents.on('did-finish-load', () => {
+    win?.webContents.send('main-process-message', new Date().toLocaleString());
+  });
+
+  // Make all links open with the browser, not with the application
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https:')) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
+  win.on('close', e => {
+    console.log('main-browserWindow: close');
+    e.preventDefault();
+
+    switch (process.platform) {
+      case 'darwin':
+        app.hide();
+        break;
+
+      default:
+        win.webContents.send(EVENT.BEFORE_CLOSE);
+        break;
+    }
+    return 0;
+  });
+  win.on('maximize', () => {
+    win.webContents.send(EVENT.MAXIMIZE, true);
+  });
+  win.on('unmaximize', () => {
+    win.webContents.send(EVENT.MAXIMIZE, false);
+  });
+  // TODO:win 媒体控件
+  win.setThumbarButtons([]);
+
+  // WIN?.webContents.send(EVENT.APP_IS_DARK, nativeTheme.shouldUseDarkColors);
+}
+
+function createTray() {
+  let iconPath: string = join(app.getAppPath(), '/dist/icons/icon.png');
+  if (isMac) {
+    iconPath = join(app.getAppPath(), '/dist/icons/iconTemplate.png');
+  }
+  if (isWin) {
+    iconPath = join(app.getAppPath(), '/dist/icons/icon.ico');
+  }
+
+  // electron-builder extraResources
+  const icon = nativeImage.createFromPath(
+    isDevelopment ? 'public/icons/icon.png' : iconPath
+  );
+  global.tray = new Tray(icon);
+  const trayArr: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: '退出',
+      click: () => {
+        app.exit();
+      },
+    },
+  ];
+  if (isLinux) {
+    trayArr.unshift({
+      label: '显示',
+      click: () => {
+        global.mainWin.show();
+      },
+    });
+  }
+  const contextMenu = Menu.buildFromTemplate(trayArr);
+
+  global.tray.setContextMenu(contextMenu);
+  global.tray.setToolTip('FakeCloudMusic');
+  global.tray.on('click', () => {
+    if (isMac) {
+      app.show();
+    } else {
+      global.mainWin.show();
+    }
+  });
 }

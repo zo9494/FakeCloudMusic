@@ -7,11 +7,12 @@ const preload = join(__dirname, '../preload/index.js');
 const loginHtml = join(process.env.DIST, PAGE_LOGIN);
 
 let win: BrowserWindow;
-
 export function createLogin(options) {
   if (win && !win.isDestroyed()) {
     win.focus();
     return;
+  } else {
+    win = undefined;
   }
 
   win = new BrowserWindow({
