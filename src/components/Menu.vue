@@ -48,7 +48,7 @@
           <span>本地音乐</span>
         </div>
       </li>
-      <li @click="handleClick('/下载管理', $event)">
+      <li @click="handleClick('/download', $event)">
         <div draggable="false">
           <i class="bi bi-download" />
           <span>下载管理</span>

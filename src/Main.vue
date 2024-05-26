@@ -79,6 +79,7 @@ window.loadUser = () => {
 const message = useMessage();
 window.$message = message;
 window.electron.ipcRenderer.on('APP:SEND_MESSAGE', (_, val) => {
+  console.log(val);
   message.create(val.text, {
     type: val.type,
   });

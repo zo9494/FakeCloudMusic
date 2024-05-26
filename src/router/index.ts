@@ -5,6 +5,7 @@ import NotFoundPage from '@/views/404.vue';
 import Result from '@/views/Result.vue';
 import Setting from '@/views/Setting.vue';
 import LocalMusic from '@/views/LocalMusic.vue';
+import Download from '@/views/Download.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -31,6 +32,11 @@ const routes: RouteRecordRaw[] = [
     path: '/local',
     name: 'localMusic',
     component: LocalMusic,
+  },
+  {
+    path: '/download',
+    name: 'download',
+    component: Download,
   },
   {
     path: '/:catchAll(.*)',

@@ -11,7 +11,7 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
 import { usePlayerStore } from '@/store/player';
 import { formatDuringMS } from '@/utils/time';
-import { FA, FAudio } from '@/utils/audio';
+import { fcmAudio, FCMAudio } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
 import { useTextScroll } from '@/hooks/textOverflowScroll';
 const userStore = useUserStore();
@@ -21,9 +21,11 @@ const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
 onMounted(() => {
   useTextScroll('.f-player-info-song-name');
   useTextScroll('.f-player-info-song-ar');
+  handleAudioOn();
+  data.node.setActionHandler({ next: next, previous: previous });
 });
 interface Data {
-  node?: FAudio;
+  node: FCMAudio;
   progress: number;
   cacheProgress: number;
   play: boolean;
@@ -39,11 +41,12 @@ const data = reactive<Data>({
   progress: 0,
   cacheProgress: 0,
   play: false,
-  volume: 0.3,
+  volume: 0.5,
   duration: 0,
   showLyric: false,
   showPlaylist: false,
   bgColor: [245, 245, 245],
+  node: fcmAudio(),
 });
 watch(
   () => currentSong.value.songUrl?.url,
@@ -51,11 +54,8 @@ watch(
     if (!url) {
       return;
     }
-    if (data.node) {
-      data.node.src = url;
-    } else {
-      data.node = FA({ src: url });
-    }
+
+    data.node.src = url;
     data.node.volume = data.volume;
   }
 );
@@ -68,7 +68,7 @@ watch(
 
     if (song) {
       setBgColor(song.al?.picUrl as string);
-      setMediaMetadata({
+      data.node.setMediaMetadata({
         artist: song?.arName,
         album: song?.al?.name,
         alPicUrl: song?.al?.picUrl,
@@ -89,7 +89,21 @@ function setBgColor(url: string) {
     data.bgColor = rgb;
   });
 }
-
+function handleAudioOn() {
+  const { node } = data;
+  node.on('progress', (value: number) => {
+    data.cacheProgress = value;
+  });
+  node.on('canplay', () => {
+    data.duration = node.duration || 0;
+    play();
+  });
+  node.on('timeupdate', (value: number) => {
+    data.progress = value;
+  });
+  node.on('paused', handlePaused);
+  node.on('ended', next);
+}
 watch(
   () => data.volume,
   value => {
@@ -99,23 +113,6 @@ watch(
   }
 );
 
-watch(
-  () => data.node,
-  () => {
-    data.node?.on('progress', value => {
-      data.cacheProgress = value;
-    });
-    data.node?.on('canplay', () => {
-      data.duration = data.node?.duration || 0;
-      data.node?.play();
-    });
-    data.node?.on('timeupdate', value => {
-      data.progress = value;
-    });
-    data.node?.on('paused', handlePaused);
-    data.node?.on('ended', next);
-  }
-);
 watch(
   () => data.showLyric,
   val => {
@@ -178,32 +175,6 @@ function handleProgressChange(value: number) {
 }
 function handlePaused(val: boolean) {
   data.play = !val;
-}
-interface mediaData {
-  title: string;
-  artist: string;
-  album: string;
-  alPicUrl: string;
-}
-function setMediaMetadata(params: Partial<mediaData>) {
-  const { title, alPicUrl: src, album, artist } = params;
-
-  navigator.mediaSession.metadata = new MediaMetadata({
-    title,
-    artist,
-    album,
-    artwork: [
-      {
-        src: src ? `${src}?param=300y300` : '',
-        sizes: '192x192',
-        type: 'image/png',
-      },
-    ],
-  });
-  navigator.mediaSession.setActionHandler('pause', pause);
-  navigator.mediaSession.setActionHandler('play', play);
-  navigator.mediaSession.setActionHandler('nexttrack', next);
-  navigator.mediaSession.setActionHandler('previoustrack', previous);
 }
 
 function handleShowLyric() {

@@ -1,4 +1,5 @@
 import { throttle, round } from 'lodash';
+
 interface Options {
   src: string;
   volume: number;
@@ -15,34 +16,47 @@ enum EVENTS {
 }
 type event = keyof typeof EVENTS;
 type cb = (data?: any) => void;
-export class FAudio {
-  audioNode: HTMLAudioElement;
-  callbackMaps: Partial<Record<EVENTS, cb>> = {};
-  constructor(options: Partial<Options>) {
-    this.audioNode = new Audio(options.src);
-    this.audioNode.volume = options.volume || 0.4;
-    this.audioNode.style.display = 'none';
-    document.body.appendChild(this.audioNode);
+interface mediaDataType {
+  title: string;
+  artist: string;
+  album: string;
+  alPicUrl: string;
+}
+interface ActionType {
+  play: () => void;
+  pause: () => void;
+  next: () => void;
+  previous: () => void;
+}
+
+export class FCMAudio extends Audio {
+  private callbackMaps: Partial<Record<EVENTS, cb>> = {};
+  constructor(options?: Partial<Options>) {
+    super(options?.src);
+    this.volume = options?.volume || 0.5;
+    this.style.display = 'none';
+    document.body.appendChild(this);
     this.listener();
   }
-  get volume() {
-    return this.audioNode.volume;
+  get currentTime() {
+    return round(super.currentTime, 3);
   }
-  set volume(val: number) {
-    this.audioNode.volume = val;
+  set currentTime(val: number) {
+    super.currentTime = val;
   }
-  on(e: event, cb: cb) {
-    this.callbackMaps[e] = cb;
+
+  get duration() {
+    return round(super.duration, 3);
   }
   private listener() {
     const map: { [propName: string]: any } = {
       progress: () => {
         this.callbackMaps.progress?.(
-          (this.audioNode.buffered.end(0) / this.audioNode.duration) * 100
+          (super.buffered.end(0) / super.duration) * 100
         );
       },
       timeupdate: throttle(() => {
-        this.callbackMaps.timeupdate?.(round(this.audioNode.currentTime, 3));
+        this.callbackMaps.timeupdate?.(round(super.currentTime, 3));
       }, 200),
       ended: () => {
         this.callbackMaps.ended?.();
@@ -61,42 +75,61 @@ export class FAudio {
 
     for (const key in map) {
       if (Object.prototype.hasOwnProperty.call(map, key)) {
-        this.audioNode.addEventListener(key, map[key]);
+        super.addEventListener(key, map[key]);
       }
     }
   }
-  get currentTime() {
-    return round(this.audioNode.currentTime, 3);
+  on(e: event, cb: cb) {
+    this.callbackMaps[e] = cb;
   }
-  set currentTime(val: number) {
-    this.audioNode.currentTime = val;
-  }
-  set src(src: string) {
-    this.audioNode.src = src;
-  }
-  get src() {
-    return this.audioNode.src;
-  }
-  get duration() {
-    return round(this.audioNode.duration, 3);
-  }
+
   play() {
-    this.audioNode.play();
     this.callbackMaps.paused?.(false);
+    return super.play();
   }
   pause() {
-    this.audioNode.pause();
+    super.pause();
     this.callbackMaps.paused?.(true);
+  }
+
+  setMediaMetadata(params: Partial<mediaDataType>) {
+    const { title, alPicUrl: src, album, artist } = params;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title,
+      artist,
+      album,
+      artwork: [
+        {
+          src: src ? `${src}?param=300y300` : '',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+      ],
+    });
+  }
+
+  setActionHandler(actions: Partial<ActionType>) {
+    navigator.mediaSession.setActionHandler(
+      'pause',
+      actions.pause || this.pause
+    );
+    navigator.mediaSession.setActionHandler('play', actions.play || this.play);
+    navigator.mediaSession.setActionHandler('nexttrack', actions.next || null);
+    navigator.mediaSession.setActionHandler(
+      'previoustrack',
+      actions.previous || null
+    );
   }
 }
 
-export const FA = (() => {
-  let instance: FAudio;
-  return (options: Partial<Options>) => {
+export const fcmAudio = (() => {
+  let instance: FCMAudio;
+  return (options?: Partial<Options>) => {
     if (instance) {
       return instance;
     }
-    instance = new FAudio(options);
+    instance = new FCMAudio(options);
     return instance;
   };
 })();

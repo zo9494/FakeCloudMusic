@@ -82,9 +82,12 @@ app.whenReady().then(async () => {
   }
 
   session.defaultSession.on('will-download', (event, item, webContents) => {
-    WIN.setProgressBar(item.getReceivedBytes() / item.getTotalBytes(), {
-      mode: 'indeterminate',
-    });
+    global.mainWin.setProgressBar(
+      item.getReceivedBytes() / item.getTotalBytes(),
+      {
+        mode: 'indeterminate',
+      }
+    );
     // console.log(event, item, webContents);
 
     const path = join(app.getPath('music'), fileName);
@@ -94,17 +97,19 @@ app.whenReady().then(async () => {
     item.on('updated', () => {
       console.log(item);
 
-      WIN.setProgressBar(item.getReceivedBytes() / item.getTotalBytes());
+      global.mainWin.setProgressBar(
+        item.getReceivedBytes() / item.getTotalBytes()
+      );
     });
     item.once('done', (event, state) => {
       if (state === 'completed') {
-        WIN.setProgressBar(1, { mode: 'none' });
+        global.mainWin.setProgressBar(1, { mode: 'none' });
         console.log('Download successfully');
-        WIN.webContents.send(EVENT.APP_DOWNLOAD_DONE);
+        global.mainWin.webContents.send(EVENT.APP_DOWNLOAD_DONE);
 
         shell.showItemInFolder(path);
       } else {
-        WIN.setProgressBar(0, { mode: 'error' });
+        global.mainWin.setProgressBar(0, { mode: 'error' });
 
         console.log(`Download failed: ${state}`);
       }
@@ -112,6 +117,7 @@ app.whenReady().then(async () => {
   });
 });
 
+//#region app.on
 app.on('window-all-closed', () => {
   console.log('window-all-closed');
   app.exit();
@@ -158,6 +164,9 @@ app.on('quit', () => {
   global.mainWin = null;
 });
 
+//#endregion
+
+//#region function
 function sendMessageToWeb(type: MessageType, text?: string) {
   global.mainWin.webContents.send(EVENT.SEND_MESSAGE, { type, text });
 }
@@ -269,3 +278,5 @@ function createTray() {
     }
   });
 }
+
+//#endregion
