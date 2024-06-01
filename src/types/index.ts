@@ -5,6 +5,6 @@ export enum themes {
 }
 
 export type theme = 'dark' | 'light';
-export const toggleThemeKey: InjectionKey<() => Promise<void>> =
+export const toggleThemeKey: InjectionKey<(e: MouseEvent) => Promise<void>> =
   Symbol('toggleTheme');
 export const themeKey: InjectionKey<Readonly<Ref<theme>>> = Symbol('theme');

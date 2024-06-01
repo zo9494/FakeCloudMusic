@@ -209,7 +209,7 @@ defineExpose({ handleScroll });
         min-height: 20px;
         font-size: 14.8px;
         color: var(--lyrics-font-color);
-        margin: 15px 0;
+        margin: 10px 0;
         p {
           width: 90%;
           transition: transform ease-in-out 300ms;

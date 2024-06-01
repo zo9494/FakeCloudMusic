@@ -41,7 +41,6 @@ let showCustomFrame = false;
 
 const theme = inject(themeKey);
 const toggleTheme = inject(toggleThemeKey);
-
 if (process.platform == 'win32') {
   showCustomFrame = true;
 }

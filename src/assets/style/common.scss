@@ -15,3 +15,25 @@ body {
 button {
   color: var(--font-color, #333);
 }
+// Diffusion animation
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+@media (prefers-color-scheme: dark) {
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+  ::view-transition-new(root) {
+    z-index: 999;
+  }
+}
+@media (prefers-color-scheme: light) {
+  ::view-transition-old(root) {
+    z-index: 999;
+  }
+  ::view-transition-new(root) {
+    z-index: 1;
+  }
+}
