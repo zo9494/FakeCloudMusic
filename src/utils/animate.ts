@@ -16,19 +16,20 @@ export function diffusionAnimation(
 
   const transition = document.startViewTransition(updateCallback);
 
-  void transition.ready.then(() => {
+  transition.ready.then(() => {
+    const isDarkFlag = isDark();
     const clipPath = [
       `circle(0px at ${x}px ${y}px)`,
       `circle(${endRadius}px at ${x}px ${y}px)`,
     ];
     document.documentElement.animate(
       {
-        clipPath: isDark() ? clipPath : [...clipPath].reverse(),
+        clipPath: isDarkFlag ? clipPath : [...clipPath].reverse(),
       },
       {
         duration: 500,
         easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
-        pseudoElement: isDark()
+        pseudoElement: isDarkFlag
           ? '::view-transition-new(root)'
           : '::view-transition-old(root)',
       }

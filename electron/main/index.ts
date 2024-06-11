@@ -46,14 +46,15 @@ const url = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, 'index.html');
 const vue_dev = join(process.cwd(), '/vue_devtools/');
 
-let fileName = '';
 interface GlobalType {
   mainWin: BrowserWindow;
   tray: Tray;
+  fileName: string;
 }
 export const global: GlobalType = {
   mainWin: null,
   tray: null,
+  fileName: 'unknown',
 };
 
 app.disableDomainBlockingFor3DAPIs();
@@ -90,7 +91,7 @@ app.whenReady().then(async () => {
     );
     // console.log(event, item, webContents);
 
-    const path = join(app.getPath('music'), fileName);
+    const path = join(app.getPath('music'), global.fileName);
     console.log(path);
 
     item.setSavePath(path);

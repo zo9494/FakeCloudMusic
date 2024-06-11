@@ -4,7 +4,6 @@ import { API } from '../utils/service';
 import { createLogin } from './login';
 
 import { global } from './index';
-let fileName = '';
 
 function getWinFormWebContents(sender: Electron.WebContents) {
   return BrowserWindow.fromWebContents(sender);
@@ -65,14 +64,20 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
   }
 });
 
-ipcMain.handle(EVENT.SAVE_SONG, async (e, song) => {
+ipcMain.handle(EVENT.SAVE_SONG, async (e, song, cookie) => {
   try {
     const win = global.mainWin;
-    const res = await API('song_url', { id: song.id });
+    const res = await API('song_url', {
+      id: song.id,
+      timestamp: Date.now(),
+      cookie,
+    });
     const url = res.body.data[0].url;
     const artists = song.artists || song.ar;
     const artist = artists.map(it => it.name).join(',');
-    fileName = `${song.name}-${artist + url.substring(url.lastIndexOf('.'))}`;
+    global.fileName = `${song.name}-${
+      artist + url.substring(url.lastIndexOf('.'))
+    }`;
     win.webContents.downloadURL(url);
   } catch (error) {
     return { error };

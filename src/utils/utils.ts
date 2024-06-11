@@ -1,5 +1,3 @@
-import { toRaw } from 'vue';
-
 const timeRegExp = /^\[(?<min>\d+):(?<sec>\d+).(?<millisec>\d+)\]/;
 function transformLyricCore(lyric?: string) {
   const lyrics: Pick<Lyric, 'lyric' | 'time'>[] = [];
@@ -123,9 +121,13 @@ export function getImageColor(url: string): Promise<[number, number, number]> {
 }
 
 export function download(song: any) {
-  window.electron.ipcRenderer.invoke<any>('SAVE_SONG', song).then(res => {
-    if (res && res.error) {
-      alert('下载出错');
-    }
-  });
+  window.electron.ipcRenderer
+    .invoke<any>('SAVE_SONG', song, localStorage.cookie)
+    .then(res => {
+      console.log(res);
+
+      if (res && res.error) {
+        alert('下载出错');
+      }
+    });
 }
