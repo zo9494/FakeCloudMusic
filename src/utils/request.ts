@@ -15,7 +15,7 @@ export class Service {
       .then<T>(res => {
         console.log('API:', url, res);
         if (res.error) {
-          window.$message.warning(res.error, {
+          window.$message.warning('api错误:' + url, {
             closable: true,
             duration: 0,
           });

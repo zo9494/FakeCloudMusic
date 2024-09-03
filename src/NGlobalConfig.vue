@@ -24,6 +24,7 @@ const themeOverrides: GlobalThemeOverrides = {
     padding: '10px',
     color: 'var(--bg-color)',
     textColor: 'var(--font-color)',
+    borderRadius: '9px',
   },
   Button: {
     color: '#000',

@@ -27,14 +27,6 @@ button {
   position: relative;
 }
 
-.drag,
-.drag-js {
-  -webkit-app-region: drag;
-}
-.no-drag,
-.no-drag-js {
-  -webkit-app-region: no-drag;
-}
 .text-overflow {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -25,7 +25,9 @@ export function createLogin(options) {
     autoHideMenuBar: true,
     minimizable: false,
     maximizable: false,
+    fullscreenable: false,
     parent: options.parent,
+    modal: true,
     webPreferences: {
       preload,
     },

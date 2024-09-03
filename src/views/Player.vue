@@ -604,7 +604,7 @@ function updateLike(song: Track | undefined, isDel = false) {
 }
 .arrow-button {
   border-radius: 6px;
-  padding: 3px 10px;
+  padding: 5px 10px;
   cursor: pointer;
   &:hover {
     background-color: var(--app-bar-button-hover);

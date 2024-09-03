@@ -30,7 +30,7 @@ function beforeLeaveDialog(data: comfirmDataType): Promise<comfirmDataType> {
       closeOnEsc: false,
       maskClosable: false,
       // closable: false,
-      transformOrigin: 'center',
+      // transformOrigin: 'center',
       content() {
         return h(CloseComponent, {
           confirm: (val: comfirmDataType) => {

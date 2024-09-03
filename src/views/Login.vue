@@ -1,7 +1,6 @@
 <template>
-  <header v-if="showCustomFrame" class="header">
-    <div class="drag"></div>
-    <button class="close" @click="close">
+  <header v-if="showCustomFrame" class="header drag">
+    <button class="close no-drag" @click="close">
       <i class="icon-fluent icon-fluent-chrome-close" />
     </button>
   </header>
@@ -131,19 +130,40 @@ function refresh() {
   font-size: 12px;
 }
 
+body {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  > * {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 30px auto;
+  }
+}
+
 .close {
   display: grid;
   place-items: center;
   outline-style: none;
   background-color: transparent;
   border: none;
-  height: 20px;
-  width: 20px;
+  height: 30px;
+  width: 46px;
+  i {
+    // 缩小图标
+    font-style: normal;
+    transform: scale(0.9);
+    display: inline-block;
+  }
+  &:hover {
+    background-color: #e81123;
+    color: #fff;
+  }
 }
 
 .login {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   display: grid;
   place-items: center;
   color: #666666;
@@ -209,17 +229,9 @@ function refresh() {
 }
 
 .header {
-  height: 25px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: grid;
-  grid-template-columns: auto 25px;
-}
-
-.drag {
-  -webkit-app-region: drag;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .scanned {

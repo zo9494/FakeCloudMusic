@@ -59,7 +59,7 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
   try {
     return await API(url, params);
   } catch (error) {
-    console.log(111, error);
+    console.log('ipcMain.handle EVENT.HTTP error', error);
     return { error };
   }
 });

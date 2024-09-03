@@ -52,7 +52,7 @@ on('MAXIMIZE', (e, val) => {
     i {
       // 缩小图标
       font-style: normal;
-      transform: scale(0.8);
+      transform: scale(0.9);
       display: inline-block;
     }
   }
