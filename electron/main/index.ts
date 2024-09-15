@@ -90,7 +90,7 @@ app.whenReady().then(async () => {
       }
     );
     // console.log(event, item, webContents);
-
+    item.fileName = global.fileName;
     const path = join(app.getPath('music'), global.fileName);
     console.log(path);
 
