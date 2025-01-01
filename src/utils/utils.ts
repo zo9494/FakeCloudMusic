@@ -50,6 +50,109 @@ export function transformLyric(lyric: string, tlyric?: string) {
   console.table(lyrics);
   return lyrics;
 }
+export interface DynamicLyricWord {
+  time: number;
+  duration: number;
+  flag: number;
+  word: string;
+}
+export interface LyricLine {
+  time: number;
+  duration: number;
+  lyric: string;
+  tlyric?: string;
+  romanLyric?: string;
+  dynamicLyricTime?: number;
+  dynamicLyric?: DynamicLyricWord[];
+}
+
+const yrcLineRegexp = /^\[(?<time>[0-9]+),(?<duration>[0-9]+)\](?<line>.*)/;
+const yrcWordTimeRegexp =
+  /^\((?<time>[0-9]+),(?<duration>[0-9]+),(?<flag>[0-9]+)\)(?<word>[^\(]*)/;
+export function transformDynamicLyric(lyric: string): LyricLine[] {
+  const result: LyricLine[] = [];
+  // 解析逐词歌词
+  for (const line of lyric.trim().split('\n')) {
+    let tmp = line.trim();
+    const lineMatches = tmp.match(yrcLineRegexp);
+    if (lineMatches) {
+      const time = parseInt(lineMatches.groups?.time || '0');
+      const duration = parseInt(lineMatches.groups?.duration || '0');
+      tmp = lineMatches.groups?.line || '';
+      const words: DynamicLyricWord[] = [];
+      while (tmp.length > 0) {
+        const wordMatches = tmp.match(yrcWordTimeRegexp);
+        if (wordMatches) {
+          const wordTime = parseInt(wordMatches.groups?.time || '0');
+          const wordDuration = parseInt(wordMatches.groups?.duration || '0');
+          const flag = parseInt(wordMatches.groups?.flag || '0');
+          const word = wordMatches.groups?.word.trimStart();
+          const splitedWords = word
+            ?.split(/\s+/)
+            .filter(v => v.trim().length > 0); // 有些歌词一个单词还是一个句子的就离谱
+          if (splitedWords) {
+            const splitedDuration = wordDuration / splitedWords.length;
+            splitedWords.forEach((subWord, i) => {
+              if (i === splitedWords.length - 1) {
+                if (word?.endsWith(' ')) {
+                  words.push({
+                    time: wordTime + i * splitedDuration,
+                    duration: splitedDuration,
+                    flag,
+                    word: `${subWord.trimStart()} `,
+                  });
+                } else {
+                  words.push({
+                    time: wordTime + i * splitedDuration,
+                    duration: splitedDuration,
+                    flag,
+                    word: subWord.trimStart(),
+                  });
+                }
+              } else if (i === 0) {
+                if (word?.startsWith(' ')) {
+                  words.push({
+                    time: wordTime + i * splitedDuration,
+                    duration: splitedDuration,
+                    flag,
+                    word: ` ${subWord.trimStart()}`,
+                  });
+                } else {
+                  words.push({
+                    time: wordTime + i * splitedDuration,
+                    duration: splitedDuration,
+                    flag,
+                    word: subWord.trimStart(),
+                  });
+                }
+              } else {
+                words.push({
+                  time: wordTime + i * splitedDuration,
+                  duration: splitedDuration,
+                  flag,
+                  word: `${subWord.trimStart()} `,
+                });
+              }
+            });
+          }
+          tmp = tmp.slice(wordMatches.index || 0 + wordMatches[0].length);
+        } else {
+          break;
+        }
+      }
+      const line: LyricLine = {
+        time,
+        duration,
+        lyric: words.map(v => v.word).join(''),
+        dynamicLyric: words,
+        dynamicLyricTime: time,
+      };
+      result.push(line);
+      // log("逐词歌词", time, duration, line.lyric);
+    }
+  }
+  return result;
+}
 
 export function getArName(Ar: Base[]) {
   return Ar.map(item => item.origin_name || item.name).join(' / ');
