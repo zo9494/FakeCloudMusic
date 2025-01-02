@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { getQR, checkStatus } from '@/api/user';
+import { getQR, checkStatus } from '@/api/login';
 import { onBeforeMount, Ref, ref } from 'vue';
 import img from '@/assets/img/login.png';
 import Loading from '@/components/Loading.vue';
@@ -97,7 +97,7 @@ function checkQRStatus(key: string) {
     }
     const { code, cookie } = data;
     if (code === 803) {
-      localStorage.cookie = cookie;
+      localStorage.cookie = cookie + ';os=pc';
 
       window.electron.ipcRenderer.invoke('RELOAD_USER');
       close();

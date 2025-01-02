@@ -9,11 +9,16 @@ import { RouterView } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import CloseComponent from '@/components/CloseTip.vue';
 import { useUserStore } from '@/store/user';
-
+import { refreshToken } from '@/api/login';
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
 onBeforeMount(() => {
-  userStore.getUserAccount();
+  refreshToken().then(res => {
+    console.log(res);
+    localStorage.cookie = res.cookie + ';os=pc';
+
+    userStore.getUserAccount();
+  });
 });
 //#region 关闭对话框
 const dialog = useDialog();
