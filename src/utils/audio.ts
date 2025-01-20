@@ -31,6 +31,7 @@ interface ActionType {
 
 export class FCMAudio extends Audio {
   private callbackMaps: Partial<Record<EVENTS, cb>> = {};
+  public canPlay = false;
   constructor(options?: Partial<Options>) {
     super(options?.src);
     this.volume = options?.volume || 0.5;
@@ -59,10 +60,12 @@ export class FCMAudio extends Audio {
         this.callbackMaps.timeupdate?.(round(super.currentTime, 3));
       }, 200),
       ended: () => {
+        this.canPlay = false;
         this.callbackMaps.ended?.();
         this.callbackMaps.paused?.(true);
       },
       canplay: () => {
+        this.canPlay = true;
         this.callbackMaps.canplay?.();
       },
       paused: () => {
@@ -112,9 +115,12 @@ export class FCMAudio extends Audio {
   setActionHandler(actions: Partial<ActionType>) {
     navigator.mediaSession.setActionHandler(
       'pause',
-      actions.pause || this.pause
+      actions.pause || this.pause.bind(this)
     );
-    navigator.mediaSession.setActionHandler('play', actions.play || this.play);
+    navigator.mediaSession.setActionHandler(
+      'play',
+      actions.play || this.play.bind(this)
+    );
     navigator.mediaSession.setActionHandler('nexttrack', actions.next || null);
     navigator.mediaSession.setActionHandler(
       'previoustrack',

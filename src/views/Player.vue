@@ -163,6 +163,9 @@ function setCurrentTime(value: number) {
 }
 
 function handlePlay(value: boolean) {
+  if (!data.node.canPlay) {
+    return;
+  }
   if (value) {
     play();
   } else {
@@ -190,6 +193,10 @@ function updateLike(song: Track | undefined, isDel = false) {
 }
 
 Listener('APP:AUDIO_PLAY', (_, playBool: boolean) => {
+  if (!data.node.canPlay) {
+    invoke('WEB:AUDIO_PLAY', true);
+    return;
+  }
   if (playBool) {
     play();
   } else {
