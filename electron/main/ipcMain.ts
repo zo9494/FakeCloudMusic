@@ -3,7 +3,7 @@ import { EVENT } from '../utils/eventTypes';
 import { API } from '../utils/service';
 import { createLogin } from './login';
 
-import { global } from './index';
+import { global, thumbar } from './index';
 
 function getWinFormWebContents(sender: Electron.WebContents) {
   return BrowserWindow.fromWebContents(sender);
@@ -108,4 +108,8 @@ ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
     global.tray.setToolTip(title);
     win.setTitle(title);
   }
+});
+
+ipcMain.handle(EVENT.WEB_AUDIO_PLAY, (e, play: boolean) => {
+  thumbar.play(play);
 });

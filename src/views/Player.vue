@@ -17,7 +17,7 @@ import { useTextScroll } from '@/hooks/textOverflowScroll';
 const userStore = useUserStore();
 const playerStore = usePlayerStore();
 const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
-
+const { on: Listener, invoke } = window.electron.ipcRenderer;
 onMounted(() => {
   useTextScroll('.f-player-info-song-name');
   useTextScroll('.f-player-info-song-ar');
@@ -173,8 +173,9 @@ function handlePlay(value: boolean) {
 function handleProgressChange(value: number) {
   setCurrentTime(value);
 }
-function handlePaused(val: boolean) {
-  data.play = !val;
+function handlePaused(paused: boolean) {
+  data.play = !paused;
+  invoke('WEB:AUDIO_PLAY', paused);
 }
 
 function handleShowLyric() {
@@ -187,6 +188,21 @@ function updateLike(song: Track | undefined, isDel = false) {
     userStore.updateLike(song, isDel);
   }
 }
+
+Listener('APP:AUDIO_PLAY', (_, playBool: boolean) => {
+  if (playBool) {
+    play();
+  } else {
+    pause();
+  }
+});
+
+Listener('APP:AUDIO_NEXT', () => {
+  next();
+});
+Listener('APP:AUDIO_PREVIOUS', () => {
+  previous();
+});
 </script>
 
 <template>

@@ -97,7 +97,7 @@ function checkQRStatus(key: string) {
     }
     const { code, cookie } = data;
     if (code === 803) {
-      localStorage.cookie = cookie + ';os=pc';
+      localStorage.cookie = cookie;
 
       window.electron.ipcRenderer.invoke('RELOAD_USER');
       close();

@@ -15,8 +15,9 @@ const { order } = storeToRefs(userStore);
 onBeforeMount(() => {
   refreshToken().then(res => {
     console.log(res);
-    localStorage.cookie = res.cookie + ';os=pc';
-
+    if (res.code === 200) {
+      localStorage.cookie = res.cookie;
+    }
     userStore.getUserAccount();
   });
 });

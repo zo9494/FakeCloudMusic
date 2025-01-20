@@ -22,6 +22,8 @@ import {
 import { chalk } from '../utils/chalk';
 import type { MessageType } from 'naive-ui';
 
+import { Thumbar } from '../utils/thumbarButtons';
+
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 
@@ -57,6 +59,8 @@ export const global: GlobalType = {
   fileName: 'unknown',
 };
 
+export let thumbar: Thumbar;
+
 app.disableDomainBlockingFor3DAPIs();
 app.whenReady().then(async () => {
   createMainWindow();
@@ -90,7 +94,7 @@ app.whenReady().then(async () => {
       }
     );
     // console.log(event, item, webContents);
-    item.fileName = global.fileName;
+    // item.fileName = global.fileName;
     const path = join(app.getPath('music'), global.fileName);
     console.log(path);
 
@@ -231,9 +235,8 @@ async function createMainWindow() {
   win.on('unmaximize', () => {
     win.webContents.send(EVENT.MAXIMIZE, false);
   });
-  // TODO:win 媒体控件
-  win.setThumbarButtons([]);
 
+  thumbar = new Thumbar(win);
   // WIN?.webContents.send(EVENT.APP_IS_DARK, nativeTheme.shouldUseDarkColors);
 }
 
@@ -253,7 +256,7 @@ function createTray() {
   global.tray = new Tray(icon);
   const trayArr: Electron.MenuItemConstructorOptions[] = [
     {
-      label: '退出',
+      label: '  退出  ',
       click: () => {
         app.exit();
       },
@@ -261,7 +264,7 @@ function createTray() {
   ];
   if (isLinux) {
     trayArr.unshift({
-      label: '显示',
+      label: '  显示  ',
       click: () => {
         global.mainWin.show();
       },
