@@ -4,25 +4,14 @@ import { EVENT } from '../utils/eventTypes';
 
 export class Thumbar {
   private win: BrowserWindow;
-  private playButton = {
-    click: () => {
-      console.log('play');
-      this.win.webContents.send(EVENT.APP_AUDIO_TOGGLE_PLAY, true);
-    },
-    tooltip: '播放',
-    icon: nativeImage.createFromPath(Icons.play),
-  };
-  private pauseButton = {
-    click: () => {
-      console.log('paused');
-      this.win.webContents.send(EVENT.APP_AUDIO_TOGGLE_PLAY, false);
-    },
-    tooltip: '暂停',
-    icon: nativeImage.createFromPath(Icons.pause),
-  };
   private buttons: Electron.ThumbarButton[];
   constructor(win: BrowserWindow) {
     this.win = win;
+
+    this.setButtons();
+  }
+
+  public setButtons() {
     this.buttons = [
       {
         click: () => {
@@ -32,7 +21,24 @@ export class Thumbar {
         tooltip: '上一首',
         icon: nativeImage.createFromPath(Icons.previous),
       },
-      this.playButton,
+      {
+        click: () => {
+          console.log('paused');
+          this.win.webContents.send(EVENT.APP_AUDIO_TOGGLE_PLAY, false);
+        },
+        tooltip: '暂停',
+        icon: nativeImage.createFromPath(Icons.pause),
+        flags: ['hidden'],
+      },
+      {
+        click: () => {
+          console.log('play');
+          this.win.webContents.send(EVENT.APP_AUDIO_TOGGLE_PLAY, true);
+        },
+        tooltip: '播放',
+        icon: nativeImage.createFromPath(Icons.play),
+        flags: [],
+      },
       {
         click: () => {
           console.log('next');
@@ -42,20 +48,21 @@ export class Thumbar {
         icon: nativeImage.createFromPath(Icons.next),
       },
     ];
-
-    this.setThumbarButtons(this.buttons);
+    this.win.setThumbarButtons(this.buttons);
   }
-
+  // setThumbarButtons() {
+  //   this.win.setThumbarButtons(this.buttons);
+  // }
   public togglePlay(paused: boolean) {
     if (paused) {
-      this.buttons[1] = this.playButton;
+      // 显示播放按键
+      this.buttons[1].flags.push('hidden');
+      this.buttons[2].flags.shift();
     } else {
-      this.buttons[1] = this.pauseButton;
+      // 显示暂停按键
+      this.buttons[2].flags.push('hidden');
+      this.buttons[1].flags.shift();
     }
-    this.setThumbarButtons(this.buttons);
-  }
-
-  public setThumbarButtons(buttons: ThumbarButton[]) {
-    this.win.setThumbarButtons(buttons);
+    this.win.setThumbarButtons(this.buttons);
   }
 }

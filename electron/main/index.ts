@@ -7,6 +7,7 @@ import {
   nativeImage,
   Tray,
   Menu,
+  nativeTheme,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
@@ -23,6 +24,7 @@ import { Thumbar } from './thumbar.service';
 import './ipcMain';
 import { setupDevTools } from './devtools';
 import { application } from './application';
+import { checkThemeChange } from '../utils/theme';
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
@@ -202,6 +204,13 @@ async function start() {
     });
   });
 }
+
+// nativeTheme.on('updated', () => {
+
+// checkThemeChange();
+// 只响应系统触发的主题切换
+// application.thumbar.setButtons();
+// });
 
 //#region app.on
 app.on('window-all-closed', () => {

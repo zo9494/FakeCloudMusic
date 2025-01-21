@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.0",
+    "@types/winreg": "^1.2.36",
     "@vitejs/plugin-vue": "^4.6.2",
     "axios": "^1.6.8",
     "bootstrap-icons": "^1.11.3",
@@ -50,6 +51,7 @@
   },
   "dependencies": {
     "NeteaseCloudMusicApi": "4.25.0",
-    "chalk": "^4.1.2"
+    "chalk": "^4.1.2",
+    "winreg": "^1.2.5"
   }
 }

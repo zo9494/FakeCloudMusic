@@ -6,8 +6,8 @@ export async function setupDevTools(app: App) {
   const vue_dev = join(process.cwd(), '/vue_devtools/');
 
   globalShortcut.register('F10', () => {
-    const wins = BrowserWindow.getAllWindows();
-    wins.forEach(win => {
+    const win = BrowserWindow.getAllWindows();
+    win.forEach(win => {
       win.webContents.openDevTools();
     });
   });
