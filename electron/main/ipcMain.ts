@@ -2,9 +2,7 @@ import { BrowserWindow, app, ipcMain, nativeTheme } from 'electron';
 import { EVENT } from '../utils/eventTypes';
 import { API } from '../utils/service';
 import { createLogin } from './login';
-
-import { global, thumbar } from './index';
-
+import { application } from './application';
 function getWinFormWebContents(sender: Electron.WebContents) {
   return BrowserWindow.fromWebContents(sender);
 }
@@ -40,10 +38,10 @@ ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, e => {
 
 ipcMain.handle(EVENT.LOGIN, () => {
   console.log('login');
-  createLogin({ parent: global.mainWin });
+  createLogin({ parent: application.win });
 });
 ipcMain.handle(EVENT.RELOAD_USER, () => {
-  return global.mainWin.webContents.executeJavaScript('window.loadUser()');
+  return application.win.webContents.executeJavaScript('window.loadUser()');
 });
 
 ipcMain.handle(EVENT.WINDOW_SHOW, e => {
@@ -66,7 +64,7 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
 
 ipcMain.handle(EVENT.SAVE_SONG, async (e, song, cookie) => {
   try {
-    const win = global.mainWin;
+    const win = application.win;
     const res = await API('song_url', {
       id: song.id,
       timestamp: Date.now(),
@@ -75,7 +73,7 @@ ipcMain.handle(EVENT.SAVE_SONG, async (e, song, cookie) => {
     const url = res.body.data[0].url;
     const artists = song.artists || song.ar;
     const artist = artists.map(it => it.name).join(',');
-    global.fileName = `${song.name}-${
+    application.downloadFileName = `${song.name}-${
       artist + url.substring(url.lastIndexOf('.'))
     }`;
     win.webContents.downloadURL(url);
@@ -104,12 +102,11 @@ ipcMain.handle(EVENT.APP_IS_DARK, () => {
 // 修改title
 ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
   if (title) {
-    const win = global.mainWin;
-    global.tray.setToolTip(title);
-    win.setTitle(title);
+    application.tray.setToolTip(title);
+    application.win.setTitle(title);
   }
 });
 
-ipcMain.handle(EVENT.WEB_AUDIO_PLAY, (e, play: boolean) => {
-  thumbar.play(play);
+ipcMain.handle(EVENT.WEB_AUDIO_TOGGLE_PLAY, (e, play: boolean) => {
+  application.thumbar.togglePlay(play);
 });

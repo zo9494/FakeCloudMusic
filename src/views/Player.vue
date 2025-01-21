@@ -178,7 +178,7 @@ function handleProgressChange(value: number) {
 }
 function handlePaused(paused: boolean) {
   data.play = !paused;
-  invoke('WEB:AUDIO_PLAY', paused);
+  invoke('WEB:AUDIO_TOGGLE_PLAY', paused);
 }
 
 function handleShowLyric() {
@@ -192,9 +192,9 @@ function updateLike(song: Track | undefined, isDel = false) {
   }
 }
 
-Listener('APP:AUDIO_PLAY', (_, playBool: boolean) => {
+Listener('APP:AUDIO_TOGGLE_PLAY', (_, playBool: boolean) => {
   if (!data.node.canPlay) {
-    invoke('WEB:AUDIO_PLAY', true);
+    invoke('WEB:AUDIO_TOGGLE_PLAY', true);
     return;
   }
   if (playBool) {

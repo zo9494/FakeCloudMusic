@@ -3,7 +3,6 @@ import {
   app,
   BrowserWindow,
   shell,
-  globalShortcut,
   session,
   nativeImage,
   Tray,
@@ -19,19 +18,20 @@ import {
   isWin,
   customWindowHeaderBar,
 } from '../utils/platform';
-import { chalk } from '../utils/chalk';
-import type { MessageType } from 'naive-ui';
-
-import { Thumbar } from '../utils/thumbarButtons';
+import '../utils/console';
+import { Thumbar } from './thumbar.service';
+import './ipcMain';
+import { setupDevTools } from './devtools';
+import { application } from './application';
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 
-import './ipcMain';
 // Set application name for Windows 10+ notifications
 if (isWin) app.setAppUserModelId(app.getName());
 
 if (!app.requestSingleInstanceLock()) {
+  console.log('SingleInstanceLock');
   app.quit();
   process.exit(0);
 }
@@ -46,135 +46,13 @@ const preload = join(__dirname, '../preload/index.js');
 const url = process.env.VITE_DEV_SERVER_URL;
 
 const indexHtml = join(process.env.DIST, 'index.html');
-const vue_dev = join(process.cwd(), '/vue_devtools/');
-
-interface GlobalType {
-  mainWin: BrowserWindow;
-  tray: Tray;
-  fileName: string;
-}
-export const global: GlobalType = {
-  mainWin: null,
-  tray: null,
-  fileName: 'unknown',
-};
-
-export let thumbar: Thumbar;
 
 app.disableDomainBlockingFor3DAPIs();
-app.whenReady().then(async () => {
-  createMainWindow();
-  createTray();
-  if (isDevelopment || true) {
-    globalShortcut.register('F10', () => {
-      const wins = BrowserWindow.getAllWindows();
-      wins.forEach(win => {
-        win.webContents.openDevTools();
-      });
-    });
 
-    console.log('F10', globalShortcut.isRegistered('F10'));
-  }
-  if (isDevelopment) {
-    try {
-      // console.log(`vueDevtools:${chalk.green(vue_dev)}`);
-      await session.defaultSession.loadExtension(vue_dev, {
-        allowFileAccess: true,
-      });
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString());
-    }
-  }
-
-  session.defaultSession.on('will-download', (event, item, webContents) => {
-    global.mainWin.setProgressBar(
-      item.getReceivedBytes() / item.getTotalBytes(),
-      {
-        mode: 'indeterminate',
-      }
-    );
-    // console.log(event, item, webContents);
-    // item.fileName = global.fileName;
-    const path = join(app.getPath('music'), global.fileName);
-    console.log(path);
-
-    item.setSavePath(path);
-    item.on('updated', () => {
-      console.log(item);
-
-      global.mainWin.setProgressBar(
-        item.getReceivedBytes() / item.getTotalBytes()
-      );
-    });
-    item.once('done', (event, state) => {
-      if (state === 'completed') {
-        global.mainWin.setProgressBar(1, { mode: 'none' });
-        console.log('Download successfully');
-        global.mainWin.webContents.send(EVENT.APP_DOWNLOAD_DONE);
-
-        shell.showItemInFolder(path);
-      } else {
-        global.mainWin.setProgressBar(0, { mode: 'error' });
-
-        console.log(`Download failed: ${state}`);
-      }
-    });
-  });
+app.whenReady().then(() => {
+  start();
 });
-
-//#region app.on
-app.on('window-all-closed', () => {
-  console.log('window-all-closed');
-  app.exit();
-});
-
-app.on('second-instance', () => {
-  if (global.mainWin) {
-    // Focus on the main window if the user tried to open another
-    if (global.mainWin.isMinimized()) global.mainWin.restore();
-    global.mainWin.focus();
-  }
-});
-
-app.on('activate', () => {
-  console.log('app activate');
-
-  // const allWindows = BrowserWindow.getAllWindows();
-  // if (allWindows.length) {
-  //   allWindows[0].focus();
-  // } else {
-  //   new Main();
-  // }
-});
-
-app.on('ready', () => {
-  console.log(chalk.red('ready'));
-});
-
-app.on('before-quit', e => {
-  console.log(chalk.red('before-quit'));
-  // win平台
-  if (isWin) {
-  }
-  // mac平台
-  if (isMac) {
-    app.exit();
-  }
-});
-app.on('will-quit', () => {
-  console.log('will-quit');
-});
-app.on('quit', () => {
-  console.log('quit');
-  global.mainWin = null;
-});
-
-//#endregion
-
 //#region function
-function sendMessageToWeb(type: MessageType, text?: string) {
-  global.mainWin.webContents.send(EVENT.SEND_MESSAGE, { type, text });
-}
 
 async function createMainWindow() {
   const win = new BrowserWindow({
@@ -192,7 +70,6 @@ async function createMainWindow() {
     trafficLightPosition: { x: 5, y: 5 },
     autoHideMenuBar: true,
   });
-  global.mainWin = win;
   if (process.env.VITE_DEV_SERVER_URL) {
     await win.loadURL(url);
     // open devtools
@@ -236,7 +113,7 @@ async function createMainWindow() {
     win.webContents.send(EVENT.MAXIMIZE, false);
   });
 
-  thumbar = new Thumbar(win);
+  return win;
   // WIN?.webContents.send(EVENT.APP_IS_DARK, nativeTheme.shouldUseDarkColors);
 }
 
@@ -253,7 +130,7 @@ function createTray() {
   const icon = nativeImage.createFromPath(
     isDevelopment ? 'public/icons/icon.png' : iconPath
   );
-  global.tray = new Tray(icon);
+  const tray = new Tray(icon);
   const trayArr: Electron.MenuItemConstructorOptions[] = [
     {
       label: '  退出  ',
@@ -266,21 +143,114 @@ function createTray() {
     trayArr.unshift({
       label: '  显示  ',
       click: () => {
-        global.mainWin.show();
+        application.win.show();
       },
     });
   }
   const contextMenu = Menu.buildFromTemplate(trayArr);
 
-  global.tray.setContextMenu(contextMenu);
-  global.tray.setToolTip('FakeCloudMusic');
-  global.tray.on('click', () => {
+  tray.setContextMenu(contextMenu);
+  tray.setToolTip('FakeCloudMusic');
+  tray.on('click', () => {
     if (isMac) {
       app.show();
     } else {
-      global.mainWin.show();
+      application.win.show();
     }
   });
+
+  return tray;
 }
+
+//#endregion
+
+async function start() {
+  const win = await createMainWindow();
+  application.win = win;
+
+  application.thumbar = new Thumbar(win);
+  application.tray = createTray();
+  setupDevTools(app);
+
+  session.defaultSession.on('will-download', (event, item, webContents) => {
+    win.setProgressBar(item.getReceivedBytes() / item.getTotalBytes(), {
+      mode: 'indeterminate',
+    });
+    // console.log(event, item, webContents);
+    // item.fileName = fileName;
+    const path = join(app.getPath('music'), application.downloadFileName);
+    console.log(path);
+
+    item.setSavePath(path);
+    item.on('updated', () => {
+      console.log(item);
+
+      win.setProgressBar(item.getReceivedBytes() / item.getTotalBytes());
+    });
+    item.once('done', (event, state) => {
+      if (state === 'completed') {
+        win.setProgressBar(1, { mode: 'none' });
+        console.log('Download successfully');
+        win.webContents.send(EVENT.APP_DOWNLOAD_DONE);
+
+        shell.showItemInFolder(path);
+      } else {
+        win.setProgressBar(0, { mode: 'error' });
+
+        console.log(`Download failed: ${state}`);
+      }
+    });
+  });
+}
+
+//#region app.on
+app.on('window-all-closed', () => {
+  console.log('window-all-closed');
+  app.exit();
+});
+
+app.on('second-instance', () => {
+  console.log('second-instance');
+  const win = application.win;
+  if (win) {
+    // Focus on the main window if the user tried to open another
+    if (win.isMinimized()) win.restore();
+    win.focus();
+  }
+});
+
+app.on('activate', () => {
+  console.log('app activate');
+
+  // const allWindows = BrowserWindow.getAllWindows();
+  // if (allWindows.length) {
+  //   allWindows[0].focus();
+  // } else {
+  //   new Main();
+  // }
+});
+app.on('will-finish-launching', () => {
+  console.log('will-finish-launching');
+});
+app.on('ready', () => {
+  console.log('ready');
+});
+
+app.on('before-quit', e => {
+  console.log('before-quit');
+  // win平台
+  if (isWin) {
+  }
+  // mac平台
+  if (isMac) {
+    app.exit();
+  }
+});
+app.on('will-quit', () => {
+  console.log('will-quit');
+});
+app.on('quit', () => {
+  console.log('quit');
+});
 
 //#endregion

@@ -1,13 +1,13 @@
-import { BrowserWindow, nativeImage } from 'electron';
-import { Icons } from './icons';
-import { EVENT } from './eventTypes';
+import { BrowserWindow, nativeImage, ThumbarButton } from 'electron';
+import { Icons } from '../utils/icons';
+import { EVENT } from '../utils/eventTypes';
 
 export class Thumbar {
   private win: BrowserWindow;
   private playButton = {
     click: () => {
       console.log('play');
-      this.win.webContents.send(EVENT.APP_AUDIO_PLAY, true);
+      this.win.webContents.send(EVENT.APP_AUDIO_TOGGLE_PLAY, true);
     },
     tooltip: '播放',
     icon: nativeImage.createFromPath(Icons.play),
@@ -15,7 +15,7 @@ export class Thumbar {
   private pauseButton = {
     click: () => {
       console.log('paused');
-      this.win.webContents.send(EVENT.APP_AUDIO_PLAY, false);
+      this.win.webContents.send(EVENT.APP_AUDIO_TOGGLE_PLAY, false);
     },
     tooltip: '暂停',
     icon: nativeImage.createFromPath(Icons.pause),
@@ -43,15 +43,19 @@ export class Thumbar {
       },
     ];
 
-    this.win.setThumbarButtons(this.buttons);
+    this.setThumbarButtons(this.buttons);
   }
 
-  public play(paused: boolean) {
+  public togglePlay(paused: boolean) {
     if (paused) {
       this.buttons[1] = this.playButton;
     } else {
       this.buttons[1] = this.pauseButton;
     }
-    this.win.setThumbarButtons(this.buttons);
+    this.setThumbarButtons(this.buttons);
+  }
+
+  public setThumbarButtons(buttons: ThumbarButton[]) {
+    this.win.setThumbarButtons(buttons);
   }
 }
