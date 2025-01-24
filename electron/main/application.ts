@@ -1,10 +1,12 @@
 import { BrowserWindow, Tray } from 'electron';
 import { Thumbar } from './thumbar.service';
 
-export class Application {
-  public win: BrowserWindow;
-  public tray: Tray;
-  public thumbar: Thumbar;
-  public downloadFileName: string = 'unknown';
+export interface Application {
+  win?: BrowserWindow;
+  tray?: Tray;
+  thumbar?: Thumbar;
+  downloadFileName: string;
 }
-export const application = new Application();
+export const application: Application = {
+  downloadFileName: 'unknown',
+};

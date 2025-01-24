@@ -1,5 +1,5 @@
 <template>
-  <span class="f-input">
+  <div class="f-input">
     <div class="f-input-prefix">
       <i class="bi bi-search icon" @click="handleSearch" />
     </div>
@@ -14,7 +14,7 @@
     <div class="f-input-suffix">
       <i class="bi bi-x-lg icon" v-if="props.modelValue" @click="handleClear" />
     </div>
-  </span>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -54,7 +54,7 @@ function handleSearch(e: MouseEvent) {
   height: 100%;
   width: 100%;
   background-color: var(--input-color);
-  padding: 0px 3px;
+  padding: 0px 4px;
   border-radius: 50px;
   color: var(--input-text-color);
   display: flex;

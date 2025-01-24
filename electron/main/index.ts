@@ -7,7 +7,6 @@ import {
   nativeImage,
   Tray,
   Menu,
-  nativeTheme,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
@@ -25,6 +24,7 @@ import './ipcMain';
 import { setupDevTools } from './devtools';
 import { application } from './application';
 import { checkThemeChange } from '../utils/theme';
+import electron from 'vite-plugin-electron';
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
@@ -72,6 +72,15 @@ async function createMainWindow() {
     trafficLightPosition: { x: 5, y: 5 },
     autoHideMenuBar: true,
   });
+
+  // const originalSend = win.webContents.send.bind(win.webContents);
+
+  // win.webContents.send = function (channel, ...args) {
+  //   console.log('my send:', channel);
+
+  //   originalSend(channel, ...args);
+  // };
+
   if (process.env.VITE_DEV_SERVER_URL) {
     await win.loadURL(url);
     // open devtools

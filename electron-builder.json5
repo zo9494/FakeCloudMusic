@@ -3,6 +3,7 @@
  */
 {
   appId: 'com.zo.FakeCloudMusic',
+  productName: 'FakeCloudMusic',
   asar: true,
   directories: {
     output: 'release/${version}',

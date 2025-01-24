@@ -1,7 +1,7 @@
 import { App, BrowserWindow, globalShortcut, session } from 'electron';
 import { join } from 'node:path';
 export async function setupDevTools(app: App) {
-  if (app.isPackaged) return;
+  // if (app.isPackaged) return;
 
   const vue_dev = join(process.cwd(), '/vue_devtools/');
 
