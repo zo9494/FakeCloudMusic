@@ -65,7 +65,7 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
 ipcMain.handle(EVENT.SAVE_SONG, async (e, song, cookie) => {
   try {
     const win = application.win;
-    const res = await API('song_url', {
+    const res = await API('song_download_url', {
       id: song.id,
       timestamp: Date.now(),
       cookie,
@@ -109,4 +109,16 @@ ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
 
 ipcMain.handle(EVENT.WEB_AUDIO_TOGGLE_PLAY, (e, play: boolean) => {
   application.thumbar.togglePlay(play);
+});
+
+ipcMain.handle(EVENT.APP_FETCH, async (_, url, options) => {
+  const response = await fetch(url, options);
+
+  const arrayBuffer = await response.arrayBuffer();
+  return {
+    ok: response.ok,
+    arrayBuffer,
+    status: response.status,
+    type: response.headers.get('content-type'),
+  };
 });

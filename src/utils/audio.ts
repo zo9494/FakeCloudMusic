@@ -1,5 +1,5 @@
-import { throttle, round } from 'lodash';
-
+import { throttle, round, ceil } from 'lodash';
+import { parseBuffer } from 'music-metadata';
 interface Options {
   src: string;
   volume: number;
@@ -29,35 +29,68 @@ interface ActionType {
   previous: () => void;
 }
 
-export class FCMAudio extends Audio {
+export class FCMAudio {
   private callbackMaps: Partial<Record<EVENTS, cb>> = {};
   public canPlay = false;
+  private mediaSource?: MediaSource;
+  private _src: string;
+  private audio = new Audio();
+  private _duration: number = 0;
   constructor(options?: Partial<Options>) {
-    super(options?.src);
-    this.volume = options?.volume || 0.5;
-    this.style.display = 'none';
-    document.body.appendChild(this);
+    this._src = options?.src || '';
+    this.loadAudio();
+    this.audio.volume = options?.volume || 0.5;
     this.listener();
   }
+
+  public get volume() {
+    return this.audio.volume;
+  }
+
+  public set volume(v: number) {
+    this.audio.volume = v;
+  }
+
+  public get src(): string {
+    return this._src;
+  }
+  public set src(value: string) {
+    if (this._src !== value) {
+      this._src = value;
+      URL.revokeObjectURL(this.audio.src);
+      this.loadAudio();
+    }
+  }
   get currentTime() {
-    return round(super.currentTime, 3);
+    return round(this.audio.currentTime, 3);
   }
   set currentTime(val: number) {
-    super.currentTime = val;
+    this.audio.currentTime = val;
+  }
+
+  public set duration(v: number) {
+    this._duration = v;
   }
 
   get duration() {
-    return round(super.duration, 3);
+    return round(this._duration, 3);
   }
   private listener() {
+    const self = this;
+    const { audio, mediaSource } = this;
     const map: { [propName: string]: any } = {
       progress: () => {
-        this.callbackMaps.progress?.(
-          (super.buffered.end(0) / super.duration) * 100
-        );
+        if (audio.buffered.length > 0) {
+          const bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
+          const progress = (bufferedEnd / self.duration) * 100;
+          console.log(self.duration, mediaSource?.duration);
+          console.log(`缓冲进度: ${progress}%`);
+
+          this.callbackMaps.progress?.(ceil(progress, 2));
+        }
       },
       timeupdate: throttle(() => {
-        this.callbackMaps.timeupdate?.(round(super.currentTime, 3));
+        this.callbackMaps.timeupdate?.(round(audio.currentTime, 3));
       }, 200),
       ended: () => {
         this.canPlay = false;
@@ -78,7 +111,7 @@ export class FCMAudio extends Audio {
 
     for (const key in map) {
       if (Object.prototype.hasOwnProperty.call(map, key)) {
-        super.addEventListener(key, map[key]);
+        audio.addEventListener(key, map[key]);
       }
     }
   }
@@ -88,10 +121,10 @@ export class FCMAudio extends Audio {
 
   play() {
     this.callbackMaps.paused?.(false);
-    return super.play();
+    return this.audio.play();
   }
   pause() {
-    super.pause();
+    this.audio.pause();
     this.callbackMaps.paused?.(true);
   }
 
@@ -126,6 +159,74 @@ export class FCMAudio extends Audio {
       'previoustrack',
       actions.previous || null
     );
+  }
+
+  async loadAudio() {
+    if (!this._src) {
+      return;
+    }
+    this.mediaSource = new MediaSource();
+    this.audio.src = URL.createObjectURL(this.mediaSource);
+    this.mediaSource.addEventListener('sourceopen', () => {
+      const sourceBuffer = this.mediaSource?.addSourceBuffer('audio/mpeg');
+      if (!sourceBuffer) return;
+      this.fetchAudioDataInChunks(sourceBuffer);
+    });
+  }
+  async fetchAudioDataInChunks(sourceBuffer: SourceBuffer) {
+    let offset = 0;
+    const chunkSize = 1024 * 500; // 500KB/次
+    while (true) {
+      const {
+        ok,
+        arrayBuffer,
+        status,
+      }: { ok: boolean; arrayBuffer: ArrayBuffer; status: number } =
+        await window.electron.ipcRenderer.invoke('APP:FETCH', this._src, {
+          headers: {
+            Range: `bytes=${offset}-${offset + chunkSize - 1}`,
+          },
+        });
+
+      if (!ok) {
+        console.log('终止：数据已加载完毕');
+        this.endOfStream();
+      }
+
+      if (status !== 206 && status !== 200) {
+        console.log('服务器不支持 Range 请求或文件已结束');
+        this.endOfStream();
+        break;
+      }
+
+      if (arrayBuffer.byteLength === 0) {
+        console.log('数据已加载完毕');
+        this.endOfStream();
+        break;
+      }
+
+      // 获取id3标签数据
+      if (offset === 0) {
+        const metadata = await parseBuffer(new Uint8Array(arrayBuffer));
+        console.log('metadata', metadata);
+        this._duration = metadata.format.duration ?? 0;
+        if (this.mediaSource) {
+          this.mediaSource.duration = this._duration;
+        }
+      }
+
+      sourceBuffer.appendBuffer(arrayBuffer);
+      console.log(arrayBuffer);
+      offset += arrayBuffer.byteLength;
+    }
+  }
+
+  private endOfStream() {
+    try {
+      this.mediaSource?.endOfStream();
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 

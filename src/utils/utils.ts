@@ -135,7 +135,7 @@ export function transformDynamicLyric(lyric: string): LyricLine[] {
               }
             });
           }
-          tmp = tmp.slice(wordMatches.index || 0 + wordMatches[0].length);
+          tmp = tmp.slice(wordMatches.index || wordMatches[0].length);
         } else {
           break;
         }
