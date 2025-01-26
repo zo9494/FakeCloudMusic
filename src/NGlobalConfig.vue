@@ -10,7 +10,7 @@ import {
 import { ref, computed, provide, readonly } from 'vue';
 import MainPage from './Main.vue';
 import { themeKey, toggleThemeKey, themes } from '@/types';
-import { diffusionAnimation } from '@/utils/animate';
+import { darkMode } from '@/utils/darkMode';
 const themeOverrides: GlobalThemeOverrides = {
   Slider: {
     handleSize: '12px',
@@ -38,28 +38,29 @@ const themeOverrides: GlobalThemeOverrides = {
 };
 
 //#region theme
-let isDark = ref(false);
+// let isDark = ref(false);
 
-window.electron.ipcRenderer.invoke<boolean>('APP:IS_DARK').then(val => {
-  isDark.value = val;
-});
+// window.electron.ipcRenderer.invoke<boolean>('APP:IS_DARK').then(val => {
+//   isDark.value = val;
+// });
 
-async function toggleTheme(e: MouseEvent) {
-  diffusionAnimation(e, async () => {
-    isDark.value = await window.electron.ipcRenderer.invoke<boolean>(
-      'APP:DARK_MODE_TOGGLE'
-    );
-  });
-}
+// async function toggleTheme(e: MouseEvent) {
+//   diffusionAnimation(e, async () => {
+//     isDark.value = await window.electron.ipcRenderer.invoke<boolean>(
+//       'APP:DARK_MODE_TOGGLE'
+//     );
+//   });
+// }
 
-const theme = computed(() => {
-  return isDark.value ? themes.dark : themes.light;
-});
-provide(toggleThemeKey, toggleTheme);
-provide(themeKey, readonly(theme));
+const { value: isDark } = darkMode;
+// const theme = computed(() => {
+//   return isDark.value ? themes.dark : themes.light;
+// });
+// provide(toggleThemeKey, toggleTheme);
+// provide(themeKey, readonly(theme));
 
 const naiveUITheme = computed(() => {
-  if (theme.value == themes.dark) {
+  if (isDark.value) {
     return darkTheme;
   }
   return lightTheme;

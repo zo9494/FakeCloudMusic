@@ -14,8 +14,8 @@
         </div>
         <div class="app-bar-options-buttons no-drag-js">
           <button @click="toggleTheme">
-            <i v-show="theme === themes.light" class="bi bi-moon"></i>
-            <i v-show="theme === themes.dark" class="bi bi-sun"></i>
+            <i v-show="isDark == false" class="bi bi-moon"></i>
+            <i v-show="isDark" class="bi bi-sun"></i>
           </button>
           <button @click="Setting">
             <i class="bi bi-gear" />
@@ -31,16 +31,17 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue';
+// import { inject } from 'vue';
 import { useRouter, useHistory } from '@/hooks/customRouter';
 import WindowButton from './WindowButton.vue';
 import Search from '@/components/search/Search.vue';
-import { themeKey, themes, toggleThemeKey } from '@/types';
-
+// import { themeKey, themes, toggleThemeKey } from '@/types';
+import { darkMode } from '@/utils/darkMode';
 let showCustomFrame = false;
 
-const theme = inject(themeKey);
-const toggleTheme = inject(toggleThemeKey);
+// const theme = inject(themeKey);
+const { value: isDark, toggleTheme } = darkMode;
+// const toggleTheme = inject(toggleThemeKey);
 if (process.platform == 'win32') {
   showCustomFrame = true;
 }
