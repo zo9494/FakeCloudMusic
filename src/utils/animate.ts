@@ -16,7 +16,7 @@ export function diffusionAnimation(
 
   const transition = document.startViewTransition(updateCallback);
 
-  transition.ready.then(() => {
+  return transition.ready.then(() => {
     const isDarkFlag = isDark();
     const clipPath = [
       `circle(0px at ${x}px ${y}px)`,
