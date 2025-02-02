@@ -165,6 +165,7 @@ export class FCMAudio {
     if (!this._src) {
       return;
     }
+
     this.mediaSource = new MediaSource();
     this.audio.src = URL.createObjectURL(this.mediaSource);
     this.mediaSource.addEventListener('sourceopen', () => {
@@ -177,23 +178,18 @@ export class FCMAudio {
     let offset = 0;
     const chunkSize = 1024 * 500; // 500KB/次
     while (true) {
-      const {
-        ok,
-        arrayBuffer,
-        status,
-      }: { ok: boolean; arrayBuffer: ArrayBuffer; status: number } =
-        await window.electron.ipcRenderer.invoke('APP:FETCH', this._src, {
-          headers: {
-            Range: `bytes=${offset}-${offset + chunkSize - 1}`,
-          },
-        });
-
-      if (!ok) {
+      const response = await fetch(this._src, {
+        headers: {
+          Range: `bytes=${offset}-${offset + chunkSize - 1}`,
+        },
+      });
+      const arrayBuffer = await response.arrayBuffer();
+      if (!response.ok) {
         console.log('终止：数据已加载完毕');
         this.endOfStream();
       }
 
-      if (status !== 206 && status !== 200) {
+      if (response.status !== 206 && response.status !== 200) {
         console.log('服务器不支持 Range 请求或文件已结束');
         this.endOfStream();
         break;

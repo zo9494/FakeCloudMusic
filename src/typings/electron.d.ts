@@ -19,7 +19,6 @@ declare global {
   interface Window {
     $message: MessageProviderInst;
     electron: ElectronApi;
-    loadUser: () => void;
     [propName: any]: any;
   }
 }

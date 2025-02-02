@@ -37,7 +37,6 @@ ipcMain.handle(EVENT.MINIMIZE_TO_TRAY, e => {
 //#endregion
 
 ipcMain.handle(EVENT.LOGIN, () => {
-  console.log('login');
   createLogin({ parent: application.win });
 });
 ipcMain.handle(EVENT.RELOAD_USER, () => {
@@ -57,7 +56,6 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
   try {
     return await API(url, params);
   } catch (error) {
-    console.log('ipcMain.handle EVENT.HTTP error', error);
     return { error };
   }
 });
@@ -109,16 +107,4 @@ ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
 
 ipcMain.handle(EVENT.WEB_AUDIO_TOGGLE_PLAY, (e, play: boolean) => {
   application.thumbar.togglePlay(play);
-});
-
-ipcMain.handle(EVENT.APP_FETCH, async (_, url, options) => {
-  const response = await fetch(url, options);
-
-  const arrayBuffer = await response.arrayBuffer();
-  return {
-    ok: response.ok,
-    arrayBuffer,
-    status: response.status,
-    type: response.headers.get('content-type'),
-  };
 });

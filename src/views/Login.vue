@@ -30,6 +30,7 @@ import { getQR, checkStatus } from '@/api/login';
 import { onBeforeMount, Ref, ref } from 'vue';
 import img from '@/assets/img/login.png';
 import Loading from '@/components/Loading.vue';
+import { BroadcastChannelName } from '@/utils/constant';
 let showCustomFrame = false;
 
 if (process.platform == 'win32') {
@@ -82,7 +83,6 @@ function init() {
       loading.value = false;
     });
 }
-
 function close() {
   window.clearTimeout(timer.value);
   window.electron.ipcRenderer.invoke('WINDOW_CLOSE');
@@ -98,8 +98,10 @@ function checkQRStatus(key: string) {
     const { code, cookie } = data;
     if (code === 803) {
       localStorage.cookie = cookie;
-
-      window.electron.ipcRenderer.invoke('RELOAD_USER');
+      const channel = new BroadcastChannel(BroadcastChannelName);
+      channel.postMessage({
+        payload: 'RELOAD_USER',
+      });
       close();
       return;
     }

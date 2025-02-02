@@ -10,6 +10,7 @@ import { storeToRefs } from 'pinia';
 import CloseComponent from '@/components/CloseTip.vue';
 import { useUserStore } from '@/store/user';
 import { refreshToken } from '@/api/login';
+import { BroadcastChannelName } from './utils/constant';
 const userStore = useUserStore();
 const { order } = storeToRefs(userStore);
 onBeforeMount(() => {
@@ -77,11 +78,17 @@ window.electron.ipcRenderer.on('BEFORE_CLOSE', async () => {
 });
 
 //#endregion
-window.loadUser = () => {
-  console.log('loadUser');
-  userStore.getUserAccount();
-};
-//
+// window.loadUser = () => {
+//   console.log('loadUser');
+//   userStore.getUserAccount();
+// };
+const channel = new BroadcastChannel(BroadcastChannelName);
+channel.addEventListener('message', e => {
+  if (e.data.payload === 'RELOAD_USER') {
+    userStore.getUserAccount();
+  }
+});
+
 const message = useMessage();
 window.$message = message;
 window.electron.ipcRenderer.on('APP:SEND_MESSAGE', (_, val) => {

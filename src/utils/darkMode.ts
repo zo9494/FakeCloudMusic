@@ -4,12 +4,19 @@ export enum themes {
   dark = 'dark',
   light = 'light',
 }
+function setThemeStorage(isDark: boolean) {
+  console.log('isDark', isDark);
 
+  isDark
+    ? (localStorage.theme = themes.dark)
+    : (localStorage.theme = themes.light);
+}
 export function useDarkMode() {
   const value = localStorage.theme === themes.dark ? true : false;
   let isDark = ref(value);
   window.electron.ipcRenderer.invoke<boolean>('APP:IS_DARK').then(val => {
     isDark.value = val;
+    setThemeStorage(isDark.value);
   });
   async function toggleTheme(e: MouseEvent) {
     diffusionAnimation(e, async () => {
@@ -17,9 +24,7 @@ export function useDarkMode() {
         'APP:DARK_MODE_TOGGLE'
       );
 
-      isDark.value
-        ? (localStorage.theme = themes.dark)
-        : (localStorage.theme = themes.light);
+      setThemeStorage(isDark.value);
     });
   }
 

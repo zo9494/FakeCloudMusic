@@ -50,8 +50,6 @@
     "vue-virtual-scroller": "2.0.0-beta.8"
   },
   "dependencies": {
-    "NeteaseCloudMusicApi": "4.25.0",
-    "chalk": "^4.1.2",
-    "winreg": "^1.2.5"
+    "NeteaseCloudMusicApi": "4.25.0"
   }
 }
