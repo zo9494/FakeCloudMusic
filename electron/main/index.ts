@@ -210,11 +210,19 @@ async function start() {
       }
     });
   });
+
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     details.requestHeaders['User-Agent'] =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.41';
     details.requestHeaders['Origin'] = details.requestHeaders['host'];
     callback({ requestHeaders: details.requestHeaders });
+  });
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    details.responseHeaders!['Access-Control-Allow-Origin'] = ['*'];
+    callback({
+      cancel: false,
+      responseHeaders: details.responseHeaders,
+    });
   });
 }
 
