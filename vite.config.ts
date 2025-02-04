@@ -130,6 +130,13 @@ export default defineConfig(({ command }) => {
           main: path.join(__dirname, '/index.html'),
           login: path.join(__dirname, PAGE_LOGIN),
         },
+        output: {
+          manualChunks: {
+            'naive-ui': ['naive-ui'],
+            lodash: ['lodash'],
+            'music-metadata': ['music-metadata'],
+          },
+        },
       },
     },
     esbuild: {
