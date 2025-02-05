@@ -56,6 +56,16 @@ ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
   try {
     return await API(url, params);
   } catch (error) {
+    application.win.webContents.send(EVENT.SEND_MESSAGE, {
+      type: 'error',
+      text: `api错误:${url}`,
+    });
+    console.error({
+      url,
+      params,
+      error,
+    });
+
     return { error };
   }
 });

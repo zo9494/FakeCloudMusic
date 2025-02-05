@@ -13,11 +13,16 @@ function setThemeStorage(isDark: boolean) {
 }
 export function useDarkMode() {
   const value = localStorage.theme === themes.dark ? true : false;
-  let isDark = ref(value);
+  const isDark = ref(value);
+
   window.electron.ipcRenderer.invoke<boolean>('APP:IS_DARK').then(val => {
+    if (val !== value) {
+      window.electron.ipcRenderer.invoke<boolean>('APP:DARK_MODE_TOGGLE');
+    }
     isDark.value = val;
     setThemeStorage(isDark.value);
   });
+
   async function toggleTheme(e: MouseEvent) {
     diffusionAnimation(e, async () => {
       isDark.value = await window.electron.ipcRenderer.invoke<boolean>(
