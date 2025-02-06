@@ -23,7 +23,10 @@ import { Thumbar } from './thumbar.service';
 import './ipcMain';
 import { setupDevTools } from './devtools';
 import { application } from './application';
+import dns from 'dns';
 
+// 设置 DNS 解析默认优先 IPv4
+dns.setDefaultResultOrder('ipv4first');
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 
@@ -58,7 +61,7 @@ async function createMainWindow() {
   const win = new BrowserWindow({
     webPreferences: {
       preload,
-      nodeIntegration: true,
+      // nodeIntegration: true,
     },
     title: 'FakeCloudMusic',
     frame: customWindowHeaderBar,

@@ -17,3 +17,11 @@ api.login_qr_key().then(async res => {
 api.login_refresh().then(async res => {
   console.log(res);
 });
+
+api
+  .personalized({
+    cookie: undefined,
+  })
+  .then(async res => {
+    console.log(res);
+  });
