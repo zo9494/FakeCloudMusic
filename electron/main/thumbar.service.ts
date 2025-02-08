@@ -66,4 +66,7 @@ export class Thumbar {
     }
     this.win.setThumbarButtons(this.buttons);
   }
+  public resetButtons() {
+    this.win.setThumbarButtons(this.buttons);
+  }
 }

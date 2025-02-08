@@ -168,6 +168,7 @@ function createTray() {
       app.show();
     } else {
       application.win.show();
+      application.thumbar.resetButtons();
     }
   });
 
