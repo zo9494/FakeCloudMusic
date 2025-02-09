@@ -136,11 +136,11 @@ body {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  > * {
-    height: 100%;
-    display: grid;
-    grid-template-rows: 30px auto;
-  }
+}
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .close {
@@ -164,6 +164,7 @@ body {
 }
 
 .login {
+  flex: 1;
   height: 100%;
   width: 100%;
   display: grid;
@@ -231,6 +232,7 @@ body {
 }
 
 .header {
+  height: 30px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
