@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useMessage } from 'naive-ui';
 import VueSlider from 'vue-slider-component';
 import Image from '@/components/PlaylistImage.vue';
 import Lyrics from '@/components/player/PlayerLyrics.vue';
@@ -6,7 +7,7 @@ import VolumeIcon from '@/components/player/PlayerVolumeIcon.vue';
 import List from '@/components/player/Playerlist.vue';
 import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
-import { reactive, watch, computed, onMounted } from 'vue';
+import { reactive, watch, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
 import { usePlayerStore } from '@/store/player';
@@ -16,7 +17,7 @@ import { getImageColor } from '@/utils/utils';
 import { useTextScroll } from '@/hooks/textOverflowScroll';
 const userStore = useUserStore();
 const playerStore = usePlayerStore();
-const { lyrics, playlist, currentSong } = storeToRefs(playerStore);
+const { lyrics, currentSong } = storeToRefs(playerStore);
 const { on: Listener, invoke } = window.electron.ipcRenderer;
 onMounted(() => {
   useTextScroll('.f-player-info-song-name');
@@ -51,7 +52,15 @@ const data = reactive<Data>({
 watch(
   () => currentSong.value.songUrl?.url,
   url => {
+    console.log('song url:', url);
+
     if (!url) {
+      message.create('未获取到歌曲播放地址,已跳过', {
+        type: 'error',
+        duration: 10000,
+        closable: true,
+      });
+      next();
       return;
     }
 
@@ -60,6 +69,7 @@ watch(
   }
 );
 
+const message = useMessage();
 watch(
   () => currentSong.value?.song,
 
@@ -84,26 +94,6 @@ watch(
   { deep: true }
 );
 
-function setBgColor(url: string) {
-  getImageColor(url + '?param=300y300').then(rgb => {
-    data.bgColor = rgb;
-  });
-}
-function handleAudioOn() {
-  const { node } = data;
-  node.on('progress', (value: number) => {
-    data.cacheProgress = value;
-  });
-  node.on('canplay', () => {
-    data.duration = node.duration || 0;
-    play();
-  });
-  node.on('timeupdate', (value: number) => {
-    data.progress = value;
-  });
-  node.on('paused', handlePaused);
-  node.on('ended', next);
-}
 watch(
   () => data.volume,
   value => {
@@ -130,6 +120,28 @@ watch(
   },
   { immediate: true }
 );
+
+function setBgColor(url: string) {
+  getImageColor(url + '?param=300y300').then(rgb => {
+    data.bgColor = rgb;
+  });
+}
+function handleAudioOn() {
+  const { node } = data;
+  node.on('progress', (value: number) => {
+    data.cacheProgress = value;
+  });
+  node.on('canplay', () => {
+    data.duration = node.duration || 0;
+    play();
+  });
+  node.on('timeupdate', (value: number) => {
+    data.progress = value;
+  });
+  node.on('paused', handlePaused);
+  node.on('ended', next);
+}
+
 // dev
 function handleDev() {
   window.alert('功能开发中...');
