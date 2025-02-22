@@ -19,6 +19,7 @@ interface Track {
   al: Base & { picUrl: string };
   dt: number;
   arName: string;
+  noCopyrightRcmd?: object;
 }
 
 interface TrackId {

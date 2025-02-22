@@ -5,7 +5,7 @@ import electron from 'vite-plugin-electron';
 import pkg from './package.json';
 import path from 'path';
 import svgLoader from 'vite-svg-loader';
-
+import vueDevTools from 'vite-plugin-vue-devtools';
 import dayjs from 'dayjs';
 import type { ResolvedConfig } from 'vite';
 import type { NormalizedOutputOptions, OutputBundle } from 'rollup';
@@ -32,6 +32,7 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       vue(),
+      vueDevTools(),
       // {
       //   name: 'myPlugin',
       //   configResolved(resolvedConfig: ResolvedConfig) {

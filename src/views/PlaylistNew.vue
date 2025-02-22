@@ -147,7 +147,11 @@
       </template>
       <template v-slot="{ item, index }">
         <div
-          :class="{ 'playlist-list-item': true, color: item.index % 2 }"
+          :class="{
+            'playlist-list-item': true,
+            color: item.index % 2,
+            disable: item.noCopyrightRcmd,
+          }"
           :key="item.id"
           @dblclick="handlePlay(index, data.playlist.tracks)"
         >
@@ -183,6 +187,7 @@
 </template>
 
 <script setup lang="ts">
+import { useDialog } from 'naive-ui';
 import { toRaw } from 'vue';
 import Image from '@/components/PlaylistImage.vue';
 import FInput from '@/components/Input.vue';
@@ -403,7 +408,7 @@ function useSearch(data: PlaylistDetail) {
 }
 const { value } = useSearch(data);
 //#endregion
-
+const dialog = useDialog();
 function handlePlay(index: number, list?: Track[]) {
   playerStore.play(index, data.playlist.tracks);
 }

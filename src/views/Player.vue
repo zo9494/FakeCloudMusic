@@ -55,12 +55,12 @@ watch(
     console.log('song url:', url);
 
     if (!url) {
-      message.create('未获取到歌曲播放地址,已跳过', {
-        type: 'error',
-        duration: 10000,
-        closable: true,
-      });
-      next();
+      // message.create('未获取到歌曲播放地址,已跳过', {
+      //   type: 'error',
+      //   duration: 10000,
+      //   closable: true,
+      // });
+      // playerStore.next();
       return;
     }
 
@@ -77,6 +77,15 @@ watch(
     console.log('change', song);
 
     if (song) {
+      if (song.noCopyrightRcmd) {
+        message.create('无版权歌曲,已跳过', {
+          type: 'info',
+          duration: 10000,
+          closable: true,
+        });
+        playerStore.next();
+        return;
+      }
       setBgColor(song.al?.picUrl as string);
       data.node.setMediaMetadata({
         artist: song?.arName,
@@ -155,16 +164,16 @@ function pause() {
 }
 
 function next() {
+  pause();
   data.progress = 0;
   data.cacheProgress = 0;
-  pause();
   playerStore.next();
 }
 
 function previous() {
+  pause();
   data.progress = 0;
   data.cacheProgress = 0;
-  pause();
   playerStore.previous();
 }
 function setCurrentTime(value: number) {

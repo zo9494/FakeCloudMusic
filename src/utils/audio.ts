@@ -57,6 +57,8 @@ export class FCMAudio {
   public set src(value: string) {
     if (this._src !== value) {
       this._src = value;
+      this.audio.src = '';
+      this.mediaSource = undefined;
       URL.revokeObjectURL(this.audio.src);
       this.loadAudio();
     }
@@ -178,6 +180,9 @@ export class FCMAudio {
     let offset = 0;
     const chunkSize = 1024 * 500; // 500KB/次
     while (true) {
+      if (!this.mediaSource) {
+        break;
+      }
       const response = await fetch(this._src, {
         headers: {
           Range: `bytes=${offset}-${offset + chunkSize - 1}`,
