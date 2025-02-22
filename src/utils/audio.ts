@@ -211,6 +211,11 @@ export class FCMAudio {
         const metadata = await parseBuffer(new Uint8Array(arrayBuffer));
         console.log('metadata', metadata);
         this._duration = metadata.format.duration ?? 0;
+        console.log(
+          'duration: _duration %n, mediaSource.duration %n',
+          this._duration,
+          this.mediaSource.duration
+        );
         if (this.mediaSource) {
           this.mediaSource.duration = this._duration;
         }

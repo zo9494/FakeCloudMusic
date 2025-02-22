@@ -1,12 +1,13 @@
 import { app, nativeTheme } from 'electron';
 import { join } from 'node:path';
+import { application } from '../main/application';
 
 export class Icons {
   private static getPath(path: string) {
     return join(app.getAppPath(), path);
   }
   static get basePath() {
-    if (nativeTheme.shouldUseDarkColors) {
+    if (application.systemUseDarkMode) {
       return this.getPath('/dist/icons/dark');
     }
     return this.getPath('/dist/icons');

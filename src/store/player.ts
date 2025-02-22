@@ -43,6 +43,13 @@ export const usePlayerStore = defineStore<
       if (this.currentSong?.index >= this.playlist?.length) {
         return;
       }
+      this.$patch({
+        currentSong: {
+          song: undefined,
+          songUrl: undefined,
+        },
+        lyrics: [],
+      });
       this.play(this.currentSong.index + 1);
     },
     previous() {
@@ -61,8 +68,12 @@ export const usePlayerStore = defineStore<
       //     songUrl: undefined,
       //   },
       // });
+
       const { id } = this.playlist[this.currentSong.index || 0];
       getSongDetail(id).then(song => {
+        if (id !== this.playlist[this.currentSong.index].id) {
+          return;
+        }
         song.arName = getArName(song.ar);
         this.$patch({
           currentSong: {
@@ -71,6 +82,9 @@ export const usePlayerStore = defineStore<
         });
       });
       getSongUrl(id).then(songUrl => {
+        if (id !== this.playlist[this.currentSong.index].id) {
+          return;
+        }
         this.$patch({
           currentSong: {
             songUrl,
@@ -78,6 +92,9 @@ export const usePlayerStore = defineStore<
         });
       });
       getLyric(id).then(lyrics => {
+        if (id !== this.playlist[this.currentSong.index].id) {
+          return;
+        }
         this.$patch({ lyrics });
       });
     },
