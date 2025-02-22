@@ -55,12 +55,12 @@ export const usePlayerStore = defineStore<
       if (!this.playlist) {
         return;
       }
-      this.$patch({
-        currentSong: {
-          song: undefined,
-          songUrl: undefined,
-        },
-      });
+      // this.$patch({
+      //   currentSong: {
+      //     song: undefined,
+      //     songUrl: undefined,
+      //   },
+      // });
       const { id } = this.playlist[this.currentSong.index || 0];
       getSongDetail(id).then(song => {
         song.arName = getArName(song.ar);
