@@ -162,18 +162,22 @@ function play() {
 function pause() {
   data.node?.pause();
 }
+function restAudio() {
+  data.progress = 0;
+  data.cacheProgress = 0;
+  data.duration = 0;
+  console.log(data.node);
+}
 
 function next() {
   pause();
-  data.progress = 0;
-  data.cacheProgress = 0;
+  restAudio();
   playerStore.next();
 }
 
 function previous() {
   pause();
-  data.progress = 0;
-  data.cacheProgress = 0;
+  restAudio();
   playerStore.previous();
 }
 function setCurrentTime(value: number) {

@@ -1,13 +1,13 @@
 import { app, nativeTheme } from 'electron';
 import { join } from 'node:path';
-import { application } from '../main/application';
+import { application, SYSTEM_IS_DARK_MODE } from '../main/application';
 
 export class Icons {
   private static getPath(path: string) {
     return join(app.getAppPath(), path);
   }
   static get basePath() {
-    if (application.systemUseDarkMode) {
+    if (SYSTEM_IS_DARK_MODE) {
       return this.getPath('/dist/icons/dark');
     }
     return this.getPath('/dist/icons');

@@ -28,7 +28,7 @@ interface ActionType {
   next: () => void;
   previous: () => void;
 }
-
+// todo:重构，添加播放模式，添加播放列表
 export class FCMAudio {
   private callbackMaps: Partial<Record<EVENTS, cb>> = {};
   public canPlay = false;

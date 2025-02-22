@@ -6,9 +6,9 @@ export interface Application {
   tray?: Tray;
   thumbar?: Thumbar;
   downloadFileName: string;
-  systemUseDarkMode: boolean;
 }
+
+export const SYSTEM_IS_DARK_MODE = nativeTheme.shouldUseDarkColors;
 export const application: Application = {
   downloadFileName: 'unknown',
-  systemUseDarkMode: nativeTheme.shouldUseDarkColors,
 };
