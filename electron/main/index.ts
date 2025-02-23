@@ -222,7 +222,13 @@ async function start() {
     callback({ requestHeaders: details.requestHeaders });
   });
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    details.responseHeaders['Access-Control-Allow-Origin'] = ['*'];
+    if (details.responseHeaders['access-control-allow-origin']) {
+      details.responseHeaders['access-control-allow-origin'] = ['*'];
+    } else if (details.responseHeaders['Access-Control-Allow-Origin']) {
+      details.responseHeaders['Access-Control-Allow-Origin'] = ['*'];
+    } else {
+      details.responseHeaders['Access-Control-Allow-Origin'] = ['*'];
+    }
     callback({
       cancel: false,
       responseHeaders: details.responseHeaders,

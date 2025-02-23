@@ -57,7 +57,6 @@ export class FCMAudio {
   public set src(value: string) {
     if (this._src !== value) {
       this._src = value;
-      this.audio.src = '';
       this.mediaSource = undefined;
       URL.revokeObjectURL(this.audio.src);
       this.loadAudio();

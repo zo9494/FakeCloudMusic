@@ -165,11 +165,23 @@
             <i v-else @click="updateLike(item)" class="bi bi-heart"></i>
             <i @click="download(toRaw(item))" class="bi bi-download"></i>
           </div>
-          <div
-            class="text-overflow name"
-            :title="item.origin_name"
-            v-html="item.name"
-          />
+
+          <div class="name">
+            <div
+              class="text-overflow"
+              :title="item.origin_name"
+              v-html="item.name"
+            />
+
+            <div class="tags">
+              <VIPTag v-if="item.fee === 1" />
+              <NoSourceTag
+                v-if="item.noCopyrightRcmd"
+                :desc="item.noCopyrightRcmd.typeDesc"
+              />
+            </div>
+          </div>
+
           <div
             class="text-overflow ar"
             :title="item.ar.map((it:Base) => it.origin_name).join('/')"
@@ -195,6 +207,8 @@ import Avatar from '@/components/Avatar.vue';
 import Ellipsis from '@/components/Ellipsis.vue';
 import LoadingSVG from '@/assets/svg/loading.svg?component';
 import { RecycleScroller } from 'vue-virtual-scroller';
+import VIPTag from '@/components/VIPTag.vue';
+import NoSourceTag from '@/components/NoSourceTag.vue';
 import {
   onBeforeMount,
   onMounted,
@@ -250,7 +264,6 @@ async function loadPlaylist(params: { id: string }) {
         immediate: true,
       }
     );
-    console.log(userStore.flag);
 
     userStore.flag?.then(() => {
       data.loading = false;
@@ -674,8 +687,10 @@ function handleDev() {
 
       .name {
         color: var(--playlist-item-name-font-color);
+        display: flex;
+        overflow: hidden;
+        gap: 8px;
       }
-
       .ar {
         color: var(--playlist-item-ar-font-color);
 
