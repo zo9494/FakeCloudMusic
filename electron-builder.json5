@@ -8,26 +8,46 @@
   directories: {
     output: 'release/${version}',
   },
-  files: ['dist-electron', 'dist'],
+  files: [
+    'dist-electron',
+    'dist'
+  ],
   mac: {
     icon: 'public/icons/icon.png',
-    artifactName: 'FakeCloudMusic_${version}.${ext}',
-    target: ['dmg'],
+    artifactName: "${productName}-${version}-${arch}.${ext}",
+    target: [
+      'dmg'
+    ],
   },
   win: {
     icon: 'public/icons/icon.ico',
     target: [
       {
         target: 'nsis',
-        arch: ['x64'],
+        arch: [
+          'x64'
+        ],
       },
+      {
+        target: "portable",
+        arch: [
+          'x64'
+        ],
+      }
     ],
-    artifactName: 'FakeCloudMusic_${version}.${ext}',
   },
   linux: {
-    target: ['deb', 'snap'],
+    target: [
+      'deb',
+      'snap'
+    ],
+    artifactName: "${productName}-${version}-${arch}.${ext}",
+  },
+  "portable": {
+    "artifactName": "${productName}-portable-${version}-${arch}.${ext}"
   },
   nsis: {
+    "artifactName": "${productName}-setup-${version}-${arch}.${ext}",
     oneClick: false,
     perMachine: false,
     allowToChangeInstallationDirectory: true,

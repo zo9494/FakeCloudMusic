@@ -115,7 +115,7 @@ function handleScroll() {
       ) as HTMLDivElement;
 
       scrollRef.value.scrollTo({
-        top: currentEl.offsetTop - scrollRef.value.offsetHeight / 1.5,
+        top: currentEl.offsetTop - scrollRef.value.offsetHeight / 2,
         behavior: 'smooth',
       });
       // scrollRef.value.scrollTop =
@@ -207,7 +207,7 @@ defineExpose({ handleScroll });
         overflow: hidden;
         width: 100%;
         min-height: 20px;
-        font-size: 14.8px;
+        font-size: 20px;
         color: var(--lyrics-font-color);
         margin: 10px 0;
         p {
@@ -215,7 +215,7 @@ defineExpose({ handleScroll });
           transition: transform ease-in-out 300ms;
           overflow: hidden;
           transform-origin: center left;
-          margin: 5px 0;
+          margin: 4px 0;
         }
         &-active {
           font-weight: bold;
