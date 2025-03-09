@@ -7,6 +7,7 @@ import {
   nativeImage,
   Tray,
   Menu,
+  screen,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
@@ -58,6 +59,12 @@ app.whenReady().then(() => {
 //#region function
 
 async function createMainWindow() {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+
+  const DefaultHeight = (height * 0.86) >> 0;
+  const DefaultWidth = (width * 0.76) >> 0;
+
   const win = new BrowserWindow({
     webPreferences: {
       preload,
@@ -65,10 +72,10 @@ async function createMainWindow() {
     },
     title: 'FakeCloudMusic',
     frame: customWindowHeaderBar,
-    width: 1000,
-    height: 600,
-    minWidth: 1000,
-    minHeight: 600,
+    width: DefaultWidth,
+    height: DefaultHeight,
+    minWidth: DefaultWidth,
+    minHeight: DefaultHeight,
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 5, y: 5 },
     autoHideMenuBar: true,

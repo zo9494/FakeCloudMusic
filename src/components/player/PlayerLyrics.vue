@@ -113,9 +113,8 @@ function handleScroll() {
       const currentEl = document.querySelector(
         '.item-active'
       ) as HTMLDivElement;
-
       scrollRef.value.scrollTo({
-        top: currentEl.offsetTop - scrollRef.value.offsetHeight / 2,
+        top: currentEl.offsetTop - data.viewHeight / 2,
         behavior: 'smooth',
       });
       // scrollRef.value.scrollTop =
