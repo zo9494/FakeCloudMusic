@@ -9,7 +9,7 @@ import {
 } from 'naive-ui';
 import { ref, computed, provide, readonly } from 'vue';
 import MainPage from './Main.vue';
-import { themeKey, toggleThemeKey, themes } from '@/types';
+import { themeKey, toggleThemeKey, themes } from '@/utils/themeKey';
 import { darkMode } from '@/utils/darkMode';
 const themeOverrides: GlobalThemeOverrides = {
   Slider: {
