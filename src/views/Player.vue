@@ -15,10 +15,11 @@ import { formatDuringMS } from '@/utils/time';
 import { fcmAudio, FCMAudio } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
 import { useTextScroll } from '@/hooks/textOverflowScroll';
+import { Invoke, Listener } from '@/utils/ipcRenderer';
 const userStore = useUserStore();
 const playerStore = usePlayerStore();
 const { lyrics, currentSong } = storeToRefs(playerStore);
-const { on: Listener, invoke } = window.electron.ipcRenderer;
+
 onMounted(() => {
   useTextScroll('.f-player-info-song-name');
   useTextScroll('.f-player-info-song-ar');
@@ -34,7 +35,6 @@ interface Data {
   duration: number;
   showLyric: boolean;
   showPlaylist: boolean;
-  bgColor: [number, number, number];
   popoverEl?: HTMLDivElement;
 }
 
@@ -93,11 +93,7 @@ watch(
         alPicUrl: song?.al?.picUrl,
         title: song?.name,
       });
-      window.electron.ipcRenderer.invoke(
-        'SET_TITLE',
-        `${song?.name} - ${song?.arName}`
-      );
-      // window.electron.window.setTitle(`${song?.name} - ${song?.arName}`);
+      Invoke('SET_TITLE', `${song?.name} - ${song?.arName}`);
     }
   },
   { deep: true }
@@ -132,7 +128,9 @@ watch(
 
 function setBgColor(url: string) {
   getImageColor(url + '?param=300y300').then(rgb => {
-    data.bgColor = rgb;
+    document.documentElement.style = `--bg-img:linear-gradient(0deg,rgb(${rgb.join(
+      ','
+    )}),rgb(245,245,245))`;
   });
 }
 function handleAudioOn() {
@@ -203,11 +201,11 @@ function handleProgressChange(value: number) {
 }
 function handlePaused(paused: boolean) {
   data.play = !paused;
-  invoke('WEB:AUDIO_TOGGLE_PLAY', paused);
+  Invoke('WEB:AUDIO_TOGGLE_PLAY', paused);
 }
 
-function handleShowLyric() {
-  data.showLyric = true;
+function toggleShowLyric() {
+  data.showLyric = !data.showLyric;
 }
 
 // like
@@ -219,7 +217,7 @@ function updateLike(song: Track | undefined, isDel = false) {
 
 Listener('APP:AUDIO_TOGGLE_PLAY', (_, playBool: boolean) => {
   if (!data.node.canPlay) {
-    invoke('WEB:AUDIO_TOGGLE_PLAY', true);
+    Invoke('WEB:AUDIO_TOGGLE_PLAY', true);
     return;
   }
   if (playBool) {
@@ -241,7 +239,7 @@ Listener('APP:AUDIO_PREVIOUS', () => {
   <Transition name="slide-up">
     <div v-show="!data.showLyric" class="f-player">
       <div class="f-player-info">
-        <div class="f-player-info-cover" @click="handleShowLyric">
+        <div class="f-player-info-cover" @click="toggleShowLyric">
           <div class="mask">
             <i class="iconfont icon-arrow-up-bold"></i>
           </div>
@@ -363,7 +361,6 @@ Listener('APP:AUDIO_PREVIOUS', () => {
   <Teleport to="body">
     <Transition name="slide-up">
       <Lyrics
-        :bg-color="data.bgColor"
         v-if="data.showLyric"
         :song="currentSong.song"
         class="top"
@@ -373,7 +370,7 @@ Listener('APP:AUDIO_PREVIOUS', () => {
         <template v-slot:header>
           <button
             class="arrow-button"
-            @click="data.showLyric = false"
+            @click="toggleShowLyric"
             style="color: var(--font-color)"
           >
             <i class="icon-arrow-down-bold iconfont"></i>

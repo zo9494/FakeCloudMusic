@@ -559,12 +559,12 @@ function handleDev() {
 
       .options {
         display: grid;
-        grid-template-columns: 140px repeat(2, 130px) auto;
+        grid-template-columns: 130px repeat(2, 110px) auto;
         gap: 10px;
 
         button {
           font-size: 13px;
-          max-width: 140px;
+          max-width: 130px;
           &:not(.options-all) {
             border-radius: 50px;
             background-color: var(--button-color);

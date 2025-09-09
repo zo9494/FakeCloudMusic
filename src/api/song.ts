@@ -1,6 +1,6 @@
 import { service } from '@/utils/request';
 import { isArray } from 'lodash';
-import { transformLyric } from '@/utils/utils';
+import { transformDynamicLyric, transformLyric } from '@/utils/utils';
 type Id = number | string;
 type Ids = string[] | number[];
 
@@ -45,6 +45,7 @@ interface lyric {
 interface lyrics {
   lrc: lyric;
   tlyric: lyric;
+  yrc: lyric;
 }
 
 export async function getLyric(id: Id) {
@@ -53,6 +54,9 @@ export async function getLyric(id: Id) {
   });
 
   if (data?.lrc) {
+    if (data.yrc?.lyric) {
+      return transformDynamicLyric(data.yrc.lyric);
+    }
     return transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
   }
 }

@@ -96,15 +96,15 @@ export function transformDynamicLyric(lyric: string): LyricLine[] {
               if (i === splitedWords.length - 1) {
                 if (word?.endsWith(' ')) {
                   words.push({
-                    time: wordTime + i * splitedDuration,
-                    duration: splitedDuration,
+                    time: (wordTime + i * splitedDuration) / 1000,
+                    duration: splitedDuration / 1000,
                     flag,
                     word: `${subWord.trimStart()} `,
                   });
                 } else {
                   words.push({
-                    time: wordTime + i * splitedDuration,
-                    duration: splitedDuration,
+                    time: (wordTime + i * splitedDuration) / 1000,
+                    duration: splitedDuration / 1000,
                     flag,
                     word: subWord.trimStart(),
                   });
@@ -112,23 +112,23 @@ export function transformDynamicLyric(lyric: string): LyricLine[] {
               } else if (i === 0) {
                 if (word?.startsWith(' ')) {
                   words.push({
-                    time: wordTime + i * splitedDuration,
-                    duration: splitedDuration,
+                    time: (wordTime + i * splitedDuration) / 1000,
+                    duration: splitedDuration / 1000,
                     flag,
                     word: ` ${subWord.trimStart()}`,
                   });
                 } else {
                   words.push({
-                    time: wordTime + i * splitedDuration,
-                    duration: splitedDuration,
+                    time: (wordTime + i * splitedDuration) / 1000,
+                    duration: splitedDuration / 1000,
                     flag,
                     word: subWord.trimStart(),
                   });
                 }
               } else {
                 words.push({
-                  time: wordTime + i * splitedDuration,
-                  duration: splitedDuration,
+                  time: (wordTime + i * splitedDuration) / 1000,
+                  duration: splitedDuration / 1000,
                   flag,
                   word: `${subWord.trimStart()} `,
                 });
@@ -141,11 +141,11 @@ export function transformDynamicLyric(lyric: string): LyricLine[] {
         }
       }
       const line: LyricLine = {
-        time,
-        duration,
+        time: time / 1000,
+        duration: duration / 1000,
         lyric: words.map(v => v.word).join(''),
         dynamicLyric: words,
-        dynamicLyricTime: time,
+        dynamicLyricTime: time / 1000,
       };
       result.push(line);
       // log("逐词歌词", time, duration, line.lyric);

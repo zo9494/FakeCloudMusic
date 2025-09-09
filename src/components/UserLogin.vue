@@ -1,36 +1,29 @@
 <template>
-  <Popover
-    :show="visible"
-    trigger="manual"
-    placement="right"
-    :on-clickoutside="clickOutSide"
-  >
-    <template #reference>
-      <div class="user" @click="openLogin">
-        <div class="avatar">
-          <Avatar :src="profile?.avatarUrl" />
-          <!-- <img v-if="profile?.userId" :src="profile?.avatarUrl">
-      <div v-else>
-        <SvgIcon name="user_90" />
-      </div> -->
-        </div>
-        <div class="user-right">
-          <span> {{ profile?.userId ? profile?.nickname : '未登录' }}</span>
-          <i class="bi bi-caret-right-fill" />
-        </div>
+  <div @contextmenu="handleContextMenu" @click="openLoginDialog">
+    <div class="user">
+      <div class="avatar">
+        <Avatar :src="profile?.avatarUrl" />
       </div>
-    </template>
-
-    <div class="menu">
-      <ul>
-        <li @click="logout">退出登录</li>
-      </ul>
+      <div class="user-right">
+        <span> {{ profile?.userId ? profile?.nickname : '未登录' }}</span>
+        <i class="bi bi-caret-right-fill" />
+      </div>
     </div>
-  </Popover>
+  </div>
+
+  <NDropdown
+    :options="options"
+    trigger="manual"
+    :x="data.x"
+    :y="data.y"
+    :show="data.showDropdown"
+    :on-clickoutside="onClickOutSide"
+  />
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, reactive, nextTick } from 'vue';
+import { NDropdown } from 'naive-ui';
 import Popover from '@/components/popover/Popover.vue';
 import { useUserStore } from '@/store/user';
 import { storeToRefs } from 'pinia';
@@ -38,23 +31,49 @@ import Avatar from '@/components/Avatar.vue';
 
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);
+const options = [
+  {
+    label: '退出登录',
+    key: 'login out',
+    props: {
+      style: { padding: '0 10px' },
+      onClick: logout,
+    },
+  },
+];
 
-const visible = ref(false);
-function openLogin() {
+const data = reactive({
+  x: 0,
+  y: 0,
+  showDropdown: false,
+});
+
+function openLoginDialog() {
   if (!profile.value.userId) {
     window.electron.ipcRenderer.invoke('LOGIN');
-    // window.electron.window.createLoginWin();
-  } else {
-    visible.value = true;
   }
 }
 
-function clickOutSide() {
-  visible.value = false;
-}
 function logout() {
+  data.showDropdown = false;
   localStorage.removeItem('cookie');
   window.location.reload();
+}
+
+function handleContextMenu(e: MouseEvent) {
+  e.preventDefault();
+  if (!profile.value.userId) {
+    return;
+  }
+  data.showDropdown = false;
+  nextTick().then(() => {
+    data.showDropdown = true;
+    data.x = e.clientX;
+    data.y = e.clientY + 16;
+  });
+}
+function onClickOutSide() {
+  data.showDropdown = false;
 }
 </script>
 

@@ -1,12 +1,5 @@
 <template>
-  <div
-    class="f-lyrics-bg"
-    :style="{
-      '--bg-img': `linear-gradient(0deg,rgb(${props.bgColor.join(
-        ','
-      )}),rgb(245,245,245))`,
-    }"
-  >
+  <div class="f-lyrics-bg">
     <div class="f-lyrics">
       <div class="f-lyrics-header">
         <div>
@@ -26,7 +19,7 @@
           <slot name="options"></slot>
         </div>
         <div class="f-lyrics-body-right scrollbar" ref="scrollRef">
-          <p :style="{ height: `${data.viewHeight / 4}px` }"></p>
+          <div :style="{ height: `${data.viewHeight / 4}px` }"></div>
           <div
             v-for="(item, index) in props.lyrics"
             :key="item.time"
@@ -38,7 +31,7 @@
             <p class="item-lyric">{{ item.lyric }}</p>
             <p class="item-tlyric">{{ item.tlyric }}</p>
           </div>
-          <p :style="{ height: `${data.viewHeight / 4}px` }"></p>
+          <div :style="{ height: `${data.viewHeight / 4}px` }"></div>
         </div>
       </div>
     </div>
@@ -52,7 +45,6 @@ interface Props {
   progress: number;
   lyrics?: Lyric[];
   song?: Partial<Track>;
-  bgColor?: [number, number, number];
 }
 const props = withDefaults(defineProps<Props>(), {
   progress: 0,
@@ -88,7 +80,6 @@ function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
     console.table(lyrics);
     return -2;
   }
-
   let index = lyrics.length - 1;
   for (index; index >= 0; index--) {
     if (process >= lyrics[index].time) {
@@ -113,12 +104,13 @@ function handleScroll() {
       const currentEl = document.querySelector(
         '.item-active'
       ) as HTMLDivElement;
+
+      // currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
       scrollRef.value.scrollTo({
-        top: currentEl.offsetTop - data.viewHeight / 2,
+        top: currentEl.offsetTop - scrollRef.value.offsetHeight / 2,
         behavior: 'smooth',
       });
-      // scrollRef.value.scrollTop =
-      //   currentEl.offsetTop - scrollRef.value.offsetHeight / 1.4;
     } catch {}
   }
 }
@@ -205,8 +197,8 @@ defineExpose({ handleScroll });
       .item {
         overflow: hidden;
         width: 100%;
-        min-height: 20px;
-        font-size: 20px;
+        min-height: 24px;
+        font-size: 24px;
         color: var(--lyrics-font-color);
         margin: 10px 0;
         p {
@@ -220,7 +212,7 @@ defineExpose({ handleScroll });
           font-weight: bold;
           color: var(--lyrics-font-active-color);
           p {
-            transform: scale(1.1);
+            transform: scale(1.2);
           }
         }
       }
