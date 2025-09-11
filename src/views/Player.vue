@@ -88,7 +88,7 @@ watch(
 
 function setBgColor(url: string) {
   getImageColor(url + '?param=300y300').then(rgb => {
-    document.documentElement.style = `--bg-img:linear-gradient(0deg,rgb(${rgb.join(
+    document.documentElement.style.cssText = `--bg-img:linear-gradient(0deg,rgb(${rgb.join(
       ','
     )}),rgb(245,245,245))`;
   });

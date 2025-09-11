@@ -59,6 +59,7 @@ import { useUserStore } from '@/store/user';
 const userStore = useUserStore();
 
 import { usePlayerStore } from '@/store/player';
+import { fcmAudioPlayer } from '@/utils/audio';
 const playerStore = usePlayerStore();
 
 service
@@ -79,7 +80,7 @@ function handleDev() {
 }
 
 function handlePlay(index: number, list?: Track[]) {
-  playerStore.play(index, list);
+  fcmAudioPlayer.replacePlaylist(index, list as Track[]);
 }
 </script>
 
