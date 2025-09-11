@@ -8,34 +8,38 @@ import List from '@/components/player/Playerlist.vue';
 import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/store/user';
 import { usePlayerStore } from '@/store/player';
 import { formatDuringMS } from '@/utils/time';
-import { fcmAudio, FCMAudio } from '@/utils/audio';
+import { fcmAudioPlayer } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
 import { useTextScroll } from '@/hooks/textOverflowScroll';
 import { Invoke, Listener } from '@/utils/ipcRenderer';
+import { getLyric } from '@/api/song';
 const userStore = useUserStore();
-const playerStore = usePlayerStore();
-const { lyrics, currentSong } = storeToRefs(playerStore);
 
 onMounted(() => {
   useTextScroll('.f-player-info-song-name');
   useTextScroll('.f-player-info-song-ar');
-  handleAudioOn();
-  data.node.setActionHandler({ next: next, previous: previous });
 });
 interface Data {
-  node: FCMAudio;
   progress: number;
   cacheProgress: number;
   play: boolean;
+  currentTime: number;
   volume: number;
   duration: number;
   showLyric: boolean;
   showPlaylist: boolean;
   popoverEl?: HTMLDivElement;
+  bgColor: [number, number, number];
+  songInfo: {
+    id: string | number | null;
+    pic: string;
+    name: string;
+    ar: string;
+  };
+  lyrics?: Lyric[];
 }
 
 const data = reactive<Data>({
@@ -43,68 +47,24 @@ const data = reactive<Data>({
   cacheProgress: 0,
   play: false,
   volume: 0.5,
+  currentTime: 0,
   duration: 0,
   showLyric: false,
   showPlaylist: false,
   bgColor: [245, 245, 245],
-  node: fcmAudio(),
-});
-watch(
-  () => currentSong.value.songUrl?.url,
-  url => {
-    console.log('song url:', url);
-
-    if (!url) {
-      // message.create('未获取到歌曲播放地址,已跳过', {
-      //   type: 'error',
-      //   duration: 10000,
-      //   closable: true,
-      // });
-      // playerStore.next();
-      return;
-    }
-
-    data.node.src = url;
-    data.node.volume = data.volume;
-  }
-);
-
-const message = useMessage();
-watch(
-  () => currentSong.value?.song,
-
-  song => {
-    console.log('change', song);
-
-    if (song) {
-      if (song.noCopyrightRcmd) {
-        message.create('无版权歌曲,已跳过', {
-          type: 'info',
-          duration: 10000,
-          closable: true,
-        });
-        playerStore.next();
-        return;
-      }
-      setBgColor(song.al?.picUrl as string);
-      data.node.setMediaMetadata({
-        artist: song?.arName,
-        album: song?.al?.name,
-        alPicUrl: song?.al?.picUrl,
-        title: song?.name,
-      });
-      Invoke('SET_TITLE', `${song?.name} - ${song?.arName}`);
-    }
+  songInfo: {
+    id: null,
+    pic: '',
+    name: '',
+    ar: '',
   },
-  { deep: true }
-);
+  lyrics: [],
+});
 
 watch(
   () => data.volume,
   value => {
-    if (data.node) {
-      data.node.volume = value;
-    }
+    fcmAudioPlayer.volume = value;
   }
 );
 
@@ -133,75 +93,30 @@ function setBgColor(url: string) {
     )}),rgb(245,245,245))`;
   });
 }
-function handleAudioOn() {
-  const { node } = data;
-  node.on('progress', (value: number) => {
-    data.cacheProgress = value;
-  });
-  node.on('canplay', () => {
-    data.duration = node.duration || 0;
-    play();
-  });
-  node.on('timeupdate', (value: number) => {
-    data.progress = value;
-  });
-  node.on('paused', handlePaused);
-  node.on('ended', next);
-}
 
 // dev
 function handleDev() {
   window.alert('功能开发中...');
 }
-//
-function play() {
-  data.node?.play();
-}
-function pause() {
-  data.node?.pause();
-}
-function restAudio() {
-  data.progress = 0;
-  data.cacheProgress = 0;
-  data.duration = 0;
-  console.log(data.node);
-}
 
 function next() {
-  pause();
-  restAudio();
-  playerStore.next();
+  fcmAudioPlayer.next();
 }
 
 function previous() {
-  pause();
-  restAudio();
-  playerStore.previous();
-}
-function setCurrentTime(value: number) {
-  if (data.node) {
-    data.node.currentTime = value;
-    data.node.play();
-  }
+  fcmAudioPlayer.prev();
 }
 
-function handlePlay(value: boolean) {
-  if (!data.node.canPlay) {
-    return;
-  }
-  if (value) {
-    play();
+function togglePlay() {
+  if (data.play) {
+    fcmAudioPlayer.pause();
   } else {
-    pause();
+    fcmAudioPlayer.play();
   }
 }
 
 function handleProgressChange(value: number) {
-  setCurrentTime(value);
-}
-function handlePaused(paused: boolean) {
-  data.play = !paused;
-  Invoke('WEB:AUDIO_TOGGLE_PLAY', paused);
+  fcmAudioPlayer.currentTime = value;
 }
 
 function toggleShowLyric() {
@@ -215,24 +130,44 @@ function updateLike(song: Track | undefined, isDel = false) {
   }
 }
 
+fcmAudioPlayer.on('songchange', songInfo => {
+  data.songInfo = songInfo;
+  setBgColor(songInfo.pic);
+  Invoke('SET_TITLE', songInfo.name);
+  getLyric(songInfo.id).then(lyrics => {
+    data.lyrics = lyrics;
+  });
+});
+
+fcmAudioPlayer.on('play', () => {
+  console.log('event:play');
+
+  data.play = true;
+  Invoke('WEB:AUDIO_TOGGLE_PLAY', true);
+});
+fcmAudioPlayer.on('pause', () => {
+  data.play = false;
+  Invoke('WEB:AUDIO_TOGGLE_PLAY', false);
+});
+fcmAudioPlayer.on('loadedmetadata', duration => {
+  data.duration = duration;
+});
+
+fcmAudioPlayer.on('timeupdate', val => {
+  data.currentTime = val;
+});
+
 Listener('APP:AUDIO_TOGGLE_PLAY', (_, playBool: boolean) => {
-  if (!data.node.canPlay) {
-    Invoke('WEB:AUDIO_TOGGLE_PLAY', true);
-    return;
-  }
+  console.log(playBool);
   if (playBool) {
-    play();
+    fcmAudioPlayer.play();
   } else {
-    pause();
+    fcmAudioPlayer.pause();
   }
 });
 
-Listener('APP:AUDIO_NEXT', () => {
-  next();
-});
-Listener('APP:AUDIO_PREVIOUS', () => {
-  previous();
-});
+Listener('APP:AUDIO_NEXT', next);
+Listener('APP:AUDIO_PREVIOUS', previous);
 </script>
 
 <template>
@@ -243,20 +178,17 @@ Listener('APP:AUDIO_PREVIOUS', () => {
           <div class="mask">
             <i class="iconfont icon-arrow-up-bold"></i>
           </div>
-          <Image
-            class="img"
-            :src="currentSong.song?.al?.picUrl + '?param=300y300'"
-          />
+          <Image class="img" :src="data.songInfo.pic + '?param=300y300'" />
         </div>
         <div class="f-player-info-song">
           <div
             class="f-player-info-song-name"
-            v-html="`<span>${currentSong.song?.name || ''}</span>`"
+            v-html="`<span>${data.songInfo.name || ''}</span>`"
           >
           </div>
           <div
             class="f-player-info-song-ar"
-            v-html="`<span>${currentSong.song?.arName || ''}</span>`"
+            v-html="`<span>${data.songInfo.ar || ''}</span>`"
           >
           </div>
         </div>
@@ -265,14 +197,14 @@ Listener('APP:AUDIO_PREVIOUS', () => {
       <div class="f-player-heart">
         <span>
           <i
-            v-if="userStore.hasLike(currentSong.song?.id as number)"
-            @click="updateLike(currentSong.song as any, true)"
+            v-if="userStore.hasLike(data.songInfo.id as number)"
+            @click="updateLike(data.songInfo as any, true)"
             class="bi bi-heart-fill"
           />
           <i
             v-else
             class="bi bi-heart"
-            @click="updateLike(currentSong.song as any)"
+            @click="updateLike(data.songInfo as any)"
           />
         </span>
       </div>
@@ -288,7 +220,7 @@ Listener('APP:AUDIO_PREVIOUS', () => {
         <!-- 暂停、播放 -->
         <button
           class="f-player-control-pau-pla f-player-control-btn"
-          @click="handlePlay(!data.play)"
+          @click="togglePlay()"
         >
           <i v-show="data.play" class="iconfont icon-pause" />
           <i v-show="!data.play" class="iconfont icon-play" />
@@ -303,10 +235,10 @@ Listener('APP:AUDIO_PREVIOUS', () => {
       </div>
       <!-- 播放进度 -->
       <div class="f-player-progress">
-        <span>{{ formatDuringMS(data.progress) }}</span>
+        <span>{{ formatDuringMS(data.currentTime) }}</span>
         <div class="f-player-progress-bar">
           <VueSlider
-            :modelValue="data.progress"
+            :modelValue="data.currentTime"
             :lazy="true"
             :height="5"
             @change="handleProgressChange"
@@ -362,10 +294,10 @@ Listener('APP:AUDIO_PREVIOUS', () => {
     <Transition name="slide-up">
       <Lyrics
         v-if="data.showLyric"
-        :song="currentSong.song"
+        :song="data.songInfo"
         class="top"
-        :progress="data.progress"
-        :lyrics="lyrics"
+        :progress="data.currentTime"
+        :lyrics="data.lyrics"
       >
         <template v-slot:header>
           <button
@@ -379,11 +311,11 @@ Listener('APP:AUDIO_PREVIOUS', () => {
         <template v-slot:options>
           <div class="lyrics-options">
             <div class="lyrics-options-slider">
-              <span>{{ formatDuringMS(data.progress) }}</span>
+              <span>{{ formatDuringMS(data.currentTime) }}</span>
               <div class="lyrics-options-slider-bar">
                 <VueSlider
                   :height="5"
-                  :modelValue="data.progress"
+                  :modelValue="data.currentTime"
                   :lazy="true"
                   @change="handleProgressChange"
                   :min="0"
@@ -413,7 +345,7 @@ Listener('APP:AUDIO_PREVIOUS', () => {
               </button>
               <button
                 class="f-player-control-pau-pla f-player-control-btn"
-                @click="handlePlay(!data.play)"
+                @click="togglePlay()"
               >
                 <i v-show="data.play" class="iconfont icon-pause" />
                 <i v-show="!data.play" class="iconfont icon-play" />

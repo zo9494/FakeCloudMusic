@@ -53,16 +53,16 @@ export class Thumbar {
   // setThumbarButtons() {
   //   this.win.setThumbarButtons(this.buttons);
   // }
-  public togglePlay(paused: boolean) {
+  public togglePlay(play: boolean) {
     const [_, pausedButton, playButton] = this.buttons;
-    if (paused) {
-      // 显示播放按键
-      playButton.flags = [];
-      pausedButton.flags = ['hidden'];
-    } else {
+    if (play) {
       // 显示暂停按键
       pausedButton.flags = [];
       playButton.flags = ['hidden'];
+    } else {
+      // 显示播放按键
+      playButton.flags = [];
+      pausedButton.flags = ['hidden'];
     }
     this.win.setThumbarButtons(this.buttons);
   }

@@ -229,6 +229,7 @@ import { usePlayerStore } from '@/store/player';
 import { formatDate, formatDuring } from '@/utils/time';
 import { formatNumber } from '@/utils/number';
 import { download } from '@/utils/utils';
+import { fcmAudioPlayer } from '@/utils/audio';
 
 const userStore = useUserStore();
 const { profile } = storeToRefs(userStore);
@@ -423,7 +424,7 @@ const { value } = useSearch(data);
 //#endregion
 const dialog = useDialog();
 function handlePlay(index: number, list?: Track[]) {
-  playerStore.play(index, data.playlist.tracks);
+  fcmAudioPlayer.replacePlaylist(index, data.playlist.tracks as Track[]);
 }
 
 // like

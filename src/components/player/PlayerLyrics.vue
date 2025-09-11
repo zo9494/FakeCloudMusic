@@ -6,15 +6,15 @@
           <slot name="header"></slot>
         </div>
         <div class="f-lyrics-header-title">
-          <p class="name">{{ props.song?.name || 'unknown' }}</p>
-          <p class="arName">{{ props.song?.arName || 'unknown' }}</p>
+          <p class="name">{{ props.song.name || 'unknown' }}</p>
+          <p class="arName">{{ props.song.ar || 'unknown' }}</p>
         </div>
       </div>
       <div class="f-lyrics-body">
         <div class="f-lyrics-body-left">
           <ImageComponent
             class="cover"
-            :src="props.song?.al?.picUrl + '?param=300y300'"
+            :src="props.song.pic + '?param=300y300'"
           />
           <slot name="options"></slot>
         </div>
@@ -44,7 +44,12 @@ import ImageComponent from '@/components/PlaylistImage.vue';
 interface Props {
   progress: number;
   lyrics?: Lyric[];
-  song?: Partial<Track>;
+  song: {
+    id: string | number | null;
+    pic: string;
+    name: string;
+    ar: string;
+  };
 }
 const props = withDefaults(defineProps<Props>(), {
   progress: 0,

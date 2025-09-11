@@ -1,46 +1,60 @@
-import { throttle, round, ceil } from 'lodash';
+import { getSongUrl } from '@/api/song';
+import { throttle, round, ceil, set } from 'lodash';
 import { parseBuffer } from 'music-metadata';
+import { getArName } from './utils';
 interface Options {
   src: string;
   volume: number;
 }
 
-enum EVENTS {
-  progress = 'progress',
-  cacheProgress = 'cacheProgress',
-  timeupdate = 'timeupdate',
-  ended = 'ended',
-  canplay = 'canplay',
-  paused = 'paused',
-  playing = 'playing',
-}
-type event = keyof typeof EVENTS;
-type cb = (data?: any) => void;
 interface mediaDataType {
   title: string;
   artist: string;
   album: string;
   alPicUrl: string;
 }
-interface ActionType {
-  play: () => void;
-  pause: () => void;
-  next: () => void;
-  previous: () => void;
+
+interface FCMAudioPlayerEventMap extends HTMLMediaElementEventMap {
+  songchange: any;
 }
+
+type Callback = (...args: any[]) => void;
+
 // todo:重构，添加播放模式，添加播放列表
-export class FCMAudio {
-  private callbackMaps: Partial<Record<EVENTS, cb>> = {};
-  public canPlay = false;
-  private mediaSource?: MediaSource;
-  private _src: string;
-  private audio = new Audio();
-  private _duration: number = 0;
+export class FCMAudioPlayer {
+  private audio: HTMLAudioElement;
+  // 播放列表
+  list: Track[] = [];
+  private eventListeners: { [key: string]: Callback[] } = {};
+  // 当前播放索引
+  private _currentIndex: number = 0;
   constructor(options?: Partial<Options>) {
-    this._src = options?.src || '';
-    this.loadAudio();
-    this.audio.volume = options?.volume || 0.5;
-    this.listener();
+    this.audio = new Audio();
+    this.audio.preload = 'auto';
+    this.audio.autoplay = true;
+    this.bindEvents();
+  }
+  get duration() {
+    return this.audio.duration;
+  }
+  set currentTime(v: number) {
+    this.audio.currentTime = v;
+  }
+  get currentTime() {
+    return this.audio.currentTime;
+  }
+
+  set currentIndex(v: number) {
+    this._currentIndex = v;
+    this.songChangeEvent();
+  }
+
+  get currentIndex() {
+    return this._currentIndex;
+  }
+
+  get currentTrack() {
+    return this.list[this.currentIndex];
   }
 
   public get volume() {
@@ -51,82 +65,105 @@ export class FCMAudio {
     this.audio.volume = v;
   }
 
-  public get src(): string {
-    return this._src;
-  }
-  public set src(value: string) {
-    if (this._src !== value) {
-      this._src = value;
-      this.mediaSource = undefined;
-      URL.revokeObjectURL(this.audio.src);
-      this.loadAudio();
-    }
-  }
-  get currentTime() {
-    return round(this.audio.currentTime, 3);
-  }
-  set currentTime(val: number) {
-    this.audio.currentTime = val;
-  }
-
-  public set duration(v: number) {
-    this._duration = v;
-  }
-
-  get duration() {
-    return round(this._duration, 3);
-  }
-  private listener() {
-    const self = this;
-    const { audio, mediaSource } = this;
-    const map: { [propName: string]: any } = {
-      progress: () => {
-        if (audio.buffered.length > 0) {
-          const bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
-          const progress = (bufferedEnd / self.duration) * 100;
-          console.log(self.duration, mediaSource?.duration);
-          console.log(`缓冲进度: ${progress}%`);
-
-          this.callbackMaps.progress?.(ceil(progress, 2));
-        }
-      },
-      timeupdate: throttle(() => {
-        this.callbackMaps.timeupdate?.(round(audio.currentTime, 3));
-      }, 200),
-      ended: () => {
-        this.canPlay = false;
-        this.callbackMaps.ended?.();
-        this.callbackMaps.paused?.(true);
-      },
-      canplay: () => {
-        this.canPlay = true;
-        this.callbackMaps.canplay?.();
-      },
-      paused: () => {
-        this.callbackMaps.paused?.(true);
-      },
-      playing: () => {
-        this.callbackMaps.playing?.(false);
-      },
-    };
-
-    for (const key in map) {
-      if (Object.prototype.hasOwnProperty.call(map, key)) {
-        audio.addEventListener(key, map[key]);
-      }
-    }
-  }
-  on(e: event, cb: cb) {
-    this.callbackMaps[e] = cb;
-  }
-
   play() {
-    this.callbackMaps.paused?.(false);
-    return this.audio.play();
+    this.audio.play();
+    console.log(this);
   }
   pause() {
     this.audio.pause();
-    this.callbackMaps.paused?.(true);
+  }
+  next() {
+    this.pause();
+    if (this.currentIndex < this.list.length - 1) {
+      this.currentIndex++;
+    }
+    this.playMediaSource();
+  }
+  prev() {
+    this.pause();
+    if (this.currentIndex != 0) {
+      this.currentIndex--;
+    }
+    this.playMediaSource();
+  }
+  bindEvents() {
+    const self = this;
+    self.audio.addEventListener('play', () => {
+      self.triggerEvent('play');
+    });
+    self.audio.addEventListener('pause', () => {
+      self.triggerEvent('pause');
+    });
+    self.audio.addEventListener('ended', () => {
+      self.triggerEvent('ended');
+      self.next();
+    });
+    self.audio.addEventListener('error', err => {
+      self.triggerEvent('error');
+      if (self.audio.error?.code === 2) {
+        // 地址过期，重新获取
+        self.playMediaSource();
+      }
+    });
+    self.audio.addEventListener(
+      'timeupdate',
+      throttle(() => {
+        self.triggerEvent('timeupdate', round(self.currentTime, 3));
+      }, 800)
+    );
+    self.audio.addEventListener('loadedmetadata', () => {
+      self.triggerEvent('loadedmetadata', round(self.duration, 3));
+    });
+  }
+  on(event: keyof FCMAudioPlayerEventMap, callback: Callback) {
+    if (!this.eventListeners[event]) {
+      this.eventListeners[event] = [];
+    }
+    this.eventListeners[event].push(callback);
+  }
+  off(event: keyof FCMAudioPlayerEventMap, callback: Callback) {
+    if (this.eventListeners[event]) {
+      this.eventListeners[event] = this.eventListeners[event].filter(
+        cb => cb !== callback
+      );
+    }
+  }
+
+  // 触发事件
+  triggerEvent(event: keyof FCMAudioPlayerEventMap, ...args: any[]) {
+    if (this.eventListeners[event]) {
+      this.eventListeners[event].forEach(callback => callback(...args));
+    }
+  }
+
+  // 替换播放列表
+  replacePlaylist(index = 0, list: Track[]) {
+    this.list = list;
+    this.currentIndex = index;
+    this.playMediaSource();
+  }
+  async playMediaSource() {
+    const src = await this.getMediaSource(this.currentTrack);
+    this.audio.src = src || '';
+  }
+
+  getMediaSource(track: Track) {
+    return (
+      this.getMediaSourceFromCache(track) ||
+      this.getMediaSourceFromNetEase(track)
+    );
+  }
+  /* 从indexdb获取 */
+  getMediaSourceFromCache(track: Track) {
+    return null;
+  }
+
+  /* 从网易云获取url */
+  async getMediaSourceFromNetEase(track: Track) {
+    const realSongUrl = await getSongUrl(track.id);
+    if (realSongUrl.url) {
+      return realSongUrl.url;
+    }
   }
 
   setMediaMetadata(params: Partial<mediaDataType>) {
@@ -146,125 +183,26 @@ export class FCMAudio {
     });
   }
 
-  setActionHandler(actions: Partial<ActionType>) {
-    navigator.mediaSession.setActionHandler(
-      'pause',
-      actions.pause || this.pause.bind(this)
-    );
-    navigator.mediaSession.setActionHandler(
-      'play',
-      actions.play || this.play.bind(this)
-    );
-    navigator.mediaSession.setActionHandler('nexttrack', actions.next || null);
-    navigator.mediaSession.setActionHandler(
-      'previoustrack',
-      actions.previous || null
-    );
-  }
+  songChangeEvent() {
+    const songInfo = {
+      id: this.currentTrack.id,
+      name: this.currentTrack.name || '',
+      ar: getArName(this.currentTrack.ar),
+      pic: this.currentTrack.al.picUrl,
+    };
+    this.triggerEvent('songchange', songInfo);
 
-  async loadAudio() {
-    if (!this._src) {
-      return;
-    }
-
-    this.mediaSource = new MediaSource();
-    this.audio.src = URL.createObjectURL(this.mediaSource);
-    this.mediaSource.addEventListener('sourceopen', () => {
-      const sourceBuffer = this.mediaSource?.addSourceBuffer('audio/mpeg');
-      if (!sourceBuffer) return;
-      this.fetchAudioDataInChunks(sourceBuffer);
+    this.setTitle(`${songInfo.name} - ${songInfo.ar}`);
+    this.setMediaMetadata({
+      title: songInfo.name,
+      artist: songInfo.ar,
+      album: songInfo.name,
+      alPicUrl: songInfo.pic,
     });
   }
-  async fetchAudioDataInChunks(sourceBuffer: SourceBuffer) {
-    let offset = 0;
-    const chunkSize = 1024 * 500; // 500KB/次
-    while (true) {
-      if (!this.mediaSource) {
-        break;
-      }
-      const response = await fetch(this._src, {
-        headers: {
-          Range: `bytes=${offset}-${offset + chunkSize - 1}`,
-        },
-      });
-      const arrayBuffer = await response.arrayBuffer();
-      if (!response.ok) {
-        console.log('终止：数据已加载完毕');
-        this.endOfStream();
-      }
-
-      if (response.status !== 206 && response.status !== 200) {
-        console.log('服务器不支持 Range 请求或文件已结束');
-        this.endOfStream();
-        break;
-      }
-
-      if (arrayBuffer.byteLength === 0) {
-        console.log('数据已加载完毕');
-        this.endOfStream();
-        break;
-      }
-
-      // 获取id3标签数据
-      if (offset === 0) {
-        const metadata = await parseBuffer(new Uint8Array(arrayBuffer));
-        console.log('metadata', metadata);
-        this._duration = metadata.format.duration ?? 0;
-        console.log(
-          'duration: _duration %n, mediaSource.duration %n',
-          this._duration,
-          this.mediaSource.duration
-        );
-        if (this.mediaSource) {
-          this.mediaSource.duration = this._duration;
-        }
-      }
-
-      sourceBuffer.appendBuffer(arrayBuffer);
-      console.log(arrayBuffer);
-      offset += arrayBuffer.byteLength;
-    }
-  }
-
-  private endOfStream() {
-    try {
-      this.mediaSource?.endOfStream();
-    } catch (error) {
-      console.log(error);
-    }
+  setTitle(title: string) {
+    document.title = title;
   }
 }
 
-export const fcmAudio = (() => {
-  let instance: FCMAudio;
-  return (options?: Partial<Options>) => {
-    if (instance) {
-      return instance;
-    }
-    instance = new FCMAudio(options);
-    return instance;
-  };
-})();
-
-// todo 播放模式
-enum Mode {
-  // 顺序播放
-  order = 'order',
-  // 循环播放
-  loop = 'loop',
-  // 随机播放
-  shuffle = 'shuffle',
-}
-type ModeKey = keyof typeof Mode;
-class PlayMode {
-  private value: keyof typeof Mode;
-  constructor(value = Mode.order) {
-    this.value = value;
-  }
-  set mode(value: ModeKey) {
-    this.value = value;
-  }
-  get mode(): ModeKey {
-    return this.value;
-  }
-}
+export const fcmAudioPlayer = new FCMAudioPlayer();
