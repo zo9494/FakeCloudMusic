@@ -1,6 +1,5 @@
 import { getSongUrl } from '@/api/song';
-import { throttle, round, ceil, set } from 'lodash';
-import { parseBuffer } from 'music-metadata';
+import { throttle, round, random } from 'lodash';
 import { getArName } from './utils';
 interface Options {
   src: string;
@@ -20,6 +19,17 @@ interface FCMAudioPlayerEventMap extends HTMLMediaElementEventMap {
 
 type Callback = (...args: any[]) => void;
 
+enum PlayMode {
+  // 顺序播放
+  order = 0,
+  // 循环播放
+  loop,
+  // 随机播放
+  shuffle,
+  // 单曲循环
+  repeat,
+}
+
 // todo:重构，添加播放模式，添加播放列表
 export class FCMAudioPlayer {
   private audio: HTMLAudioElement;
@@ -28,11 +38,18 @@ export class FCMAudioPlayer {
   private eventListeners: { [key: string]: Callback[] } = {};
   // 当前播放索引
   private _currentIndex: number = 0;
+  // 已经播放过的
+  private playedIndex: number[] = [];
+  // 播放模式
+  mode: number = 0;
   constructor(options?: Partial<Options>) {
     this.audio = new Audio();
+    this.audio.volume = options?.volume || 0.5;
+    this.audio.src = options?.src || '';
     this.audio.preload = 'auto';
     this.audio.autoplay = true;
     this.bindEvents();
+    this.bindMediaActionHandler();
   }
   get duration() {
     return this.audio.duration;
@@ -73,14 +90,12 @@ export class FCMAudioPlayer {
     this.audio.pause();
   }
   next() {
-    this.pause();
     if (this.currentIndex < this.list.length - 1) {
       this.currentIndex++;
     }
     this.playMediaSource();
   }
   prev() {
-    this.pause();
     if (this.currentIndex != 0) {
       this.currentIndex--;
     }
@@ -136,6 +151,22 @@ export class FCMAudioPlayer {
     }
   }
 
+  bindMediaActionHandler() {
+    const mediaActionMap: { [key: string]: () => void } = {
+      pause: this.pause.bind(this),
+      play: this.play.bind(this),
+      nexttrack: this.next.bind(this),
+      previoustrack: this.prev.bind(this),
+    };
+
+    for (const key in mediaActionMap) {
+      navigator.mediaSession.setActionHandler(
+        key as MediaSessionAction,
+        mediaActionMap[key]
+      );
+    }
+  }
+
   // 替换播放列表
   replacePlaylist(index = 0, list: Track[]) {
     this.list = list;
@@ -143,6 +174,7 @@ export class FCMAudioPlayer {
     this.playMediaSource();
   }
   async playMediaSource() {
+    this.pause();
     const src = await this.getMediaSource(this.currentTrack);
     this.audio.src = src || '';
   }

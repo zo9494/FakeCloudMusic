@@ -19,19 +19,21 @@
           <slot name="options"></slot>
         </div>
         <div class="f-lyrics-body-right scrollbar" ref="scrollRef">
-          <div :style="{ height: `${data.viewHeight / 4}px` }"></div>
-          <div
-            v-for="(item, index) in props.lyrics"
-            :key="item.time"
-            :class="[
-              data.currentIndex === index ? 'item-active' : null,
-              'item',
-            ]"
-          >
-            <p class="item-lyric">{{ item.lyric }}</p>
-            <p class="item-tlyric">{{ item.tlyric }}</p>
+          <div class="wrapper">
+            <div :style="{ height: `${data.viewHeight / 2}px` }"></div>
+            <div
+              v-for="(item, index) in props.lyrics"
+              :key="item.time"
+              :class="[
+                data.currentIndex === index ? 'item-active' : null,
+                'item',
+              ]"
+            >
+              <p class="item-lyric">{{ item.lyric }}</p>
+              <p class="item-tlyric">{{ item.tlyric }}</p>
+            </div>
+            <div :style="{ height: `${data.viewHeight / 2}px` }"></div>
           </div>
-          <div :style="{ height: `${data.viewHeight / 4}px` }"></div>
         </div>
       </div>
     </div>
@@ -58,17 +60,15 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const data = reactive({
   currentIndex: -1,
-  viewHeight: 400,
+  viewHeight: 0,
 });
 
 const scrollRef = ref<HTMLDivElement>();
 
 onMounted(() => {
+  data.viewHeight = scrollRef.value?.offsetHeight || 0;
   data.currentIndex = processLyricsIndex(props.progress, props.lyrics);
   nextTick(() => {
-    if (scrollRef.value?.offsetHeight) {
-      data.viewHeight = scrollRef.value.offsetHeight;
-    }
     handleScroll();
   });
 });
@@ -94,30 +94,22 @@ function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   return index;
 }
 
-watch(() => data.currentIndex, handleScroll);
+watch(
+  () => data.currentIndex,
+  () => {
+    nextTick(handleScroll);
+  }
+);
 
 function handleScroll() {
-  if (scrollRef.value) {
-    if (data.currentIndex < 0) {
-      scrollRef.value.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-      return;
-    }
-    try {
-      const currentEl = document.querySelector(
-        '.item-active'
-      ) as HTMLDivElement;
-
-      // currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      scrollRef.value.scrollTo({
-        top: currentEl.offsetTop - scrollRef.value.offsetHeight / 2,
-        behavior: 'smooth',
-      });
-    } catch {}
-  }
+  const el = document.querySelector<HTMLDivElement>('.item-active');
+  const elTop = el?.offsetTop || 0;
+  const elHeight = el?.offsetHeight || 0;
+  const y = elTop - data.viewHeight / 2 + elHeight / 2;
+  scrollRef.value?.scrollTo({
+    top: y,
+    behavior: 'smooth',
+  });
 }
 
 defineExpose({ handleScroll });
@@ -199,26 +191,31 @@ defineExpose({ handleScroll });
 
     &-right {
       width: 98%;
+      position: relative;
+      .wrapper {
+        position: relative;
+      }
       .item {
-        overflow: hidden;
+        box-sizing: border-box;
         width: 100%;
-        min-height: 24px;
         font-size: 24px;
         color: var(--lyrics-font-color);
-        margin: 10px 0;
+        margin: 12px 0;
+        transition: all ease-in-out 200ms;
         p {
           width: 90%;
-          transition: transform ease-in-out 300ms;
-          overflow: hidden;
+          transition: all ease-in-out 200ms;
           transform-origin: center left;
-          margin: 4px 0;
+          margin: 2px 0;
+        }
+        .item-tlyric {
+          font-size: 18px;
+          margin: 0;
         }
         &-active {
+          transform: translate3d(0, 0, 0);
           font-weight: bold;
           color: var(--lyrics-font-active-color);
-          p {
-            transform: scale(1.2);
-          }
         }
       }
     }

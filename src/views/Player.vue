@@ -131,6 +131,8 @@ function updateLike(song: Track | undefined, isDel = false) {
 }
 
 fcmAudioPlayer.on('songchange', songInfo => {
+  data.currentTime = 0;
+  data.duration = 0;
   data.songInfo = songInfo;
   setBgColor(songInfo.pic);
   Invoke('SET_TITLE', songInfo.name);
