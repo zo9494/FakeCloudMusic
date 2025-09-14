@@ -33,7 +33,7 @@
               <p class="item-tlyric">{{ item.tlyric }}</p>
             </div>
             <div
-              v-if="props.lyrics.length < 1"
+              v-if="props.lyrics.length > 1"
               :style="{ height: `${data.viewHeight / 2}px` }"
             />
           </div>
