@@ -20,7 +20,7 @@
         </div>
         <div class="f-lyrics-body-right scrollbar" ref="scrollRef">
           <div class="wrapper">
-            <div :style="{ height: `${data.viewHeight / 2}px` }"></div>
+            <div :style="{ height: `${data.viewHeight / 2}px` }" />
             <div
               v-for="(item, index) in props.lyrics"
               :key="item.time"
@@ -32,7 +32,10 @@
               <p class="item-lyric">{{ item.lyric }}</p>
               <p class="item-tlyric">{{ item.tlyric }}</p>
             </div>
-            <div :style="{ height: `${data.viewHeight / 2}px` }"></div>
+            <div
+              v-if="props.lyrics.length < 1"
+              :style="{ height: `${data.viewHeight / 2}px` }"
+            />
           </div>
         </div>
       </div>

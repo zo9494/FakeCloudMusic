@@ -49,7 +49,7 @@ interface lyrics {
 }
 
 export async function getLyric(id: Id) {
-  const data = await service.get<lyrics>('/lyric/new', {
+  const data = await service.get<lyrics>('/lyric', {
     params: { id },
   });
 
