@@ -130,12 +130,17 @@ function updateLike(song: Track | undefined, isDel = false) {
   }
 }
 
-fcmAudioPlayer.on('songchange', songInfo => {
+function resetPlayerStatus() {
   data.currentTime = 0;
   data.duration = 0;
+  data.lyrics = [];
+}
+
+fcmAudioPlayer.on('songchange', songInfo => {
+  resetPlayerStatus();
   data.songInfo = songInfo;
   setBgColor(songInfo.pic);
-  Invoke('SET_TITLE', songInfo.name);
+  Invoke('SET_TITLE', `${songInfo.name}-${songInfo.ar}`);
   getLyric(songInfo.id).then(lyrics => {
     data.lyrics = lyrics;
   });
@@ -156,7 +161,9 @@ fcmAudioPlayer.on('loadedmetadata', duration => {
 });
 
 fcmAudioPlayer.on('timeupdate', val => {
-  data.currentTime = val;
+  if (data.play) {
+    data.currentTime = val;
+  }
 });
 
 Listener('APP:AUDIO_TOGGLE_PLAY', (_, playBool: boolean) => {
@@ -245,7 +252,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
             :height="5"
             @change="handleProgressChange"
             :min="0"
-            :max="data.duration"
+            :max="data.duration || 1"
             :duration="0"
             :interval="0.001"
             tooltip="none"
@@ -321,7 +328,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
                   :lazy="true"
                   @change="handleProgressChange"
                   :min="0"
-                  :max="data.duration"
+                  :max="data.duration || 1"
                   :interval="0.001"
                   tooltip="none"
                   :duration="0"
