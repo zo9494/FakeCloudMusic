@@ -26,7 +26,6 @@
   "devDependencies": {
     "@types/lodash": "^4.17.0",
     "@types/winreg": "^1.2.36",
-    "@unblockneteasemusic/server": "^0.27.10",
     "@vitejs/plugin-vue": "^4.6.2",
     "axios": "^1.6.8",
     "bootstrap-icons": "^1.11.3",
@@ -52,7 +51,8 @@
     "vue-virtual-scroller": "2.0.0-beta.8"
   },
   "dependencies": {
-    "NeteaseCloudMusicApi": "4.28.0"
+    "NeteaseCloudMusicApi": "4.28.0",
+    "@unblockneteasemusic/server": "^0.27.10"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
