@@ -1,6 +1,7 @@
 import { service } from '@/utils/request';
 import { isArray } from 'lodash';
 import { transformLyric } from '@/utils/utils';
+import { Invoke } from '@/utils/ipcRenderer';
 type Id = number | string;
 type Ids = string[] | number[];
 
@@ -56,4 +57,19 @@ export async function getLyric(id: Id) {
   if (data?.lrc) {
     return transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
   }
+}
+
+interface D {
+  id: number;
+  params: string[];
+}
+// UnblockResult
+interface UnblockResult {
+  audioId: number;
+  url: string;
+  songName: string;
+  error: any;
+}
+export function getUnblockSong(d: D): Promise<UnblockResult> {
+  return Invoke('APP:UNBLOCK', d);
 }

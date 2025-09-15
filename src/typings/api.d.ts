@@ -62,4 +62,5 @@ interface SongUrl {
   id: number;
   size: number;
   level: 'standard' | 'higher' | 'exhigh' | 'lossless' | 'hires';
+  freeTrialInfo: any;
 }

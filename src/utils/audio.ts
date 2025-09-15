@@ -1,4 +1,4 @@
-import { getSongUrl } from '@/api/song';
+import { getSongUrl, getUnblockSong } from '@/api/song';
 import { throttle, round, random } from 'lodash';
 import { getArName } from './utils';
 interface Options {
@@ -179,23 +179,41 @@ export class FCMAudioPlayer {
     this.audio.src = src || '';
   }
 
-  getMediaSource(track: Track) {
+  async getMediaSource(track: Track) {
     return (
-      this.getMediaSourceFromCache(track) ||
-      this.getMediaSourceFromNetEase(track)
+      (await this.getMediaSourceFromCache(track)) ||
+      (await this.getMediaSourceFromNetEase(track)) ||
+      (await this.getMediaSourceFromUnblock(track))
     );
   }
+  async getMediaSourceFromUnblock(track: Track) {
+    const result = await getUnblockSong({
+      id: track.id,
+      params: ['pyncmd'],
+    });
+
+    console.log('UnblockResult: %o', result);
+    return result.url;
+  }
   /* 从indexdb获取 */
-  getMediaSourceFromCache(track: Track) {
+  async getMediaSourceFromCache(track: Track) {
+    console.log('CacheResult: %o');
+
     return null;
   }
 
   /* 从网易云获取url */
   async getMediaSourceFromNetEase(track: Track) {
     const realSongUrl = await getSongUrl(track.id);
+    console.log('NetEaseResult: %o', realSongUrl);
+    if (realSongUrl.freeTrialInfo) {
+      // 试听
+      return null;
+    }
     if (realSongUrl.url) {
       return realSongUrl.url;
     }
+    return null;
   }
 
   setMediaMetadata(params: Partial<mediaDataType>) {

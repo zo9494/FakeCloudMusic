@@ -1,6 +1,6 @@
 import { BrowserWindow, app, ipcMain, nativeTheme } from 'electron';
 import { EVENT } from '../utils/eventTypes';
-import { API } from '../utils/service';
+import { API, UnblockAPI } from '../utils/service';
 import { createLogin } from './login';
 import { application } from './application';
 function getWinFormWebContents(sender: Electron.WebContents) {
@@ -52,22 +52,11 @@ ipcMain.handle(EVENT.WINDOW_CLOSE, e => {
   getWinFormWebContents(e.sender).close();
 });
 
-ipcMain.handle(EVENT.HTTP, async (_, { url, params }) => {
-  try {
-    return await API(url, params);
-  } catch (error) {
-    // application.win.webContents.send(EVENT.SEND_MESSAGE, {
-    //   type: 'error',
-    //   text: `api错误:${url}`,
-    // });
-    console.error({
-      url,
-      params,
-      error,
-    });
-
-    return { error };
-  }
+ipcMain.handle(EVENT.HTTP, (_, { url, params }) => {
+  return API(url, params);
+});
+ipcMain.handle(EVENT.APP_UNBLOCK, (_, { id, params }) => {
+  return UnblockAPI(id, params);
 });
 
 ipcMain.handle(EVENT.SAVE_SONG, async (e, song, cookie) => {

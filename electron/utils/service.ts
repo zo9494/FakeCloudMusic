@@ -1,8 +1,20 @@
 import NCM from 'NeteaseCloudMusicApi';
+import match from '@unblockneteasemusic/server';
+export async function API(url: string, params: any): Promise<any> {
+  try {
+    // params.realIP = '116.25.146.179';
+    params.noCookie = true;
+    const { cookie, ...args } = params;
+    return await NCM[url]({ ...params });
+  } catch (error) {
+    return { error };
+  }
+}
 
-export function API(url: string, params: any): Promise<any> {
-  // params.realIP = '116.25.146.179';
-  params.noCookie = true;
-  const { cookie, ...args } = params;
-  return NCM[url]({ ...params });
+export async function UnblockAPI(id: number, params: any): Promise<any> {
+  try {
+    return await match(id, params);
+  } catch (error) {
+    return { error };
+  }
 }
