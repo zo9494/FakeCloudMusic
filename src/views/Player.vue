@@ -9,7 +9,7 @@ import Popover from '@/components/popover/Popover.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, onMounted } from 'vue';
 import { useUserStore } from '@/store/user';
-import { usePlayerStore } from '@/store/player';
+
 import { formatDuringMS } from '@/utils/time';
 import { fcmAudioPlayer } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
@@ -113,6 +113,10 @@ function togglePlay() {
   } else {
     fcmAudioPlayer.play();
   }
+}
+
+function handlePlay(index: number) {
+  fcmAudioPlayer.replacePlaylist(index);
 }
 
 function handleProgressChange(value: number) {
@@ -271,14 +275,18 @@ Listener('APP:AUDIO_PREVIOUS', previous);
       </div>
 
       <div class="f-player-right-control">
-        <Popover trigger="click" placement="top-start">
+        <Popover trigger="click" placement="top-start" display-directive="show">
           <template #reference>
             <button class="f-player-right-control-list">
               <i class="icon-playlist-music iconfont"> </i>
             </button>
           </template>
 
-          <List />
+          <List
+            @handle-play="handlePlay"
+            :playlist="fcmAudioPlayer.list"
+            :current-index="fcmAudioPlayer.currentIndex"
+          />
         </Popover>
 
         <div class="f-player-right-control-volume">

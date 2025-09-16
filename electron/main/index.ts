@@ -8,6 +8,7 @@ import {
   Tray,
   Menu,
   screen,
+  nativeTheme,
 } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
@@ -25,6 +26,9 @@ import './ipcMain';
 import { setupDevTools } from './devtools';
 import { application } from './application';
 import dns from 'dns';
+import { Icons } from '../utils/icons';
+import { AppTray } from './tray';
+import { theme } from './theme';
 
 // 设置 DNS 解析默认优先 IPv4
 dns.setDefaultResultOrder('ipv4first');
@@ -136,52 +140,6 @@ async function createMainWindow() {
   // WIN?.webContents.send(EVENT.APP_IS_DARK, nativeTheme.shouldUseDarkColors);
 }
 
-function createTray() {
-  let iconPath: string = join(app.getAppPath(), '/dist/icons/icon.png');
-  if (isMac) {
-    iconPath = join(app.getAppPath(), '/dist/icons/iconTemplate.png');
-  }
-  if (isWin) {
-    iconPath = join(app.getAppPath(), '/dist/icons/icon.ico');
-  }
-
-  // electron-builder extraResources
-  const icon = nativeImage.createFromPath(
-    isDevelopment ? 'public/icons/icon.png' : iconPath
-  );
-  const tray = new Tray(icon);
-  const trayArr: Electron.MenuItemConstructorOptions[] = [
-    {
-      label: '  退出  ',
-      click: () => {
-        app.exit();
-      },
-    },
-  ];
-  if (isLinux) {
-    trayArr.unshift({
-      label: '  显示  ',
-      click: () => {
-        application.win.show();
-      },
-    });
-  }
-  const contextMenu = Menu.buildFromTemplate(trayArr);
-
-  tray.setContextMenu(contextMenu);
-  tray.setToolTip('FakeCloudMusic');
-  tray.on('click', () => {
-    if (isMac) {
-      app.show();
-    } else {
-      application.win.show();
-      application.thumbar.resetButtons();
-    }
-  });
-
-  return tray;
-}
-
 //#endregion
 
 async function start() {
@@ -189,7 +147,11 @@ async function start() {
   application.win = win;
 
   application.thumbar = new Thumbar(win);
-  application.tray = createTray();
+  application.tray = new AppTray();
+
+  theme.on('change', () => {
+    application.tray.setContextMenu();
+  });
   setupDevTools(app);
 
   session.defaultSession.on('will-download', (event, item, webContents) => {
@@ -242,13 +204,6 @@ async function start() {
     });
   });
 }
-
-// nativeTheme.on('updated', () => {
-
-// checkThemeChange();
-// 只响应系统触发的主题切换
-// application.thumbar.setButtons();
-// });
 
 //#region app.on
 app.on('window-all-closed', () => {

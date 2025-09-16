@@ -3,6 +3,7 @@ import { EVENT } from '../utils/eventTypes';
 import { API, UnblockAPI } from '../utils/service';
 import { createLogin } from './login';
 import { application } from './application';
+import { theme } from './theme';
 function getWinFormWebContents(sender: Electron.WebContents) {
   return BrowserWindow.fromWebContents(sender);
 }
@@ -82,19 +83,13 @@ ipcMain.handle(EVENT.SAVE_SONG, async (e, song, cookie) => {
   // downloadMusic('./', song);
 });
 ipcMain.handle(EVENT.DARK_MODE_TOGGLE, e => {
-  if (nativeTheme.shouldUseDarkColors) {
-    nativeTheme.themeSource = 'light';
-  } else {
-    nativeTheme.themeSource = 'dark';
-  }
-  return nativeTheme.shouldUseDarkColors;
+  theme.toggleTheme();
+  return theme.useDark;
 });
-ipcMain.handle(EVENT.DARK_MODE_SYSTEM, () => {
-  nativeTheme.themeSource = 'system';
-});
+ipcMain.handle(EVENT.DARK_MODE_SYSTEM, theme.useSystemTheme);
 
 ipcMain.handle(EVENT.APP_IS_DARK, () => {
-  return nativeTheme.shouldUseDarkColors;
+  return theme.useDark;
 });
 // 修改title
 ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {

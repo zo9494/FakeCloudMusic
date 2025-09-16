@@ -1,9 +1,10 @@
-import { BrowserWindow, nativeTheme, Tray } from 'electron';
+import { BrowserWindow, nativeTheme } from 'electron';
 import { Thumbar } from './thumbar.service';
+import { AppTray } from './tray';
 
 export interface Application {
   win?: BrowserWindow;
-  tray?: Tray;
+  tray?: AppTray;
   thumbar?: Thumbar;
   downloadFileName: string;
 }

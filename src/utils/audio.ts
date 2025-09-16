@@ -84,7 +84,7 @@ export class FCMAudioPlayer {
 
   play() {
     this.audio.play();
-    console.log(this);
+    console.log(this.audio);
   }
   pause() {
     this.audio.pause();
@@ -168,8 +168,10 @@ export class FCMAudioPlayer {
   }
 
   // 替换播放列表
-  replacePlaylist(index = 0, list: Track[]) {
-    this.list = list;
+  replacePlaylist(index = 0, list?: Track[]) {
+    if (list) {
+      this.list = list;
+    }
     this.currentIndex = index;
     this.playMediaSource();
   }
@@ -180,11 +182,17 @@ export class FCMAudioPlayer {
   }
 
   async getMediaSource(track: Track) {
-    return (
-      (await this.getMediaSourceFromCache(track)) ||
-      (await this.getMediaSourceFromNetEase(track)) ||
-      (await this.getMediaSourceFromUnblock(track))
-    );
+    try {
+      return (
+        (await this.getMediaSourceFromCache(track)) ||
+        (await this.getMediaSourceFromNetEase(track)) ||
+        (await this.getMediaSourceFromUnblock(track))
+      );
+    } catch (error) {
+      console.log(error);
+
+      return '';
+    }
   }
   async getMediaSourceFromUnblock(track: Track) {
     const result = await getUnblockSong({
@@ -240,6 +248,7 @@ export class FCMAudioPlayer {
       ar: getArName(this.currentTrack.ar),
       pic: this.currentTrack.al.picUrl,
     };
+
     this.triggerEvent('songchange', songInfo);
 
     this.setTitle(`${songInfo.name} - ${songInfo.ar}`);
