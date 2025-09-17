@@ -108,13 +108,7 @@ interface menuType {
 }
 const router = useRouter();
 const history = useHistory();
-const { menu } = withDefaults(defineProps<menuType>(), {
-  menu: () => ({
-    myLike: {},
-    myCreate: [],
-    myCollect: [],
-  }),
-});
+const { menu } = defineProps<menuType>();
 
 function handleClick(to: string, e: Event) {
   (

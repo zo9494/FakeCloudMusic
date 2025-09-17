@@ -1,21 +1,10 @@
 import '../utils/env';
-import {
-  app,
-  BrowserWindow,
-  shell,
-  session,
-  nativeImage,
-  Tray,
-  Menu,
-  screen,
-  nativeTheme,
-} from 'electron';
+import { app, BrowserWindow, shell, session, screen } from 'electron';
 import { release } from 'node:os';
 import { join } from 'node:path';
 import { EVENT } from '../utils/eventTypes';
 import {
   isDevelopment,
-  isLinux,
   isMac,
   isWin,
   customWindowHeaderBar,
@@ -25,13 +14,10 @@ import { Thumbar } from './thumbar.service';
 import './ipcMain';
 import { setupDevTools } from './devtools';
 import { application } from './application';
-import dns from 'dns';
-import { Icons } from '../utils/icons';
+
 import { AppTray } from './tray';
 import { theme } from './theme';
-
-// 设置 DNS 解析默认优先 IPv4
-dns.setDefaultResultOrder('ipv4first');
+console.log('node: %s', process.versions.node);
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 

@@ -8,7 +8,6 @@ import svgLoader from 'vite-svg-loader';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import dayjs from 'dayjs';
 import type { ResolvedConfig } from 'vite';
-import type { NormalizedOutputOptions, OutputBundle } from 'rollup';
 import { PAGE_LOGIN, PAGE_TRAY } from './const';
 
 let viteConfig: ResolvedConfig;
@@ -61,7 +60,7 @@ export default defineConfig(({ command }) => {
           onstart(options) {
             if (process.env.VSCODE_DEBUG) {
               console.log(
-                /* For `.vscode/.debug.script.mjs` */ '[startup] Electron App'
+                /* For `.vscode/.debug.script.mjs` */ '[startup] Electron App',
               );
             } else {
               options.startup();
@@ -74,7 +73,7 @@ export default defineConfig(({ command }) => {
               outDir: 'dist-electron/main',
               rollupOptions: {
                 external: Object.keys(
-                  'dependencies' in pkg ? pkg.dependencies : {}
+                  'dependencies' in pkg ? pkg.dependencies : {},
                 ),
               },
             },
@@ -94,7 +93,7 @@ export default defineConfig(({ command }) => {
               outDir: 'dist-electron/preload',
               rollupOptions: {
                 external: Object.keys(
-                  'dependencies' in pkg ? pkg.dependencies : {}
+                  'dependencies' in pkg ? pkg.dependencies : {},
                 ),
               },
             },
@@ -112,7 +111,7 @@ export default defineConfig(({ command }) => {
               outDir: 'dist-electron/preload',
               rollupOptions: {
                 external: Object.keys(
-                  'dependencies' in pkg ? pkg.dependencies : {}
+                  'dependencies' in pkg ? pkg.dependencies : {},
                 ),
               },
             },
@@ -146,7 +145,7 @@ export default defineConfig(({ command }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: '@use "./src/assets/style/variables.scss";',
+          additionalData: '@use "@/assets/style/variables.scss";',
         },
       },
     },

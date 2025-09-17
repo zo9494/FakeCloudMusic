@@ -115,6 +115,9 @@ export class FCMAudioPlayer {
     });
     self.audio.addEventListener('error', err => {
       self.triggerEvent('error');
+      console.dir(err);
+      console.dir(self.audio);
+
       if (self.audio.error?.code === 2) {
         // 地址过期，重新获取
         self.playMediaSource();
