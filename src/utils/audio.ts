@@ -186,14 +186,18 @@ export class FCMAudioPlayer {
 
   async getMediaSource(track: Track) {
     try {
-      return (
+      const source =
         (await this.getMediaSourceFromCache(track)) ||
         (await this.getMediaSourceFromNetEase(track)) ||
-        (await this.getMediaSourceFromUnblock(track))
-      );
+        (await this.getMediaSourceFromUnblock(track));
+
+      if (!source) {
+        console.log('No media source found for track: %o', track);
+        this.next();
+      }
+      return source;
     } catch (error) {
       console.log(error);
-
       return '';
     }
   }
@@ -204,6 +208,9 @@ export class FCMAudioPlayer {
     });
 
     console.log('UnblockResult: %o', result);
+    if (!result.url) {
+      return null;
+    }
     return result.url;
   }
   /* 从indexdb获取 */

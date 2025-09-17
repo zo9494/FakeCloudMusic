@@ -1,16 +1,13 @@
 <script lang="ts" setup>
-import { useMessage } from 'naive-ui';
-import VueSlider from 'vue-slider-component';
 import Image from '@/components/PlaylistImage.vue';
 import Lyrics from '@/components/player/PlayerLyrics.vue';
-import VolumeIcon from '@/components/player/PlayerVolumeIcon.vue';
 import List from '@/components/player/Playerlist.vue';
 import Popover from '@/components/popover/Popover.vue';
+import Volume from '@/components/player/PlayerVolume.vue';
+import ProgressBar from '@/components/player/PlayerProgressBar.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, onMounted } from 'vue';
 import { useUserStore } from '@/store/user';
-
-import { formatDuringMS } from '@/utils/time';
 import { fcmAudioPlayer } from '@/utils/audio';
 import { getImageColor } from '@/utils/utils';
 import { useTextScroll } from '@/hooks/textOverflowScroll';
@@ -248,30 +245,11 @@ Listener('APP:AUDIO_PREVIOUS', previous);
       </div>
       <!-- 播放进度 -->
       <div class="f-player-progress">
-        <span>{{ formatDuringMS(data.currentTime) }}</span>
-        <div class="f-player-progress-bar">
-          <VueSlider
-            :modelValue="data.currentTime"
-            :lazy="true"
-            :height="5"
-            @change="handleProgressChange"
-            :min="0"
-            :max="data.duration || 1"
-            :duration="0"
-            :interval="0.001"
-            tooltip="none"
-            :dot-size="10"
-          >
-            <template v-slot:process="{ _, __, style }">
-              <div class="vue-slider-process" :style="style"> </div>
-              <div
-                class="vue-slider-process-cache"
-                :style="{ width: `${data.cacheProgress}%` }"
-              ></div>
-            </template>
-          </VueSlider>
-        </div>
-        <span>{{ formatDuringMS(data.duration) }}</span>
+        <ProgressBar
+          :progress="data.currentTime"
+          :duration="data.duration"
+          @change="handleProgressChange"
+        />
       </div>
 
       <div class="f-player-right-control">
@@ -290,18 +268,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
         </Popover>
 
         <div class="f-player-right-control-volume">
-          <VolumeIcon :volume="data.volume"></VolumeIcon>
-          <VueSlider
-            :duration="0"
-            class="f-player-right-control-volume-bar"
-            v-model="data.volume"
-            :max="1"
-            :interval="0.01"
-            tooltip="none"
-            :height="4"
-            :dot-size="10"
-          >
-          </VueSlider>
+          <Volume v-model:volume="data.volume"></Volume>
         </div>
       </div>
     </div>
@@ -328,30 +295,11 @@ Listener('APP:AUDIO_PREVIOUS', previous);
         <template v-slot:options>
           <div class="lyrics-options">
             <div class="lyrics-options-slider">
-              <span>{{ formatDuringMS(data.currentTime) }}</span>
-              <div class="lyrics-options-slider-bar">
-                <VueSlider
-                  :height="5"
-                  :modelValue="data.currentTime"
-                  :lazy="true"
-                  @change="handleProgressChange"
-                  :min="0"
-                  :max="data.duration || 1"
-                  :interval="0.001"
-                  tooltip="none"
-                  :duration="0"
-                  :dot-size="10"
-                >
-                  <template v-slot:process="{ _, __, style }">
-                    <div class="vue-slider-process" :style="style"> </div>
-                    <div
-                      class="vue-slider-process-cache"
-                      :style="{ width: `${data.cacheProgress}%` }"
-                    ></div>
-                  </template>
-                </VueSlider>
-              </div>
-              <span>{{ formatDuringMS(data.duration) }}</span>
+              <ProgressBar
+                :progress="data.currentTime"
+                :duration="data.duration"
+                @change="handleProgressChange"
+              />
             </div>
             <div class="lyrics-options-btn">
               <button
@@ -517,15 +465,6 @@ Listener('APP:AUDIO_PREVIOUS', previous);
 
   &-progress {
     width: 100%;
-    display: grid;
-    grid-template-columns: 40px auto 40px;
-    font-size: 12px;
-    color: #888888;
-    place-items: center;
-
-    &-bar {
-      width: 100%;
-    }
   }
 
   &-right-control {
@@ -534,13 +473,6 @@ Listener('APP:AUDIO_PREVIOUS', previous);
 
     &-volume {
       width: 100px;
-      display: grid;
-      grid-template-columns: 20px auto;
-      align-items: center;
-      font-size: 20px;
-      &-bar {
-        width: 100%;
-      }
     }
 
     &-list {
@@ -555,17 +487,9 @@ Listener('APP:AUDIO_PREVIOUS', previous);
     }
   }
 }
-.vue-slider {
-  .vue-slider-process-cache {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    background-color: var(--player-cache-track-color);
-    border-radius: 15px;
-    width: 0%;
-  }
 
+// vue-slider样式
+.vue-slider {
   .vue-slider-dot-handle {
     cursor: pointer;
     width: 100%;
@@ -616,15 +540,6 @@ Listener('APP:AUDIO_PREVIOUS', previous);
   display: grid;
   grid-template-rows: 30px 50px;
   align-items: center;
-
-  &-slider {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    &-bar {
-      width: 100%;
-    }
-  }
 
   &-btn {
     display: grid;
