@@ -1,6 +1,7 @@
 import { getSongUrl, getUnblockSong } from '@/api/song';
-import { throttle, round, random, isNumber } from 'lodash';
+import { throttle, round, random } from 'lodash';
 import { getArName } from './utils';
+
 interface Options {
   src: string;
   volume: number;
@@ -30,7 +31,133 @@ export enum PlayMode {
   shuffle,
 }
 
-// todo:重构，添加播放模式，添加播放列表
+// 播放模式管理器
+class PlayModeManager {
+  mode: PlayMode = PlayMode.order;
+  private playedShuffleList: number[] = [];
+  private shuffleListIndex = 0;
+  private list: Track[] = [];
+
+  constructor(list: Track[]) {
+    this.list = list;
+  }
+
+  setMode(mode: PlayMode) {
+    this.mode = mode;
+    if (mode === PlayMode.shuffle) {
+      this.generateShuffleList();
+    }
+  }
+
+  private generateShuffleList() {
+    const arr: number[] = [];
+    while (arr.length < this.list.length) {
+      const r = random(0, this.list.length - 1);
+      if (!arr.includes(r)) arr.push(r);
+    }
+    this.playedShuffleList = arr;
+    this.shuffleListIndex = 0;
+  }
+
+  getNextIndex(currentIndex: number): number | null {
+    if (this.list.length === 0) return null;
+
+    switch (this.mode) {
+      case PlayMode.order:
+        return currentIndex < this.list.length - 1 ? currentIndex + 1 : null;
+      case PlayMode.loop:
+        return (currentIndex + 1) % this.list.length;
+      case PlayMode.repeat:
+        return currentIndex;
+      case PlayMode.shuffle:
+        this.shuffleListIndex =
+          (this.shuffleListIndex + 1) % this.playedShuffleList.length;
+        return this.playedShuffleList[this.shuffleListIndex];
+      default:
+        return currentIndex < this.list.length - 1 ? currentIndex + 1 : null;
+    }
+  }
+
+  getPrevIndex(currentIndex: number): number | null {
+    if (this.list.length === 0) return null;
+
+    switch (this.mode) {
+      case PlayMode.order:
+        return Math.max(currentIndex - 1, 0);
+      case PlayMode.loop:
+        return (currentIndex - 1 + this.list.length) % this.list.length;
+      case PlayMode.repeat:
+        return currentIndex;
+      case PlayMode.shuffle:
+        this.shuffleListIndex =
+          (this.shuffleListIndex - 1 + this.playedShuffleList.length) %
+          this.playedShuffleList.length;
+        return this.playedShuffleList[this.shuffleListIndex];
+      default:
+        return Math.max(currentIndex - 1, 0);
+    }
+  }
+
+  resetShuffle() {
+    this.playedShuffleList = [];
+    this.shuffleListIndex = 0;
+    if (this.mode === PlayMode.shuffle) {
+      this.generateShuffleList();
+    }
+  }
+}
+
+// 媒体源解析器
+class MediaSourceResolver {
+  async resolve(track: Track): Promise<string | null> {
+    try {
+      return (
+        (await this.fromCache(track)) ||
+        (await this.fromNetEase(track)) ||
+        (await this.fromUnblock(track)) ||
+        null
+      );
+    } catch (error) {
+      console.error('获取播放源失败:', error);
+      return null;
+    }
+  }
+
+  private async fromCache(track: Track): Promise<string | null> {
+    // TODO: 实现缓存逻辑
+    return null;
+  }
+
+  private async fromNetEase(track: Track): Promise<string | null> {
+    try {
+      const result = await getSongUrl(track.id);
+      if (result.freeTrialInfo) {
+        console.warn(`歌曲 ${track.name} 为试听版本`);
+        return null;
+      }
+      console.log('netease result:', result);
+      return result.url || null;
+    } catch (error) {
+      console.error('fromNetEase Error:', error);
+      return null;
+    }
+  }
+
+  private async fromUnblock(track: Track): Promise<string | null> {
+    try {
+      const result = await getUnblockSong({
+        id: track.id,
+        params: ['pyncmd'],
+      });
+      console.info('unblock result:', result);
+      return result?.url || null;
+    } catch (error) {
+      console.error('fromUnblock Error:', error);
+      return null;
+    }
+  }
+}
+
 export class FCMAudioPlayer {
   private audio: HTMLAudioElement;
   // 播放列表
@@ -38,31 +165,32 @@ export class FCMAudioPlayer {
   private eventListeners: { [key: string]: Callback[] } = {};
   // 当前播放索引
   private _currentIndex: number | null = 0;
-  // 已经随机播放过的
-  private playedShuffleList: number[] = [];
-  private shuffleListIndex = 0;
-  // 等待生成随机index
-  private wait = false;
+  // 播放模式管理器
+  private playModeManager: PlayModeManager;
+  // 媒体源解析器
+  private mediaSourceResolver = new MediaSourceResolver();
+  private isPlaying = false;
+
   // 播放模式
-  mode: number = 0;
+  private mode: number = 0;
   constructor(options?: Partial<Options>) {
     this.audio = new Audio();
     this.audio.volume = options?.volume || 0.5;
     this.audio.src = options?.src || '';
     this.audio.preload = 'auto';
     this.audio.autoplay = true;
-    this.audio.loop = this.mode === PlayMode.repeat;
+    this.playModeManager = new PlayModeManager(this.list);
     this.bindEvents();
     this.bindMediaActionHandler();
   }
   get duration() {
-    return this.audio.duration;
+    return this.audio.duration || 0;
   }
   set currentTime(v: number) {
     this.audio.currentTime = v;
   }
   get currentTime() {
-    return this.audio.currentTime;
+    return this.audio.currentTime || 0;
   }
 
   set currentIndex(v: number | null) {
@@ -86,149 +214,87 @@ export class FCMAudioPlayer {
   }
 
   public set volume(v: number) {
-    this.audio.volume = v;
+    const volume = Math.max(0, Math.min(1, v));
+    this.audio.volume = volume;
   }
 
   play() {
-    this.audio.play();
-    console.log(this.audio);
+    if (this.audio.src) {
+      this.audio
+        .play()
+        .then(() => {
+          this.isPlaying = true;
+        })
+        .catch(error => {
+          console.error('播放失败:', error);
+          this.triggerEvent('error', error);
+        });
+    }
   }
   pause() {
     this.audio.pause();
+    this.isPlaying = false;
   }
   async next() {
-    if (!this.list.length) {
-      return;
+    if (!this.list.length || this.currentIndex === null) return;
+
+    const nextIndex = this.playModeManager.getNextIndex(this.currentIndex);
+    if (nextIndex !== null) {
+      this.currentIndex = nextIndex;
+    } else {
+      // 顺序播放结束
+      this.currentIndex = null;
+      this.pause();
+      this.triggerEvent('ended');
     }
-    // switch (this.mode) {
-    //   case PlayMode.order:
-    //     // 如果是顺序播放
-    //     const min = Math.min(this.currentIndex + 1, this.list.length);
-    //     debugger;
-    //     break;
-    //   default:
-    //     break;
-    // }
-    // const maxIndex = Math.max(0, this.list.length - 1);
-    // const nextIndex = Math.min(this.currentIndex + 1, maxIndex);
-    // console.log(nextIndex);
-    // this.currentIndex = nextIndex;
-
-    switch (this.mode) {
-      case PlayMode.shuffle:
-        if (!this.wait) {
-          this.wait = true;
-          this.currentIndex = await this.getNextShuffleIndex();
-          this.wait = false;
-        }
-        break;
-
-      default:
-        this.currentIndex = this.getNextIndex();
-        break;
-    }
-    console.log(
-      'next currentIndex: %d\nshuffleIndex: %d',
-      this.currentIndex,
-      this.shuffleListIndex
-    );
-
-    // this.playMediaSource();
   }
   async prev() {
-    switch (this.mode) {
-      case PlayMode.shuffle:
-        if (!this.wait) {
-          this.wait = true;
-          this.currentIndex = await this.getPrevShuffleIndex();
-          this.wait = false;
+    if (!this.list.length || this.currentIndex === null) return;
+
+    const prevIndex = this.playModeManager.getPrevIndex(this.currentIndex);
+    if (prevIndex !== null) {
+      this.currentIndex = prevIndex;
+    }
+  }
+
+  private async playMediaSource() {
+    this.pause();
+
+    if (!this.currentTrack) {
+      this.triggerEvent('songchange', null);
+      return;
+    }
+
+    try {
+      const src = await this.mediaSourceResolver.resolve(this.currentTrack);
+      if (src) {
+        this.audio.src = src;
+        if (this.isPlaying) {
+          this.play();
         }
-        break;
-
-      default:
-        this.currentIndex = this.getPrevIndex();
-        break;
-    }
-    console.log(
-      'prev currentIndex: %d\nshuffleIndex: %d',
-      this.currentIndex,
-      this.shuffleListIndex
-    );
-    // this.playMediaSource();
-  }
-
-  private getPrevIndex() {
-    if (this.currentIndex === null) {
-      return null;
-    }
-    const i = this.currentIndex - 1;
-    if (i < 0) {
-      return Math.max(0, this.list.length - 1);
-    }
-    return i;
-  }
-  private getNextIndex() {
-    if (this.currentIndex === null) {
-      return null;
-    }
-    let i = this.currentIndex + 1;
-    if (this.mode === PlayMode.loop && i >= this.list.length) {
-      return 0;
-    }
-    const maxIndex = Math.max(0, this.list.length - 1);
-    return Math.min(i, maxIndex);
-  }
-  private async generateShuffleList() {
-    if (!this.list.length) {
-      return;
-    }
-    const arr: number[] = [];
-    const fn = () => {
-      const r = random(0, Math.max(0, this.list.length - 1));
-      const result = arr.find(item => item === r);
-      if (result === undefined) {
-        arr.push(r);
+      } else {
+        console.warn('无法获取播放源，尝试下一首');
+        this.next();
       }
-
-      if (this.list.length === arr.length) {
-        return;
-      }
-      fn();
-    };
-    fn();
-    console.log('generateShuffleList: %o', arr);
-    this.playedShuffleList = arr;
+    } catch (error) {
+      console.error('播放媒体源时出错:', error);
+      this.next();
+    }
   }
 
-  private async getPrevShuffleIndex() {
-    this.shuffleListIndex--;
-    if (this.shuffleListIndex < 0) {
-      await this.generateShuffleList();
-      this.shuffleListIndex = Math.max(0, this.playedShuffleList.length - 1);
-    }
-    return this.playedShuffleList[this.shuffleListIndex];
-  }
-  private async getNextShuffleIndex() {
-    this.shuffleListIndex++;
-    if (this.shuffleListIndex >= this.playedShuffleList.length) {
-      await this.generateShuffleList();
-      this.shuffleListIndex = 0;
-    }
-    return this.playedShuffleList[this.shuffleListIndex];
-  }
-  private setLoop(loop = false) {
-    this.audio.loop = loop;
-  }
   private whenEnded() {
-    if (!this.currentIndex) {
-      return;
-    }
     switch (this.mode) {
-      case PlayMode.repeat:
-        break;
+      // case PlayMode.repeat:
+      //   // 单曲循环，重新播放当前歌曲
+      //   this.audio.currentTime = 0;
+      //   this.play();
+      //   break;
       case PlayMode.order:
         // 顺序播放结束
-        if (this.currentIndex + 1 < this.list.length) {
+        if (
+          this.currentIndex !== null &&
+          this.currentIndex + 1 < this.list.length
+        ) {
           this.next();
         } else {
           this.currentIndex = null;
@@ -240,32 +306,26 @@ export class FCMAudioPlayer {
     }
   }
   togglePlayMode(mode?: number) {
-    mode = mode ?? this.mode + 1;
-    if (mode > PlayMode.shuffle) {
-      mode = PlayMode.order;
+    const newMode = mode ?? (this.mode + 1) % (PlayMode.shuffle + 1);
+    this.mode = newMode;
+    this.playModeManager.setMode(newMode);
+    // 设置单曲循环
+    this.audio.loop = newMode === PlayMode.repeat;
+
+    if (newMode === PlayMode.shuffle) {
+      this.playModeManager.resetShuffle();
     }
-    this.mode = mode;
-    switch (mode) {
-      case PlayMode.shuffle:
-        this.playedShuffleList = [];
-        this.shuffleListIndex = 0;
-        this.generateShuffleList();
-        break;
-      case PlayMode.repeat:
-        this.setLoop(true);
-        break;
-      default:
-        this.setLoop(false);
-        break;
-    }
-    console.log('mode:  %d', this.mode);
+
+    console.log('播放模式切换为:', PlayMode[newMode as PlayMode]);
   }
-  bindEvents() {
+  private bindEvents() {
     const self = this;
     self.audio.addEventListener('play', () => {
+      self.isPlaying = true;
       self.triggerEvent('play');
     });
     self.audio.addEventListener('pause', () => {
+      self.isPlaying = false;
       self.triggerEvent('pause');
     });
     self.audio.addEventListener('ended', () => {
@@ -282,9 +342,6 @@ export class FCMAudioPlayer {
 
       if (self.audio.error?.code === 2) {
         console.log('网络问题');
-
-        // 地址过期，重新获取
-        // self.playMediaSource();
       }
     });
     self.audio.addEventListener(
@@ -312,13 +369,21 @@ export class FCMAudioPlayer {
   }
 
   // 触发事件
-  triggerEvent(event: keyof FCMAudioPlayerEventMap, ...args: any[]) {
+  private triggerEvent(event: keyof FCMAudioPlayerEventMap, ...args: any[]) {
     if (this.eventListeners[event]) {
-      this.eventListeners[event].forEach(callback => callback(...args));
+      this.eventListeners[event].forEach(callback => {
+        try {
+          callback(...args);
+        } catch (error) {
+          console.error(`事件 ${event} 的回调执行出错:`, error);
+        }
+      });
     }
   }
 
-  bindMediaActionHandler() {
+  private bindMediaActionHandler() {
+    if (!('mediaSession' in navigator)) return;
+
     const mediaActionMap: { [key: string]: () => void } = {
       pause: this.pause.bind(this),
       play: this.play.bind(this),
@@ -326,12 +391,12 @@ export class FCMAudioPlayer {
       previoustrack: this.prev.bind(this),
     };
 
-    for (const key in mediaActionMap) {
+    Object.keys(mediaActionMap).forEach(key => {
       navigator.mediaSession.setActionHandler(
         key as MediaSessionAction,
         mediaActionMap[key]
       );
-    }
+    });
   }
 
   // 替换播放列表
@@ -339,10 +404,17 @@ export class FCMAudioPlayer {
     if (list) {
       this.list = list;
     }
-    this.currentIndex = index;
-    this.playMediaSource();
+
+    this.playModeManager = new PlayModeManager(this.list);
+
+    if (this.list.length > 0) {
+      this.currentIndex = Math.max(0, Math.min(index, this.list.length - 1));
+    } else {
+      this.currentIndex = null;
+    }
+
     if (this.mode === PlayMode.shuffle) {
-      this.generateShuffleList();
+      this.playModeManager.resetShuffle();
     }
   }
   //
@@ -356,67 +428,10 @@ export class FCMAudioPlayer {
     const maxIndex = Math.max(0, this.list.length - 1);
     this.replacePlaylist(Math.min(startIndex, maxIndex));
   }
-  async playMediaSource() {
-    this.pause();
-    if (this.currentTrack) {
-      const src = await this.getMediaSource(this.currentTrack);
-      this.audio.src = src || '';
-    } else {
-      //
-    }
-  }
 
-  async getMediaSource(track: Track) {
-    try {
-      const source =
-        (await this.getMediaSourceFromCache(track)) ||
-        (await this.getMediaSourceFromNetEase(track)) ||
-        (await this.getMediaSourceFromUnblock(track));
+  private setMediaMetadata(params: Partial<mediaDataType>) {
+    if (!('mediaSession' in navigator)) return;
 
-      if (!source) {
-        console.log('No media source found for track: %o', track);
-        this.next();
-      }
-      return source;
-    } catch (error) {
-      console.log(error);
-      return '';
-    }
-  }
-  async getMediaSourceFromUnblock(track: Track) {
-    const result = await getUnblockSong({
-      id: track.id,
-      params: ['pyncmd'],
-    });
-
-    console.log('UnblockResult: %o', result);
-    if (!result.url) {
-      return null;
-    }
-    return result.url;
-  }
-  /* 从indexdb获取 */
-  async getMediaSourceFromCache(track: Track) {
-    console.log('CacheResult: %o');
-
-    return null;
-  }
-
-  /* 从网易云获取url */
-  async getMediaSourceFromNetEase(track: Track) {
-    const realSongUrl = await getSongUrl(track.id);
-    console.log('NetEaseResult: %o', realSongUrl);
-    if (realSongUrl.freeTrialInfo) {
-      // 试听
-      return null;
-    }
-    if (realSongUrl.url) {
-      return realSongUrl.url;
-    }
-    return null;
-  }
-
-  setMediaMetadata(params: Partial<mediaDataType>) {
     const { title, alPicUrl: src, album, artist } = params;
 
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -433,7 +448,7 @@ export class FCMAudioPlayer {
     });
   }
 
-  songChangeEvent() {
+  private songChangeEvent() {
     let songInfo = null;
 
     if (this.currentTrack) {
@@ -460,7 +475,7 @@ export class FCMAudioPlayer {
         : {}
     );
   }
-  setTitle(title: string) {
+  private setTitle(title: string) {
     document.title = title;
   }
 }
