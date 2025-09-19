@@ -11,6 +11,7 @@ body {
   color: var(--font-color, #333);
   font-size: 14px;
   overflow: hidden;
+  position: relative;
 }
 button {
   color: var(--font-color, #333);
@@ -45,3 +46,145 @@ button {
 .no-drag-js {
   -webkit-app-region: no-drag;
 }
+
+.color-even {
+  background-color: var(--playlist-item-even-color);
+}
+
+img {
+  pointer-events: none;
+}
+
+ul {
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+}
+a {
+  color: var(--font-color);
+  text-decoration: none;
+}
+button {
+  border: none;
+  outline-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+}
+.disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
+#app {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+.text-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.s {
+  color: #0c73c2;
+}
+.bi-heart-fill {
+  color: variables.$primaryColor;
+}
+.scrollbar {
+  height: 100%;
+  overflow: auto;
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb-color);
+    }
+  }
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 3px;
+    &:hover {
+      background-color: var(--scrollbar-thumb-color-hover);
+    }
+  }
+  &-always {
+    overflow: auto;
+    height: 100%;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 3px;
+      background-color: var(--scrollbar-thumb-color);
+      &:hover {
+        background-color: var(--scrollbar-thumb-color-hover);
+      }
+    }
+  }
+}
+
+.no-padding {
+  padding: 0 !important;
+}
+.n-modal-mask {
+  backdrop-filter: blur(2px);
+  background-color: rgba(225, 225, 225, 0.2);
+}
+.app-bottom-space {
+  height: variables.$appBottomSpace;
+}
+//
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 300ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+}
+// fade and slide-down
+.fade-slide-down-enter-active,
+.fade-slide-down-leave-active {
+  transition: opacity, transform 300ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+.fade-slide-down-enter-from,
+.fade-slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+// scale
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.2s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.text-scroll > * {
+  animation: var(--words-roll-time, 5s) textScroll linear;
+}
+
+@keyframes textScroll {
+  from {
+    transform: translateX(0%);
+  }
+
+  to {
+    transform: translateX(calc(-100% - var(--text-gap, 10px)));
+  }
+}
+
+/* https://learn.microsoft.com/zh-cn/windows/apps/design/style/segoe-fluent-icons-font */

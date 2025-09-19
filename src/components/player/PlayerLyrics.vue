@@ -1,53 +1,98 @@
 <template>
-  <div class="f-lyrics-bg">
-    <div class="f-lyrics">
-      <div class="f-lyrics-header">
-        <div>
-          <slot name="header"></slot>
-        </div>
-        <div class="f-lyrics-header-title">
-          <p class="name">{{ props.song.name || 'unknown' }}</p>
-          <p class="arName">{{ props.song.ar || 'unknown' }}</p>
-        </div>
-      </div>
-      <div class="f-lyrics-body">
-        <div class="f-lyrics-body-left">
-          <ImageComponent
-            class="cover"
-            :src="props.song.pic + '?param=300y300'"
-          />
-          <slot name="options"></slot>
-        </div>
-        <div class="f-lyrics-body-right scrollbar" ref="scrollRef">
-          <div class="wrapper">
-            <div :style="{ height: `${data.viewHeight / 2}px` }" />
-            <div
-              v-for="(item, index) in props.lyrics"
-              :key="item.time"
-              :class="[
-                data.currentIndex === index ? 'item-active' : null,
-                'item',
-              ]"
-            >
-              <p class="item-lyric">{{ item.lyric }}</p>
-              <p class="item-tlyric">{{ item.tlyric }}</p>
+  <Teleport to="body">
+    <Transition name="slide-up">
+      <div v-show="show" class="f-lyrics-bg">
+        <div class="f-lyrics">
+          <div class="f-lyrics-header">
+            <div>
+              <button class="arrow-button" @click="toggleShow">
+                <i class="icon-arrow-down iconfont"></i>
+              </button>
             </div>
-            <div
-              v-if="props.lyrics.length > 1"
-              :style="{ height: `${data.viewHeight / 2}px` }"
-            />
+            <div class="f-lyrics-header-title">
+              <p class="name">{{ props.song.name || 'unknown' }}</p>
+              <p class="arName">{{ props.song.ar || 'unknown' }}</p>
+            </div>
+          </div>
+          <div class="f-lyrics-body">
+            <div class="f-lyrics-body-left">
+              <ImageComponent
+                class="cover"
+                :src="props.song.pic + '?param=300y300'"
+              />
+              <div class="f-lyrics-body-left-options">
+                <div class="f-lyrics-body-left-options-slider">
+                  <ProgressBar
+                    @change="onProgressChange"
+                    :progress="props.progress"
+                    :duration="props.duration"
+                  />
+                </div>
+                <div class="f-lyrics-body-left-options-btn">
+                  <button
+                    @click="previous"
+                    class="f-player-control-previous f-player-control-btn"
+                  >
+                    <i class="icon-play-previous iconfont" />
+                  </button>
+                  <button
+                    @click="togglePlay"
+                    class="f-player-control-pau-pla f-player-control-btn"
+                  >
+                    <i v-if="props.isPlay" class="iconfont icon-pause" />
+                    <i v-else class="iconfont icon-play" />
+                  </button>
+                  <button
+                    @click="next"
+                    class="f-player-control-next f-player-control-btn"
+                  >
+                    <i class="icon-play-next iconfont" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="f-lyrics-body-right scrollbar" ref="scrollRef">
+              <div class="wrapper">
+                <div :style="{ height: `${data.viewHeight / 2}px` }" />
+                <div
+                  v-for="(item, index) in props.lyrics"
+                  :key="item.time"
+                  :class="[
+                    data.currentIndex === index ? 'item-active' : null,
+                    'item',
+                  ]"
+                >
+                  <p class="item-lyric">{{ item.lyric }}</p>
+                  <p class="item-tlyric">{{ item.tlyric }}</p>
+                </div>
+                <div
+                  v-if="props.lyrics.length > 1"
+                  :style="{ height: `${data.viewHeight / 2}px` }"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { watch, reactive, ref, onMounted, nextTick } from 'vue';
+import {
+  watch,
+  reactive,
+  ref,
+  onMounted,
+  nextTick,
+  WatchStopHandle,
+} from 'vue';
 import ImageComponent from '@/components/PlaylistImage.vue';
+import ProgressBar from '@/components/player/PlayerProgressBar.vue';
+
 interface Props {
   progress: number;
+  duration: number;
   lyrics?: Lyric[];
   song: {
     id: string | number | null;
@@ -55,33 +100,80 @@ interface Props {
     name: string;
     ar: string;
   };
+  isPlay: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   progress: 0,
   lyrics: () => [],
   bgColor: () => [245, 245, 245],
 });
+
+//#region 控制是否显示歌词
+const show = defineModel<boolean>('show', { default: false });
+function toggleShow() {
+  show.value = !show.value;
+}
+//#endregion
+
+//#region 处理媒体控制
+interface EmitsType {
+  (e: 'previous'): void;
+  (e: 'next'): void;
+  (e: 'togglePlay'): void;
+  (e: 'onProgressChange', val: number): void;
+}
+const emits = defineEmits<EmitsType>();
+
+function next() {
+  emits('next');
+}
+function previous() {
+  emits('previous');
+}
+function togglePlay() {
+  emits('togglePlay');
+}
+
+function onProgressChange(val: number) {
+  emits('onProgressChange', val);
+}
+//#endregion
+
+//#region 处理歌词、滚动
 const data = reactive({
   currentIndex: -1,
   viewHeight: 0,
 });
-
 const scrollRef = ref<HTMLDivElement>();
 
-onMounted(() => {
-  data.viewHeight = scrollRef.value?.offsetHeight || 0;
-  data.currentIndex = processLyricsIndex(props.progress, props.lyrics);
-  nextTick(() => {
-    handleScroll();
-  });
-});
-
+// 只有歌词界面打开时，才处理歌词
+let stopProcessLyricHandle: WatchStopHandle | undefined,
+  stopAutoScrollHandle: WatchStopHandle | undefined;
 watch(
-  () => props.progress,
-  val => {
-    data.currentIndex = processLyricsIndex(val, props.lyrics);
+  () => show.value,
+  newVal => {
+    if (newVal) {
+      stopProcessLyricHandle = startProcessLyric();
+      stopAutoScrollHandle = startAutoScroll();
+      nextTick(() => {
+        data.viewHeight = scrollRef.value?.offsetHeight || 0;
+      });
+    } else {
+      stopProcessLyricHandle?.();
+      stopAutoScrollHandle?.();
+    }
   }
 );
+
+function startProcessLyric() {
+  return watch(
+    () => props.progress,
+    val => {
+      data.currentIndex = processLyricsIndex(val, props.lyrics);
+    },
+    { immediate: true }
+  );
+}
 
 function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   if (!process || lyrics.length === 0) {
@@ -96,13 +188,15 @@ function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   }
   return index;
 }
-
-watch(
-  () => data.currentIndex,
-  () => {
-    nextTick(handleScroll);
-  }
-);
+function startAutoScroll() {
+  return watch(
+    () => data.currentIndex,
+    () => {
+      nextTick(handleScroll);
+    },
+    { immediate: true }
+  );
+}
 
 function handleScroll() {
   const el = document.querySelector<HTMLDivElement>('.item-active');
@@ -114,11 +208,17 @@ function handleScroll() {
     behavior: 'smooth',
   });
 }
-
-defineExpose({ handleScroll });
+//#endregion
 </script>
 
 <style lang="scss">
+.f-lyrics-bg {
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 100;
+}
 @media (prefers-color-scheme: dark) {
   .f-lyrics {
     &-bg {
@@ -126,28 +226,17 @@ defineExpose({ handleScroll });
     }
   }
 }
-#bg {
-  position: absolute;
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-}
 
 .f-lyrics {
   &-bg {
     background-color: var(--bg-color);
     background-image: var(--bg-img);
-    position: relative;
   }
   width: 100%;
   height: 100%;
   background-size: cover;
   background-position: center;
-  padding: 40px 30px 30px;
+  padding: 30px;
   display: grid;
   background-color: var(--lyrics-color);
   gap: 10px;
@@ -157,7 +246,9 @@ defineExpose({ handleScroll });
   &-header {
     display: flex;
     flex-direction: column;
-
+    .arrow-button {
+      color: var(--font-color);
+    }
     .name,
     .arName {
       text-align: center;
@@ -190,8 +281,24 @@ defineExpose({ handleScroll });
           border-radius: 10px;
         }
       }
+      // 进度条、控制按钮
+
+      &-options {
+        width: 80%;
+        display: grid;
+        grid-template-rows: repeat(2, 1fr);
+        &-slider {
+          // 进度条
+          width: 100%;
+        }
+        &-btn {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
     }
 
+    // 歌词部分
     &-right {
       width: 98%;
       position: relative;

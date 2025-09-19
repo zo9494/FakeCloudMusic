@@ -45,6 +45,7 @@ function onChange(val: number) {
   grid-template-columns: 40px auto 40px;
   justify-items: center;
   align-items: center;
+  gap: 2px;
   &-slider {
     width: 100%;
   }

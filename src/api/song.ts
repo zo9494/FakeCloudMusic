@@ -70,6 +70,13 @@ interface UnblockResult {
   songName: string;
   error: any;
 }
-export function getUnblockSong(d: D): Promise<UnblockResult> {
-  return Invoke('APP:UNBLOCK', d);
+export async function getUnblockSong(
+  d: D, // 重试3次
+  retries = 3
+): Promise<UnblockResult | undefined> {
+  try {
+    return Invoke('APP:UNBLOCK', d);
+  } catch (error) {
+    console.log(error);
+  }
 }

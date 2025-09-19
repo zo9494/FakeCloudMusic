@@ -1,68 +1,85 @@
 <template>
   <div class="f-playlist">
-    <div class="f-playlist-header">
-      <p class="f-playlist-header-title">当前播放</p>
-    </div>
-    <div class="f-playlist-body">
-      <div class="f-playlist-separator"></div>
-      <div v-if="props.playlist.length" class="f-playlist-list">
-        <RecycleScroller
-          class="scrollbar"
-          key-field="id"
-          :items="props.playlist"
-          :item-size="40"
-          :min-item-size="40"
-        >
-          <template v-slot="{ item, index }">
-            <div
-              :class="{
-                'playlist-list-item': true,
-                color: item.index % 2,
-                disable: item.noCopyrightRcmd,
-              }"
-              :key="item.id"
-              @dblclick="handlePlay(index)"
+    <NPopover
+      :show-arrow="false"
+      trigger="click"
+      placement="top-start"
+      display-directive="show"
+    >
+      <template #trigger>
+        <button class="f-playlist-control">
+          <i class="icon-playlist iconfont"> </i>
+        </button>
+      </template>
+
+      <div class="f-playlist-wrapper">
+        <div class="f-playlist-header">
+          <p class="f-playlist-header-title">当前播放</p>
+        </div>
+        <div class="f-playlist-body">
+          <div class="f-playlist-separator"></div>
+          <div v-if="props.playlist.length" class="f-playlist-list">
+            <RecycleScroller
+              class="scrollbar"
+              key-field="id"
+              :items="props.playlist"
+              :item-size="40"
+              :min-item-size="40"
             >
-              <div>
-                <i
-                  v-if="index === props.currentIndex"
-                  class="iconfont icon-play active"
-                ></i>
-              </div>
-              <div class="name">
+              <template v-slot="{ item, index }">
                 <div
-                  class="text-overflow"
-                  :title="item.origin_name"
-                  v-html="item.name"
-                />
-              </div>
+                  :class="{
+                    'playlist-list-item': true,
+                    'color-even': item.index % 2,
+                    disable: item.noCopyrightRcmd,
+                  }"
+                  :key="item.id"
+                  @dblclick="handlePlay(index)"
+                >
+                  <div>
+                    <i
+                      v-if="index === props.currentIndex"
+                      class="iconfont icon-play active"
+                    ></i>
+                  </div>
+                  <div class="name">
+                    <div
+                      class="text-overflow"
+                      :title="item.origin_name"
+                      v-html="item.name"
+                    />
+                  </div>
 
-              <div
-                class="text-overflow ar"
-                :title="item.ar.map((it:Base) => it.origin_name).join('/')"
-              >
-                <span v-for="ar in item.ar" :key="ar.id" v-html="ar.name" />
-              </div>
+                  <div
+                    class="text-overflow ar"
+                    :title="item.ar.map((it:Base) => it.origin_name).join('/')"
+                  >
+                    <span v-for="ar in item.ar" :key="ar.id" v-html="ar.name" />
+                  </div>
 
-              <div class="text-overflow dt">{{ formatDuring(item.dt) }}</div>
-            </div>
-          </template>
-        </RecycleScroller>
+                  <div class="text-overflow dt">{{
+                    formatDuring(item.dt)
+                  }}</div>
+                </div>
+              </template>
+            </RecycleScroller>
+          </div>
+          <div v-else class="f-playlist-empty">
+            <p>你还没添加任何歌曲!</p>
+          </div>
+        </div>
       </div>
-      <div v-else class="f-playlist-empty">
-        <p>你还没添加任何歌曲!</p>
-      </div>
-    </div>
+    </NPopover>
   </div>
 </template>
 
 <script setup lang="ts">
 import { formatDuring } from '@/utils/time';
 import { RecycleScroller } from 'vue-virtual-scroller';
-
+import { NPopover } from 'naive-ui';
 const emit = defineEmits(['handlePlay']);
 interface PropsType {
-  playlist?: any[];
+  playlist?: Track[];
   currentIndex?: number | null;
 }
 const props = withDefaults(defineProps<PropsType>(), {
@@ -78,13 +95,17 @@ function handlePlay(index: number) {
 
 <style scoped lang="scss">
 .f-playlist {
-  width: 400px;
-  height: 80vh;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  .active {
-    color: #dd001b;
+  align-items: center;
+  .icon-playlist {
+    font-size: 20px;
+  }
+
+  &-wrapper {
+    width: 400px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
   }
   &-header {
     padding: 10px;
@@ -101,7 +122,7 @@ function handlePlay(index: number) {
     flex-direction: column;
     overflow: hidden;
     .f-playlist-separator {
-      margin: 10px;
+      margin: 0 10px 10px;
       height: 1px;
       background-color: #dfdfdf;
     }
@@ -117,7 +138,9 @@ function handlePlay(index: number) {
       overflow: hidden;
     }
     .playlist-list-item {
+      height: 40px;
       display: grid;
+      align-items: center;
       grid-template-columns: 20px auto 100px 50px;
       gap: 10px;
       font-size: 12px;
@@ -139,6 +162,9 @@ function handlePlay(index: number) {
       .dt {
         color: var(--playlist-item-dt-font-color);
       }
+    }
+    .active {
+      color: #dd001b;
     }
   }
 }

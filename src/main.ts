@@ -2,7 +2,6 @@ import { createApp } from 'vue';
 import { store } from '@/store';
 import App from './NGlobalConfig.vue';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
-import './main.scss';
 import '@/assets/style/common.scss';
 import '@/assets/style/overwriteNaive.scss';
 import '@/assets/style/segoe-fluent-icons.scss';

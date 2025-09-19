@@ -149,7 +149,7 @@
         <div
           :class="{
             'playlist-list-item': true,
-            color: item.index % 2,
+            'color-even': item.index % 2,
             disable: item.noCopyrightRcmd,
           }"
           :key="item.id"
@@ -663,10 +663,6 @@ function handleDev() {
     }
 
     &-item {
-      &.color {
-        background-color: var(--playlist-item-eve-color);
-      }
-
       &:hover {
         background-color: var(--playlist-item-hover-color);
       }

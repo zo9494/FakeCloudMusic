@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import Image from '@/components/PlaylistImage.vue';
-import Lyrics from '@/components/player/PlayerLyrics.vue';
-import List from '@/components/player/Playerlist.vue';
-import Popover from '@/components/popover/Popover.vue';
+import PlayerLyrics from '@/components/player/PlayerLyrics.vue';
+import PlayerList from '@/components/player/Playerlist.vue';
 import Volume from '@/components/player/PlayerVolume.vue';
 import ProgressBar from '@/components/player/PlayerProgressBar.vue';
+import PlayerMode from '@/components/player/PlayerMode.vue';
 import 'vue-slider-component/theme/default.css';
 import { reactive, watch, onMounted } from 'vue';
 import { useUserStore } from '@/store/user';
@@ -20,15 +20,12 @@ onMounted(() => {
   useTextScroll('.f-player-info-song-ar');
 });
 interface Data {
-  progress: number;
-  cacheProgress: number;
   play: boolean;
   currentTime: number;
   volume: number;
   duration: number;
   showLyric: boolean;
   showPlaylist: boolean;
-  popoverEl?: HTMLDivElement;
   bgColor: [number, number, number];
   songInfo: {
     id: string | number | null;
@@ -40,8 +37,6 @@ interface Data {
 }
 
 const data = reactive<Data>({
-  progress: 0,
-  cacheProgress: 0,
   play: false,
   volume: 0.5,
   currentTime: 0,
@@ -65,24 +60,6 @@ watch(
   }
 );
 
-watch(
-  () => data.showLyric,
-  val => {
-    if (val) {
-      document.querySelectorAll('.no-drag-js').forEach(it => {
-        it.classList.remove('no-drag-js');
-        it.classList.add('drag-js');
-      });
-    } else {
-      document.querySelectorAll('.drag-js').forEach(it => {
-        it.classList.remove('drag-js');
-        it.classList.add('no-drag-js');
-      });
-    }
-  },
-  { immediate: true }
-);
-
 function setBgColor(url: string) {
   getImageColor(url + '?param=300y300').then(rgb => {
     document.documentElement.style.cssText = `--bg-img:linear-gradient(0deg,rgb(${rgb.join(
@@ -94,30 +71,6 @@ function setBgColor(url: string) {
 // dev
 function handleDev() {
   window.alert('功能开发中...');
-}
-
-function next() {
-  fcmAudioPlayer.next();
-}
-
-function previous() {
-  fcmAudioPlayer.prev();
-}
-
-function togglePlay() {
-  if (data.play) {
-    fcmAudioPlayer.pause();
-  } else {
-    fcmAudioPlayer.play();
-  }
-}
-
-function handlePlay(index: number) {
-  fcmAudioPlayer.replacePlaylist(index);
-}
-
-function handleProgressChange(value: number) {
-  fcmAudioPlayer.currentTime = value;
 }
 
 function toggleShowLyric() {
@@ -137,14 +90,46 @@ function resetPlayerStatus() {
   data.lyrics = [];
 }
 
+function next() {
+  fcmAudioPlayer.next();
+}
+
+function previous() {
+  fcmAudioPlayer.prev();
+}
+
+function togglePlay() {
+  if (data.play) {
+    fcmAudioPlayer.pause();
+  } else {
+    fcmAudioPlayer.play();
+  }
+}
+function onPlayModeChange(mode: number) {
+  fcmAudioPlayer.togglePlayMode(mode);
+}
+
+function handlePlay(index: number) {
+  fcmAudioPlayer.replacePlaylist(index);
+}
+
+function handleProgressChange(value: number) {
+  data.currentTime = value;
+  fcmAudioPlayer.currentTime = value;
+}
+
 fcmAudioPlayer.on('songchange', songInfo => {
   resetPlayerStatus();
-  data.songInfo = songInfo;
-  setBgColor(songInfo.pic);
-  Invoke('SET_TITLE', `${songInfo.name}-${songInfo.ar}`);
-  getLyric(songInfo.id).then(lyrics => {
-    data.lyrics = lyrics;
-  });
+  data.songInfo = songInfo || {};
+  setBgColor(songInfo?.pic || '');
+  Invoke('SET_TITLE', songInfo ? `${songInfo.name}-${songInfo.ar}` : '');
+  if (songInfo) {
+    getLyric(songInfo.id).then(lyrics => {
+      data.lyrics = lyrics;
+    });
+  } else {
+    data.lyrics = [];
+  }
 });
 
 fcmAudioPlayer.on('play', () => {
@@ -186,7 +171,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
       <div class="f-player-info">
         <div class="f-player-info-cover" @click="toggleShowLyric">
           <div class="mask">
-            <i class="iconfont icon-arrow-up-bold"></i>
+            <i class="iconfont icon-arrow-up"></i>
           </div>
           <Image class="img" :src="data.songInfo.pic + '?param=300y300'" />
         </div>
@@ -253,20 +238,12 @@ Listener('APP:AUDIO_PREVIOUS', previous);
       </div>
 
       <div class="f-player-right-control">
-        <Popover trigger="click" placement="top-start" display-directive="show">
-          <template #reference>
-            <button class="f-player-right-control-list">
-              <i class="icon-playlist-music iconfont"> </i>
-            </button>
-          </template>
-
-          <List
-            @handle-play="handlePlay"
-            :playlist="fcmAudioPlayer.list"
-            :current-index="fcmAudioPlayer.currentIndex"
-          />
-        </Popover>
-
+        <PlayerMode @on-change="onPlayModeChange" />
+        <PlayerList
+          @handle-play="handlePlay"
+          :current-index="fcmAudioPlayer.currentIndex"
+          :playlist="fcmAudioPlayer.list"
+        />
         <div class="f-player-right-control-volume">
           <Volume v-model:volume="data.volume"></Volume>
         </div>
@@ -274,72 +251,24 @@ Listener('APP:AUDIO_PREVIOUS', previous);
     </div>
   </Transition>
 
-  <Teleport to="body">
-    <Transition name="slide-up">
-      <Lyrics
-        v-if="data.showLyric"
-        :song="data.songInfo"
-        class="top"
-        :progress="data.currentTime"
-        :lyrics="data.lyrics"
-      >
-        <template v-slot:header>
-          <button
-            class="arrow-button"
-            @click="toggleShowLyric"
-            style="color: var(--font-color)"
-          >
-            <i class="icon-arrow-down-bold iconfont"></i>
-          </button>
-        </template>
-        <template v-slot:options>
-          <div class="lyrics-options">
-            <div class="lyrics-options-slider">
-              <ProgressBar
-                :progress="data.currentTime"
-                :duration="data.duration"
-                @change="handleProgressChange"
-              />
-            </div>
-            <div class="lyrics-options-btn">
-              <button
-                @click="previous"
-                class="f-player-control-previous f-player-control-btn"
-              >
-                <i class="icon-play-previous iconfont" />
-              </button>
-              <button
-                class="f-player-control-pau-pla f-player-control-btn"
-                @click="togglePlay()"
-              >
-                <i v-show="data.play" class="iconfont icon-pause" />
-                <i v-show="!data.play" class="iconfont icon-play" />
-              </button>
-              <button
-                @click="next"
-                class="f-player-control-next f-player-control-btn"
-              >
-                <i class="icon-play-next iconfont" />
-              </button>
-            </div>
-          </div>
-        </template>
-      </Lyrics>
-    </Transition>
-  </Teleport>
+  <PlayerLyrics
+    v-model:show="data.showLyric"
+    :is-play="data.play"
+    @next="next"
+    @previous="previous"
+    @toggle-play="togglePlay"
+    @on-progress-change="handleProgressChange"
+    :song="data.songInfo"
+    :progress="data.currentTime"
+    :duration="data.duration"
+    :lyrics="data.lyrics"
+  >
+  </PlayerLyrics>
 </template>
 
 <style lang="scss">
 .bg {
   background-size: cover;
-}
-
-.top {
-  position: fixed;
-  top: 0;
-  height: 100vh;
-  width: 100vw;
-  z-index: 100;
 }
 
 .f-player {
@@ -348,9 +277,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: 200px 25px 130px auto 300px;
-  // background-color: var(--bg-color);
-  // background-image: var(--player-img);
+  grid-template-columns: 200px 25px 130px auto 200px;
   gap: 10px;
   place-items: center;
   border-radius: 10px;
@@ -467,23 +394,13 @@ Listener('APP:AUDIO_PREVIOUS', previous);
     width: 100%;
   }
 
+  // 右边音量、播放模式、播放列表 部分
   &-right-control {
-    display: flex;
-    gap: 5px;
-
+    display: grid;
+    grid-template-columns: 20px 20px auto;
+    gap: 10px;
     &-volume {
       width: 100px;
-    }
-
-    &-list {
-      padding: 0px 13px;
-      border-radius: 10px;
-      .iconfont {
-        font-size: 13px;
-      }
-      &:hover {
-        background-color: rgba(209, 209, 214, 0.28);
-      }
     }
   }
 }
@@ -529,25 +446,9 @@ Listener('APP:AUDIO_PREVIOUS', previous);
   }
 }
 
-.icon-arrow-down-bold,
-.icon-arrow-up-bold {
-  font-size: 23px;
-  cursor: pointer;
-}
-
-.lyrics-options {
-  width: 80%;
-  display: grid;
-  grid-template-rows: 30px 50px;
-  align-items: center;
-
-  &-btn {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-
-    .iconfont {
-      font-size: 30px;
-    }
-  }
-}
+// .icon-arrow-down-bold,
+// .icon-arrow-up-bold {
+//   font-size: 23px;
+//   cursor: pointer;
+// }
 </style>

@@ -1,8 +1,8 @@
 @font-face {
-  font-family: "iconfont"; /* Project id 3879091 */
-  src: url('iconfont.woff2?t=1675432627976') format('woff2'),
-       url('iconfont.woff?t=1675432627976') format('woff'),
-       url('iconfont.ttf?t=1675432627976') format('truetype');
+  font-family: "iconfont"; /* Project id 4815539 */
+  src: url('iconfont.woff2?t=1758123394617') format('woff2'),
+       url('iconfont.woff?t=1758123394617') format('woff'),
+       url('iconfont.ttf?t=1758123394617') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,30 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-order:before {
+  content: "\e604";
+}
+
+.icon-repeat:before {
+  content: "\e605";
+}
+
+.icon-loop:before {
+  content: "\e606";
+}
+
+.icon-shuffle:before {
+  content: "\e607";
+}
+
+.icon-arrow-down:before {
+  content: "\e645";
+}
+
+.icon-arrow-up:before {
+  content: "\e646";
 }
 
 .icon-pause:before {
@@ -29,15 +53,7 @@
   content: "\e612";
 }
 
-.icon-arrow-up-bold:before {
-  content: "\e685";
-}
-
-.icon-arrow-down-bold:before {
-  content: "\e686";
-}
-
-.icon-playlist-music:before {
-  content: "\e731";
+.icon-playlist:before {
+  content: "\e6bc";
 }
 

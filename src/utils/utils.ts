@@ -58,7 +58,10 @@ export interface DynamicLyricWord {
   word: string;
 }
 
-export function getArName(Ar: Base[]) {
+export function getArName(Ar?: Base[]) {
+  if (!Ar) {
+    return '';
+  }
   return Ar.map(item => item.origin_name || item.name).join(' / ');
 }
 

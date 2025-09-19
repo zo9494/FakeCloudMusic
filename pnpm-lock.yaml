@@ -15,6 +15,9 @@ importers:
         specifier: 4.28.0
         version: 4.28.0
     devDependencies:
+      '@hugeicons/vue':
+        specifier: ^1.0.3
+        version: 1.0.3(vue@3.4.21(typescript@5.4.3))
       '@types/lodash':
         specifier: ^4.17.0
         version: 4.17.0
@@ -430,6 +433,11 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
+
+  '@hugeicons/vue@1.0.3':
+    resolution: {integrity: sha512-DF9A277Ej4Eahu11Hkd3v6V0eZ1NHWZWs9OOByJaxGekgG8q7DAbkhltIo3bqsoxVprxaKSX3Mmn5a2dyzLsHA==}
+    peerDependencies:
+      vue: ^2.6.0 || ^3.0.0
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -3143,6 +3151,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.18.20':
     optional: true
+
+  '@hugeicons/vue@1.0.3(vue@3.4.21(typescript@5.4.3))':
+    dependencies:
+      vue: 3.4.21(typescript@5.4.3)
 
   '@isaacs/cliui@8.0.2':
     dependencies:

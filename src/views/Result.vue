@@ -6,7 +6,7 @@
         v-for="(item, index) in list"
         :class="{ 'playlist-list-item': true, color: index % 2 }"
         :key="item.id"
-        @dblclick="handlePlay(index, list)"
+        @dblclick="handlePlay(item.id)"
       >
         <div class="index">{{ index + 1 }}</div>
         <div class="opt">
@@ -50,6 +50,7 @@ import { useRoute } from 'vue-router';
 import { service } from '@/utils/request';
 import { useDialog } from 'naive-ui';
 import { download } from '@/utils/utils';
+import { getSongDetail } from '@/api/song';
 const dialog = useDialog();
 
 const route = useRoute();
@@ -79,8 +80,21 @@ function handleDev() {
   window.alert('功能开发中...');
 }
 
-function handlePlay(index: number, list?: Track[]) {
-  fcmAudioPlayer.replacePlaylist(index, list as Track[]);
+let loadingDetail = false;
+function handlePlay(id: number) {
+  if (loadingDetail) {
+    return;
+  }
+  loadingDetail = true;
+  getSongDetail(id)
+    .then(res => {
+      console.log(res);
+      fcmAudioPlayer.appendTrack(res);
+    })
+    .finally(() => {
+      loadingDetail = false;
+    });
+  // fcmAudioPlayer.replacePlaylist(index, list as Track[]);
 }
 </script>
 

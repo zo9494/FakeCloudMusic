@@ -1,5 +1,5 @@
 import { getSongUrl, getUnblockSong } from '@/api/song';
-import { throttle, round, random } from 'lodash';
+import { throttle, round, random, isNumber } from 'lodash';
 import { getArName } from './utils';
 interface Options {
   src: string;
@@ -19,15 +19,15 @@ interface FCMAudioPlayerEventMap extends HTMLMediaElementEventMap {
 
 type Callback = (...args: any[]) => void;
 
-enum PlayMode {
+export enum PlayMode {
   // 顺序播放
-  order = 0,
+  order,
   // 循环播放
   loop,
+  /* 单曲循环 */
+  repeat,
   // 随机播放
   shuffle,
-  // 单曲循环
-  repeat,
 }
 
 // todo:重构，添加播放模式，添加播放列表
@@ -37,9 +37,12 @@ export class FCMAudioPlayer {
   list: Track[] = [];
   private eventListeners: { [key: string]: Callback[] } = {};
   // 当前播放索引
-  private _currentIndex: number = 0;
-  // 已经播放过的
-  private playedIndex: number[] = [];
+  private _currentIndex: number | null = 0;
+  // 已经随机播放过的
+  private playedShuffleList: number[] = [];
+  private shuffleListIndex = 0;
+  // 等待生成随机index
+  private wait = false;
   // 播放模式
   mode: number = 0;
   constructor(options?: Partial<Options>) {
@@ -48,6 +51,7 @@ export class FCMAudioPlayer {
     this.audio.src = options?.src || '';
     this.audio.preload = 'auto';
     this.audio.autoplay = true;
+    this.audio.loop = this.mode === PlayMode.repeat;
     this.bindEvents();
     this.bindMediaActionHandler();
   }
@@ -61,17 +65,20 @@ export class FCMAudioPlayer {
     return this.audio.currentTime;
   }
 
-  set currentIndex(v: number) {
+  set currentIndex(v: number | null) {
     this._currentIndex = v;
     this.songChangeEvent();
   }
 
-  get currentIndex() {
+  get currentIndex(): number | null {
     return this._currentIndex;
   }
 
-  get currentTrack() {
-    return this.list[this.currentIndex];
+  get currentTrack(): Track | null {
+    if (this.currentIndex !== null) {
+      return this.list[this.currentIndex];
+    }
+    return null;
   }
 
   public get volume() {
@@ -89,17 +96,169 @@ export class FCMAudioPlayer {
   pause() {
     this.audio.pause();
   }
-  next() {
-    if (this.currentIndex < this.list.length - 1) {
-      this.currentIndex++;
+  async next() {
+    if (!this.list.length) {
+      return;
     }
-    this.playMediaSource();
+    // switch (this.mode) {
+    //   case PlayMode.order:
+    //     // 如果是顺序播放
+    //     const min = Math.min(this.currentIndex + 1, this.list.length);
+    //     debugger;
+    //     break;
+    //   default:
+    //     break;
+    // }
+    // const maxIndex = Math.max(0, this.list.length - 1);
+    // const nextIndex = Math.min(this.currentIndex + 1, maxIndex);
+    // console.log(nextIndex);
+    // this.currentIndex = nextIndex;
+
+    switch (this.mode) {
+      case PlayMode.shuffle:
+        if (!this.wait) {
+          this.wait = true;
+          this.currentIndex = await this.getNextShuffleIndex();
+          this.wait = false;
+        }
+        break;
+
+      default:
+        this.currentIndex = this.getNextIndex();
+        break;
+    }
+    console.log(
+      'next currentIndex: %d\nshuffleIndex: %d',
+      this.currentIndex,
+      this.shuffleListIndex
+    );
+
+    // this.playMediaSource();
   }
-  prev() {
-    if (this.currentIndex != 0) {
-      this.currentIndex--;
+  async prev() {
+    switch (this.mode) {
+      case PlayMode.shuffle:
+        if (!this.wait) {
+          this.wait = true;
+          this.currentIndex = await this.getPrevShuffleIndex();
+          this.wait = false;
+        }
+        break;
+
+      default:
+        this.currentIndex = this.getPrevIndex();
+        break;
     }
-    this.playMediaSource();
+    console.log(
+      'prev currentIndex: %d\nshuffleIndex: %d',
+      this.currentIndex,
+      this.shuffleListIndex
+    );
+    // this.playMediaSource();
+  }
+
+  private getPrevIndex() {
+    if (this.currentIndex === null) {
+      return null;
+    }
+    const i = this.currentIndex - 1;
+    if (i < 0) {
+      return Math.max(0, this.list.length - 1);
+    }
+    return i;
+  }
+  private getNextIndex() {
+    if (this.currentIndex === null) {
+      return null;
+    }
+    let i = this.currentIndex + 1;
+    if (this.mode === PlayMode.loop && i >= this.list.length) {
+      return 0;
+    }
+    const maxIndex = Math.max(0, this.list.length - 1);
+    return Math.min(i, maxIndex);
+  }
+  private async generateShuffleList() {
+    if (!this.list.length) {
+      return;
+    }
+    const arr: number[] = [];
+    const fn = () => {
+      const r = random(0, Math.max(0, this.list.length - 1));
+      const result = arr.find(item => item === r);
+      if (result === undefined) {
+        arr.push(r);
+      }
+
+      if (this.list.length === arr.length) {
+        return;
+      }
+      fn();
+    };
+    fn();
+    console.log('generateShuffleList: %o', arr);
+    this.playedShuffleList = arr;
+  }
+
+  private async getPrevShuffleIndex() {
+    this.shuffleListIndex--;
+    if (this.shuffleListIndex < 0) {
+      await this.generateShuffleList();
+      this.shuffleListIndex = Math.max(0, this.playedShuffleList.length - 1);
+    }
+    return this.playedShuffleList[this.shuffleListIndex];
+  }
+  private async getNextShuffleIndex() {
+    this.shuffleListIndex++;
+    if (this.shuffleListIndex >= this.playedShuffleList.length) {
+      await this.generateShuffleList();
+      this.shuffleListIndex = 0;
+    }
+    return this.playedShuffleList[this.shuffleListIndex];
+  }
+  private setLoop(loop = false) {
+    this.audio.loop = loop;
+  }
+  private whenEnded() {
+    if (!this.currentIndex) {
+      return;
+    }
+    switch (this.mode) {
+      case PlayMode.repeat:
+        break;
+      case PlayMode.order:
+        // 顺序播放结束
+        if (this.currentIndex + 1 < this.list.length) {
+          this.next();
+        } else {
+          this.currentIndex = null;
+        }
+        break;
+      default:
+        this.next();
+        break;
+    }
+  }
+  togglePlayMode(mode?: number) {
+    mode = mode ?? this.mode + 1;
+    if (mode > PlayMode.shuffle) {
+      mode = PlayMode.order;
+    }
+    this.mode = mode;
+    switch (mode) {
+      case PlayMode.shuffle:
+        this.playedShuffleList = [];
+        this.shuffleListIndex = 0;
+        this.generateShuffleList();
+        break;
+      case PlayMode.repeat:
+        this.setLoop(true);
+        break;
+      default:
+        this.setLoop(false);
+        break;
+    }
+    console.log('mode:  %d', this.mode);
   }
   bindEvents() {
     const self = this;
@@ -110,8 +269,11 @@ export class FCMAudioPlayer {
       self.triggerEvent('pause');
     });
     self.audio.addEventListener('ended', () => {
+      console.log('ended');
+
       self.triggerEvent('ended');
-      self.next();
+      // 播放结束
+      this.whenEnded();
     });
     self.audio.addEventListener('error', err => {
       self.triggerEvent('error');
@@ -119,8 +281,10 @@ export class FCMAudioPlayer {
       console.dir(self.audio);
 
       if (self.audio.error?.code === 2) {
+        console.log('网络问题');
+
         // 地址过期，重新获取
-        self.playMediaSource();
+        // self.playMediaSource();
       }
     });
     self.audio.addEventListener(
@@ -177,11 +341,29 @@ export class FCMAudioPlayer {
     }
     this.currentIndex = index;
     this.playMediaSource();
+    if (this.mode === PlayMode.shuffle) {
+      this.generateShuffleList();
+    }
+  }
+  //
+  appendTrack(track: any) {
+    let startIndex = 0;
+    if (this.currentIndex !== null) {
+      startIndex = this.currentIndex + 1;
+    }
+
+    this.list.splice(startIndex, 0, track);
+    const maxIndex = Math.max(0, this.list.length - 1);
+    this.replacePlaylist(Math.min(startIndex, maxIndex));
   }
   async playMediaSource() {
     this.pause();
-    const src = await this.getMediaSource(this.currentTrack);
-    this.audio.src = src || '';
+    if (this.currentTrack) {
+      const src = await this.getMediaSource(this.currentTrack);
+      this.audio.src = src || '';
+    } else {
+      //
+    }
   }
 
   async getMediaSource(track: Track) {
@@ -252,22 +434,31 @@ export class FCMAudioPlayer {
   }
 
   songChangeEvent() {
-    const songInfo = {
-      id: this.currentTrack.id,
-      name: this.currentTrack.name || '',
-      ar: getArName(this.currentTrack.ar),
-      pic: this.currentTrack.al.picUrl,
-    };
+    let songInfo = null;
 
+    if (this.currentTrack) {
+      songInfo = {
+        id: this.currentTrack.id,
+        name: this.currentTrack.name,
+        ar: getArName(this.currentTrack.ar),
+        pic: this.currentTrack.al.picUrl,
+      };
+    }
+    this.playMediaSource();
     this.triggerEvent('songchange', songInfo);
 
-    this.setTitle(`${songInfo.name} - ${songInfo.ar}`);
-    this.setMediaMetadata({
-      title: songInfo.name,
-      artist: songInfo.ar,
-      album: songInfo.name,
-      alPicUrl: songInfo.pic,
-    });
+    this.setTitle(songInfo ? `${songInfo.name} - ${songInfo.ar}` : '');
+
+    this.setMediaMetadata(
+      songInfo
+        ? {
+            title: songInfo.name,
+            artist: songInfo.ar,
+            album: songInfo.name,
+            alPicUrl: songInfo.pic,
+          }
+        : {}
+    );
   }
   setTitle(title: string) {
     document.title = title;
