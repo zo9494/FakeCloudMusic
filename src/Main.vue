@@ -135,9 +135,6 @@ window.electron.ipcRenderer.on('APP:SEND_MESSAGE', (_, val) => {
   overflow: hidden;
   display: grid;
   grid-template-columns: 200px auto;
-  .app-bottom-space {
-    height: calc(variables.$appBottomSpace - 40px);
-  }
   &-left-nav {
     overflow: hidden;
     display: grid;

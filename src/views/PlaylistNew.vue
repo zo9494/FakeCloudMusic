@@ -134,7 +134,13 @@
       </template>
       <template #after>
         <div>
-          <div class="app-bottom-space"> </div>
+          <div
+            class="app-top-space"
+            :class="{
+              'app-bottom-space': data.playlist.tracks?.length,
+            }"
+          >
+          </div>
           <div v-if="data.loading" class="loading">
             <div class="loading-content">
               <LoadingSVG width="20px" height="20px"></LoadingSVG>
@@ -157,7 +163,7 @@
           @contextmenu="e => handleContextMenu(e, item)"
           @dblclick="handlePlay(index, data.playlist.tracks)"
         >
-          <div class="index">{{ item.index }}</div>
+          <div class="index">{{ index + 1 }}</div>
           <div class="opt">
             <i
               v-if="userStore.hasLike(item.id)"
@@ -473,14 +479,13 @@ function handleContextMenu(e: MouseEvent, track: Track) {
 </script>
 
 <style lang="scss" scoped>
-.app-bottom-space {
-  height: variables.$appBottomSpace;
+.app-top-space {
+  height: 50px;
 }
 .net-err {
   text-align: center;
   color: #666666;
   height: 30px;
-  line-height: 30px;
 }
 .loading {
   color: #666;

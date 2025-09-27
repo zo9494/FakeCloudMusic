@@ -138,7 +138,7 @@ button {
   background-color: rgba(225, 225, 225, 0.2);
 }
 .app-bottom-space {
-  height: variables.$appBottomSpace;
+  height: variables.$appBottomSpace !important;
 }
 //
 
