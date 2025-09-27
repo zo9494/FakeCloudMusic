@@ -58,8 +58,9 @@ export async function getLyric(id: Id) {
   });
 
   if (data?.lrc) {
-    lyric.setLyric(id, transformLyric(data.lrc.lyric, data?.tlyric?.lyric));
-    return transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
+    const lyrics = transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
+    lyric.setLyric(id, lyrics);
+    return lyrics;
   }
 }
 
