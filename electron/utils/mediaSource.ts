@@ -4,12 +4,16 @@ import { getSongUrl, getUnBlockSong } from './service';
 // 媒体源解析器
 
 class MediaSourceResolver {
-  async resolve(id: string): Promise<string | null> {
-    return (await this.fromNetEase(id)) || (await this.fromUnblock(id)) || null;
+  async resolve(id: string, cookie?: string): Promise<string | null> {
+    return (
+      (await this.fromNetEase(id, cookie)) ||
+      (await this.fromUnblock(id)) ||
+      null
+    );
   }
 
-  private async fromNetEase(id: string): Promise<string | null> {
-    const res = await getSongUrl(id);
+  private async fromNetEase(id: string, cookie): Promise<string | null> {
+    const res = await getSongUrl(id, cookie);
 
     if (res.freeTrialInfo) {
       return null;

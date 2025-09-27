@@ -34,9 +34,10 @@ protocol.registerSchemesAsPrivileged([
  */
 class CacheManager {
   static getCachePath(url: URL): string {
+    const value = `${url.host}/${url.searchParams.get('id')}`;
     const hash = require('crypto')
       .createHash('md5')
-      .update(url.href)
+      .update(value)
       .digest('hex');
     return path.join(CACHE_DIR, `${hash}.mp3`);
   }
@@ -165,7 +166,7 @@ class AudioStreamHandler {
         : createWriteStream(tempPath, { flags: 'w' });
 
       mediaSourceResolver
-        .resolve(url.searchParams.get('id'))
+        .resolve(url.searchParams.get('id'), url.searchParams.get('cookie'))
         .then(neteaseUrl => {
           console.log('neteaseUrl:', neteaseUrl);
 
@@ -388,7 +389,8 @@ class ProtocolHandler {
     return new Promise(async (resolve, reject) => {
       try {
         const neteaseUrl = await mediaSourceResolver.resolve(
-          url.searchParams.get('id')
+          url.searchParams.get('id'),
+          url.searchParams.get('cookie')
         );
 
         // 创建一个临时请求来获取大小

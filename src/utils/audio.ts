@@ -256,7 +256,9 @@ export class FCMAudioPlayer {
       return;
     }
 
-    this.audio.src = `fcm-app://media?id=${this.currentTrack.id}`;
+    this.audio.src = `fcm-app://media?id=${
+      this.currentTrack.id
+    }&cookie=${localStorage.getItem('cookie')}`;
     console.log('src:', this.audio.src);
 
     // try {

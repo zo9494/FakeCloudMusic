@@ -19,7 +19,7 @@ export async function getUserAccount() {
   const data = await service.get<UserAccount>('/user/account', {
     params: { timestamp: Date.now() },
   });
-  user.setUser(data);
+  localStorage.cookie && user.setUser(data);
   return data;
 }
 

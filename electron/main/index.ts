@@ -9,7 +9,6 @@ import {
   isWin,
   customWindowHeaderBar,
 } from '../utils/platform';
-import '../utils/console';
 import { Thumbar } from './thumbar.service';
 import './ipcMain';
 import { setupDevTools } from './devtools';

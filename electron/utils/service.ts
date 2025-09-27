@@ -4,7 +4,7 @@ export async function API(url: string, params: any): Promise<any> {
   try {
     // params.realIP = '116.25.146.179';
     params.noCookie = true;
-    params.timeout = 6000;
+    params.timeout = 5000;
     const { cookie, ...args } = params;
     return await NCM[url]({ ...params });
   } catch (error) {
@@ -30,15 +30,17 @@ interface SongUrl {
 }
 type Id = number | string;
 type Ids = string[] | number[];
-export function getSongUrl(id: Id): Promise<SongUrl>;
-export function getSongUrl(ids: Ids): Promise<SongUrl[]>;
-export async function getSongUrl(ids: Id | Ids) {
+export function getSongUrl(id: Id, cookie?: string): Promise<SongUrl>;
+export function getSongUrl(ids: Ids, cookie?: string): Promise<SongUrl[]>;
+export async function getSongUrl(ids, cookie) {
   const isArray = Array.isArray(ids);
   try {
     const { body } = await song_url({
       id: isArray ? ids.join(',') : ids,
+      cookie,
     });
     const res = body as unknown as { data: SongUrl[] };
+    console.log('netease result:', res);
 
     if (!res?.data) {
       return null;
@@ -48,7 +50,7 @@ export async function getSongUrl(ids: Id | Ids) {
     }
     return res.data[0];
   } catch (error) {
-    console.log('getSongUrl Error:', error);
+    console.log('netease Error:', error);
 
     return null;
   }

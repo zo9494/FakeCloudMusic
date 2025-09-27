@@ -14,7 +14,7 @@ export class Service {
       url: url.replaceAll('/', '_').slice(1),
       params: { ...config?.params, cookie: localStorage.cookie },
     });
-    console.log('API: %s %o', url, res);
+    console.log('retries: %d; API: %s %o', retries, url, res);
 
     if (retries <= 0) {
       console.error(
