@@ -6,6 +6,7 @@
       :items="data.playlist.tracks || []"
       :item-size="40"
       :min-item-size="40"
+      :buffer="100"
     >
       <template #before>
         <div>
@@ -46,7 +47,7 @@
                   <span>{{ data.playlist.creator?.nickname }}</span>
                 </div>
                 <span class="create-time"
-                  >{{ formatDate(data.playlist.createTime) }}创建</span
+                  >{{ formatDate(data.playlist.createTime) }}&nbsp;创建</span
                 >
               </div>
               <div class="options">
@@ -149,10 +150,11 @@
         <div
           :class="{
             'playlist-list-item': true,
-            'color-even': item.index % 2,
+            'color-even': index % 2,
             disable: item.noCopyrightRcmd,
           }"
           :key="item.id"
+          @contextmenu="e => handleContextMenu(e, item)"
           @dblclick="handlePlay(index, data.playlist.tracks)"
         >
           <div class="index">{{ item.index }}</div>
@@ -209,6 +211,7 @@ import LoadingSVG from '@/assets/svg/loading.svg?component';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import VIPTag from '@/components/VIPTag.vue';
 import NoSourceTag from '@/components/NoSourceTag.vue';
+import { ContextMenu } from '@/utils/contextmenu';
 import {
   onBeforeMount,
   onMounted,
@@ -298,7 +301,6 @@ function loadPlaylistFromStore() {
 
 function setPlaylist(playlist: Playlist) {
   playlist.tracks.forEach((song, index) => {
-    song.index = index + 1;
     song.origin_name = song.name;
     // ar
     song.ar.forEach(it => {
@@ -436,6 +438,38 @@ function updateLike(song: Track, isDel = false) {
 function handleDev() {
   window.alert('功能开发中...');
 }
+
+function handleContextMenu(e: MouseEvent, track: Track) {
+  const instance = ContextMenu.getInstance();
+  instance.setItems([
+    {
+      label: '播放',
+      id: 1,
+    },
+    {
+      label: '下一首播放',
+      id: 2,
+    },
+  ]);
+  instance.show({
+    x: e.clientX,
+    y: e.clientY,
+    onSelect(it) {
+      if (it.id === 1) {
+        fcmAudioPlayer.insertTrack(track);
+      } else {
+        fcmAudioPlayer.appendNextTrack(track);
+      }
+    },
+  });
+  document.addEventListener(
+    'contextmenu',
+    () => {
+      instance.hide();
+    },
+    { once: true, capture: true }
+  );
+}
 </script>
 
 <style lang="scss" scoped>
@@ -510,7 +544,7 @@ function handleDev() {
     }
   }
   &-header {
-    padding: 0 20px;
+    padding: 0 10px;
     display: grid;
     grid-template-columns: 200px auto;
     gap: 10px;
@@ -528,7 +562,6 @@ function handleDev() {
 
     &-right {
       display: grid;
-      grid-template-rows: repeat(6, 1fr);
       grid-template-rows: auto repeat(2, 30px) repeat(6, auto);
       font-size: 12px;
       gap: 10px;
@@ -560,12 +593,12 @@ function handleDev() {
 
       .options {
         display: grid;
-        grid-template-columns: 130px repeat(2, 110px) auto;
-        gap: 10px;
-
+        grid-template-columns: repeat(4, auto);
+        gap: 8px;
         button {
           font-size: 13px;
-          max-width: 130px;
+          max-width: 160px;
+          min-width: 100px;
           &:not(.options-all) {
             border-radius: 50px;
             background-color: var(--button-color);

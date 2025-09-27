@@ -7,6 +7,7 @@
         :class="{ 'playlist-list-item': true, color: index % 2 }"
         :key="item.id"
         @dblclick="handlePlay(item.id)"
+        @contextmenu="e => handleContextMenu(e, item)"
       >
         <div class="index">{{ index + 1 }}</div>
         <div class="opt">
@@ -61,6 +62,7 @@ const userStore = useUserStore();
 
 import { usePlayerStore } from '@/store/player';
 import { fcmAudioPlayer } from '@/utils/audio';
+import { ContextMenu } from '@/utils/contextmenu';
 const playerStore = usePlayerStore();
 
 service
@@ -89,12 +91,44 @@ function handlePlay(id: number) {
   getSongDetail(id)
     .then(res => {
       console.log(res);
-      fcmAudioPlayer.appendTrack(res);
+      fcmAudioPlayer.insertTrack(res);
     })
     .finally(() => {
       loadingDetail = false;
     });
   // fcmAudioPlayer.replacePlaylist(index, list as Track[]);
+}
+
+function handleContextMenu(e: MouseEvent, track: Track) {
+  const instance = ContextMenu.getInstance();
+  instance.setItems([
+    {
+      label: '播放',
+      id: 1,
+    },
+    {
+      label: '下一首播放',
+      id: 2,
+    },
+  ]);
+  instance.show({
+    x: e.clientX,
+    y: e.clientY,
+    onSelect(it) {
+      if (it.id === 1) {
+        fcmAudioPlayer.insertTrack(track);
+      } else {
+        fcmAudioPlayer.appendNextTrack(track);
+      }
+    },
+  });
+  document.addEventListener(
+    'contextmenu',
+    () => {
+      instance.hide();
+    },
+    { once: true, capture: true }
+  );
 }
 </script>
 

@@ -13,6 +13,7 @@ import { getImageColor } from '@/utils/utils';
 import { useTextScroll } from '@/hooks/textOverflowScroll';
 import { Invoke, Listener } from '@/utils/ipcRenderer';
 import { getLyric } from '@/api/song';
+import { user } from '@/utils/database';
 const userStore = useUserStore();
 
 onMounted(() => {
@@ -241,7 +242,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
         <PlayerMode @on-change="onPlayModeChange" />
         <PlayerList
           @handle-play="handlePlay"
-          :current-index="fcmAudioPlayer.currentIndex"
+          :current-song-id="data.songInfo.id"
           :playlist="fcmAudioPlayer.list"
         />
         <div class="f-player-right-control-volume">

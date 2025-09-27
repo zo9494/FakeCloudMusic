@@ -167,9 +167,6 @@ export class FCMAudioPlayer {
   private _currentIndex: number | null = 0;
   // 播放模式管理器
   private playModeManager: PlayModeManager;
-  // 媒体源解析器
-  private mediaSourceResolver = new MediaSourceResolver();
-  private isPlaying = false;
 
   // 播放模式
   private mode: number = 0;
@@ -220,20 +217,14 @@ export class FCMAudioPlayer {
 
   play() {
     if (this.audio.src) {
-      this.audio
-        .play()
-        .then(() => {
-          this.isPlaying = true;
-        })
-        .catch(error => {
-          console.error('播放失败:', error);
-          this.triggerEvent('error', error);
-        });
+      this.audio.play().catch(error => {
+        console.error('播放失败:', error);
+        this.triggerEvent('error', error);
+      });
     }
   }
   pause() {
     this.audio.pause();
-    this.isPlaying = false;
   }
   async next() {
     if (!this.list.length || this.currentIndex === null) return;
@@ -265,21 +256,24 @@ export class FCMAudioPlayer {
       return;
     }
 
-    try {
-      const src = await this.mediaSourceResolver.resolve(this.currentTrack);
-      if (src) {
-        this.audio.src = src;
-        if (this.isPlaying) {
-          this.play();
-        }
-      } else {
-        console.warn('无法获取播放源，尝试下一首');
-        this.next();
-      }
-    } catch (error) {
-      console.error('播放媒体源时出错:', error);
-      this.next();
-    }
+    this.audio.src = `fcm-app://media?id=${this.currentTrack.id}`;
+    console.log('src:', this.audio.src);
+
+    // try {
+    //   const src = await this.mediaSourceResolver.resolve(this.currentTrack);
+    //   if (src !== null) {
+    //     this.audio.src = src;
+    //     if (this.isPlaying) {
+    //       this.play();
+    //     }
+    //   } else {
+    //     console.warn('无法获取播放源，尝试下一首');
+    //     this.next();
+    //   }
+    // } catch (error) {
+    //   console.error('播放媒体源时出错:', error);
+    //   this.next();
+    // }
   }
 
   private whenEnded() {
@@ -321,11 +315,9 @@ export class FCMAudioPlayer {
   private bindEvents() {
     const self = this;
     self.audio.addEventListener('play', () => {
-      self.isPlaying = true;
       self.triggerEvent('play');
     });
     self.audio.addEventListener('pause', () => {
-      self.isPlaying = false;
       self.triggerEvent('pause');
     });
     self.audio.addEventListener('ended', () => {
@@ -339,9 +331,21 @@ export class FCMAudioPlayer {
       self.triggerEvent('error');
       console.dir(err);
       console.dir(self.audio);
-
-      if (self.audio.error?.code === 2) {
-        console.log('网络问题');
+      switch (self.audio.error?.code) {
+        case 1:
+          console.log('用户取消了播放');
+          break;
+        case 2:
+          console.log('网络问题');
+          break;
+        case 3:
+          console.log('解码失败');
+          break;
+        case 4:
+          console.log('播放格式不支持');
+          break;
+        default:
+          console.log('未知错误');
       }
     });
     self.audio.addEventListener(
@@ -417,16 +421,38 @@ export class FCMAudioPlayer {
       this.playModeManager.resetShuffle();
     }
   }
-  //
-  appendTrack(track: any) {
+
+  private getInsertIndex() {
     let startIndex = 0;
     if (this.currentIndex !== null) {
       startIndex = this.currentIndex + 1;
     }
+    return startIndex;
+  }
 
+  private findIndex(track: Track) {
+    return this.list.findIndex(item => item.id === track.id);
+  }
+
+  //
+  insertTrack(track: Track) {
+    const index = this.findIndex(track);
+    if (index !== -1) {
+      this.list.splice(index, 1);
+    }
+
+    const startIndex = this.getInsertIndex();
     this.list.splice(startIndex, 0, track);
     const maxIndex = Math.max(0, this.list.length - 1);
     this.replacePlaylist(Math.min(startIndex, maxIndex));
+    console.log(this.list);
+  }
+
+  // 添加到下一首播放
+  appendNextTrack(track: Track) {
+    const startIndex = this.getInsertIndex();
+    this.list.splice(startIndex, 0, track);
+    console.log(this.list);
   }
 
   private setMediaMetadata(params: Partial<mediaDataType>) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDialog, useMessage } from 'naive-ui';
-import { h, onBeforeMount } from 'vue';
+import { h, onBeforeMount, KeepAlive } from 'vue';
 import AppBar from './components/AppBar.vue';
 import Menu from './components/Menu.vue';
 import UserLogin from './components/UserLogin.vue';
@@ -116,7 +116,9 @@ window.electron.ipcRenderer.on('APP:SEND_MESSAGE', (_, val) => {
     <div class="container-right-view-inner">
       <RouterView v-slot="{ Component, route }">
         <transition name="scale" mode="out-in">
-          <component :is="Component" :key="route.path" />
+          <KeepAlive include="FindMusic">
+            <component :is="Component" :key="route.path" />
+          </KeepAlive>
         </transition>
       </RouterView>
     </div>

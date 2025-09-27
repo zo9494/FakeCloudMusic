@@ -2,6 +2,7 @@ import { service } from '@/utils/request';
 import { isArray } from 'lodash';
 import { transformLyric } from '@/utils/utils';
 import { Invoke } from '@/utils/ipcRenderer';
+import { lyric } from '@/utils/database';
 type Id = number | string;
 type Ids = string[] | number[];
 
@@ -50,11 +51,14 @@ interface lyrics {
 }
 
 export async function getLyric(id: Id) {
+  const cache = await lyric.getLyric(id);
+  if (cache) return cache.data;
   const data = await service.get<lyrics>('/lyric', {
     params: { id },
   });
 
   if (data?.lrc) {
+    lyric.setLyric(id, transformLyric(data.lrc.lyric, data?.tlyric?.lyric));
     return transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
   }
 }

@@ -14,10 +14,11 @@ import { Thumbar } from './thumbar.service';
 import './ipcMain';
 import { setupDevTools } from './devtools';
 import { application } from './application';
-
 import { AppTray } from './tray';
 import { theme } from './theme';
-console.log('node: %s', process.versions.node);
+import { registerProtocol, unregisterProtocol } from './protocol';
+
+console.log('node:', process.versions.node);
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration();
 
@@ -44,6 +45,10 @@ const indexHtml = join(process.env.DIST, 'index.html');
 app.disableDomainBlockingFor3DAPIs();
 
 app.whenReady().then(() => {
+  // 设置开发者工具
+  setupDevTools(app);
+  // 注册自定义协议
+  registerProtocol();
   start();
 });
 //#region function
@@ -138,7 +143,6 @@ async function start() {
   theme.on('change', () => {
     application.tray.setContextMenu();
   });
-  setupDevTools(app);
 
   session.defaultSession.on('will-download', (event, item, webContents) => {
     win.setProgressBar(item.getReceivedBytes() / item.getTotalBytes(), {

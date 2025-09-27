@@ -1,4 +1,4 @@
-import NCM from 'NeteaseCloudMusicApi';
+import NCM, { song_url, song_url_v1 } from 'NeteaseCloudMusicApi';
 import match from '@unblockneteasemusic/server';
 export async function API(url: string, params: any): Promise<any> {
   try {
@@ -17,5 +17,57 @@ export async function UnblockAPI(id: number, params: any): Promise<any> {
     return await match(id, params);
   } catch (error) {
     return { ...error };
+  }
+}
+
+interface SongUrl {
+  url: string | null;
+  time: number;
+  id: number;
+  size: number;
+  level: 'standard' | 'higher' | 'exhigh' | 'lossless' | 'hires';
+  freeTrialInfo: any;
+}
+type Id = number | string;
+type Ids = string[] | number[];
+export function getSongUrl(id: Id): Promise<SongUrl>;
+export function getSongUrl(ids: Ids): Promise<SongUrl[]>;
+export async function getSongUrl(ids: Id | Ids) {
+  const isArray = Array.isArray(ids);
+  try {
+    const { body } = await song_url({
+      id: isArray ? ids.join(',') : ids,
+    });
+    const res = body as unknown as { data: SongUrl[] };
+
+    if (!res?.data) {
+      return null;
+    }
+    if (isArray) {
+      return res.data;
+    }
+    return res.data[0];
+  } catch (error) {
+    console.log('getSongUrl Error:', error);
+
+    return null;
+  }
+}
+
+interface UnblockResult {
+  id: string;
+  url: string | null;
+}
+export async function getUnBlockSong(id: Id): Promise<UnblockResult | null> {
+  try {
+    const result = await match({
+      id: id,
+      params: ['pyncmd'],
+    });
+    console.info('unblock result:', result);
+    return result;
+  } catch (error) {
+    console.error('fromUnblock Error:', error);
+    return null;
   }
 }

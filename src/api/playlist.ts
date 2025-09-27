@@ -1,13 +1,19 @@
+import { playlist } from '@/utils/database';
 import { service } from '@/utils/request';
 interface PlaylistDetailParams {
   id: string;
   s?: string;
   timestamp?: any;
 }
-export async function getPlaylistDetail(params: PlaylistDetailParams) {
+export async function getPlaylistDetail(
+  params: PlaylistDetailParams
+): Promise<PlaylistDetail> {
+  const cache = await playlist.getPlaylist(params.id);
+  if (cache) return cache.data;
   const data = await service.get<PlaylistDetail>('/playlist/detail', {
     params,
   });
+  playlist.setPlaylist(params.id, data);
   return data;
 }
 export enum OP {

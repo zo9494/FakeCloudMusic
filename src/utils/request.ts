@@ -10,11 +10,12 @@ export class Service {
     // 重试3次
     retries = 3
   ): Promise<T> {
-    console.log('API: %s', url);
     const res = await window.electron.ipcRenderer.invoke<Res>('HTTP', {
       url: url.replaceAll('/', '_').slice(1),
       params: { ...config?.params, cookie: localStorage.cookie },
     });
+    console.log('API: %s %o', url, res);
+
     if (retries <= 0) {
       console.error(
         `请求失败 %s 失败,code:  %d,msg:  %s`,

@@ -1,11 +1,6 @@
 <template>
   <div class="f-playlist">
-    <NPopover
-      :show-arrow="false"
-      trigger="click"
-      placement="top-start"
-      display-directive="show"
-    >
+    <NPopover :show-arrow="false" trigger="click" placement="top-start">
       <template #trigger>
         <button class="f-playlist-control">
           <i class="icon-playlist iconfont"> </i>
@@ -25,12 +20,13 @@
               :items="props.playlist"
               :item-size="40"
               :min-item-size="40"
+              :buffer="100"
             >
-              <template v-slot="{ item, index }">
+              <template #default="{ item, index }">
                 <div
                   :class="{
                     'playlist-list-item': true,
-                    'color-even': item.index % 2,
+                    'color-even': index % 2,
                     disable: item.noCopyrightRcmd,
                   }"
                   :key="item.id"
@@ -38,7 +34,7 @@
                 >
                   <div>
                     <i
-                      v-if="index === props.currentIndex"
+                      v-if="item.id === props.currentSongId"
                       class="iconfont icon-play active"
                     ></i>
                   </div>
@@ -80,7 +76,7 @@ import { NPopover } from 'naive-ui';
 const emit = defineEmits(['handlePlay']);
 interface PropsType {
   playlist?: Track[];
-  currentIndex?: number | null;
+  currentSongId?: string | number | null;
 }
 const props = withDefaults(defineProps<PropsType>(), {
   playlist: () => [],
