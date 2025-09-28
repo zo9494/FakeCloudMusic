@@ -263,7 +263,7 @@ function handleScroll() {
 
   &-body {
     display: grid;
-    grid-template-columns: 2fr 2.1fr;
+    grid-template-columns: 2fr 2.4fr;
     height: 100%;
     gap: 60px;
 
@@ -300,20 +300,22 @@ function handleScroll() {
 
     // 歌词部分
     &-right {
-      width: 98%;
+      width: 100%;
       position: relative;
       .wrapper {
         position: relative;
       }
       .item {
-        box-sizing: border-box;
         width: 100%;
+        overflow: hidden;
+        word-wrap: break-word;
+        box-sizing: border-box;
         font-size: 24px;
         color: var(--lyrics-font-color);
         margin: 12px 0;
         transition: all ease-in-out 200ms;
+        font-weight: bolder;
         p {
-          width: 90%;
           transition: all ease-in-out 200ms;
           transform-origin: center left;
           margin: 2px 0;
@@ -324,7 +326,6 @@ function handleScroll() {
         }
         &-active {
           transform: translate3d(0, 0, 0);
-          font-weight: bold;
           color: var(--lyrics-font-active-color);
         }
       }

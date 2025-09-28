@@ -40,7 +40,7 @@ export async function getSongUrl(ids, cookie) {
       cookie,
     });
     const res = body as unknown as { data: SongUrl[] };
-    console.log('netease result:', res);
+    console.info('netease result:', res);
 
     if (!res?.data) {
       return null;
@@ -50,7 +50,7 @@ export async function getSongUrl(ids, cookie) {
     }
     return res.data[0];
   } catch (error) {
-    console.log('netease Error:', error);
+    console.error('netease Error:', error);
 
     return null;
   }

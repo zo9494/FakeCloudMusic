@@ -16,6 +16,7 @@ class MediaSourceResolver {
     const res = await getSongUrl(id, cookie);
 
     if (res.freeTrialInfo) {
+      console.info(`歌曲 ${id} 为试听版本`);
       return null;
     }
     return res.url || null;
@@ -27,6 +28,7 @@ class MediaSourceResolver {
         `https://music-api.gdstudio.xyz/api.php?types=url&source=netease&id=${id}&br=320`
       )
       .then(res => res.json());
+    console.info('unblock result:', result);
     return result?.url || null;
   }
 }

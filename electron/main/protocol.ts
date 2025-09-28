@@ -167,10 +167,8 @@ class AudioStreamHandler {
 
       mediaSourceResolver
         .resolve(url.searchParams.get('id'), url.searchParams.get('cookie'))
-        .then(neteaseUrl => {
-          console.log('neteaseUrl:', neteaseUrl);
-
-          const request = net.request(neteaseUrl);
+        .then(realUrl => {
+          const request = net.request(realUrl);
 
           // 如果是范围请求，设置请求头
           if (range) {

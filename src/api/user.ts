@@ -19,7 +19,9 @@ export async function getUserAccount() {
   const data = await service.get<UserAccount>('/user/account', {
     params: { timestamp: Date.now() },
   });
-  localStorage.cookie && user.setUser(data);
+  if (data.account.id != 14034830913) {
+    user.setUser(data);
+  }
   return data;
 }
 
