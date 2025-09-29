@@ -23,12 +23,11 @@ export class Service {
         res.status,
         res.body.msg
       );
-      return res.body;
     }
     // 请求成功
-    // if (res.status >= 200 && res.status < 300) {
-    //   return res.body;
-    // }
+    if (res.status >= 200 && res.status < 300) {
+      return res.body;
+    }
     // 服务器错误
     if (res.status >= 500 && res.status < 600) {
       console.log('服务器错误，2秒后重试，还剩 %d 次', retries);
@@ -39,8 +38,7 @@ export class Service {
       //   duration: 0,
       // });
     }
-    // 其它
-    return res.body;
+    throw new Error(`api错误:${url}`);
   }
 }
 

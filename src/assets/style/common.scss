@@ -140,8 +140,14 @@ button {
 .app-bottom-space {
   height: variables.$appBottomSpace !important;
 }
-//
+.menu-bottom-space {
+  height: variables.$menuBottomSpace;
+}
+.list-bottom-space {
+  height: variables.$listBottomSpace;
+}
 
+//
 .slide-up-enter-active,
 .slide-up-leave-active {
   transition: transform 300ms cubic-bezier(0.76, 0, 0.24, 1);
@@ -173,6 +179,42 @@ button {
   transform: scale(0.9);
 }
 
+// vue-slider样式
+.vue-slider {
+  .vue-slider-dot-handle {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
+    visibility: hidden;
+  }
+
+  .vue-slider-rail {
+    background-color: var(--player-track-color);
+  }
+
+  .vue-slider-process {
+    // 蓝色渐变
+    // background-image: linear-gradient(90deg, #74b9ff, #0984e3);
+    // 橙色渐变
+    background-image: linear-gradient(90deg, #feca57, #ff6b6b);
+  }
+
+  &:hover {
+    .vue-slider-dot-handle {
+      visibility: visible;
+    }
+  }
+
+  &:active {
+    .vue-slider-dot-handle {
+      visibility: visible;
+    }
+  }
+}
+// 文本溢出滚动样式
 .text-scroll > * {
   animation: var(--words-roll-time, 5s) textScroll linear;
 }

@@ -1,5 +1,6 @@
 import { user } from '@/utils/database';
 import { service } from '@/utils/request';
+import dayjs from 'dayjs';
 
 interface UserAccount {
   code: number;
@@ -14,15 +15,20 @@ interface UserAccount {
 }
 
 export async function getUserAccount() {
-  const cache = await user.getUser();
-  if (cache) return cache.data;
-  const data = await service.get<UserAccount>('/user/account', {
-    params: { timestamp: Date.now() },
-  });
-  if (data.account.id != 14034830913) {
-    user.setUser(data);
+  // 登录用户的id为1
+  const cache = await user.findById(1);
+  if (!user.isExpired(cache?.updated_at)) return cache?.data;
+  try {
+    const data = await service.get<UserAccount>('/user/account', {
+      params: { timestamp: Date.now() },
+    });
+    if (data?.account.id != 14034830913) {
+      user.add(1, data);
+    }
+    return data;
+  } catch {
+    return cache?.data;
   }
-  return data;
 }
 
 interface UserPlaylistParams {
@@ -39,12 +45,16 @@ interface UserPlaylist {
 export async function getSubCount(
   params: UserPlaylistParams
 ): Promise<Playlist[]> {
-  const cache = await user.getUserPlaylist(params.uid);
-  if (cache) return cache.data;
-  debugger;
-  const data = await service.get<UserPlaylist>('/user/playlist', {
-    params,
-  });
-  user.setUserPlaylist(params.uid, data?.playlist);
-  return data?.playlist;
+  const cache = await user.findById(params.uid);
+  if (!user.isExpired(cache?.updated_at)) return cache?.data;
+
+  try {
+    const data = await service.get<UserPlaylist>('/user/playlist', {
+      params,
+    });
+    user.add(params.uid, data?.playlist);
+    return data?.playlist;
+  } catch {
+    return cache?.data;
+  }
 }

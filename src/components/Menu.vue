@@ -92,7 +92,7 @@
       </li>
     </ul>
   </div>
-  <div class="app-bottom-space"></div>
+  <div class="menu-bottom-space"></div>
 </template>
 
 <script setup lang="ts">

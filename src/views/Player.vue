@@ -406,38 +406,6 @@ Listener('APP:AUDIO_PREVIOUS', previous);
   }
 }
 
-// vue-slider样式
-.vue-slider {
-  .vue-slider-dot-handle {
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-color: #fff;
-    box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.12);
-    visibility: hidden;
-  }
-
-  .vue-slider-rail {
-    background-color: var(--player-track-color);
-  }
-
-  .vue-slider-process {
-    background-color: #ec4141;
-  }
-
-  &:hover {
-    .vue-slider-dot-handle {
-      visibility: visible;
-    }
-  }
-
-  &:active {
-    .vue-slider-dot-handle {
-      visibility: visible;
-    }
-  }
-}
 .arrow-button {
   border-radius: 6px;
   padding: 5px 10px;

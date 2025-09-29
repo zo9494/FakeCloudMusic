@@ -51,16 +51,20 @@ interface lyrics {
 }
 
 export async function getLyric(id: Id) {
-  const cache = await lyric.getLyric(id);
-  if (cache) return cache.data;
-  const data = await service.get<lyrics>('/lyric', {
-    params: { id },
-  });
+  const cache = await lyric.findById(id);
+  if (!lyric.isExpired(cache?.updated_at)) return cache?.data;
+  try {
+    const data = await service.get<lyrics>('/lyric', {
+      params: { id },
+    });
 
-  if (data?.lrc) {
-    const lyrics = transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
-    lyric.setLyric(id, lyrics);
-    return lyrics;
+    if (data?.lrc) {
+      const lyrics = transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
+      lyric.add(id, lyrics);
+      return lyrics;
+    }
+  } catch {
+    return cache?.data;
   }
 }
 

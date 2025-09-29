@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Dexie from 'dexie';
 
 const db = new Dexie('FakeCloudMusic');
@@ -7,44 +8,89 @@ db.version(1).stores({
   lyric: 'id',
 });
 
-export const user = {
-  setUser(data: any) {
-    return db
-      .table('user')
-      .put({ id: 1, data, updated_at: new Date().toISOString() });
-  },
-  getUser() {
-    return db.table('user').where('id').equals(1).first();
-  },
-  /* 获取用户收藏的歌单 */
-  getUserPlaylist(uid: string | number) {
-    return db.table('user').where('id').equals(uid).first();
-  },
-  setUserPlaylist(uid: string | number, data: any) {
-    return db
-      .table('user')
-      .put({ id: uid, data, updated_at: new Date().toISOString() });
-  },
-};
+interface DataBase {
+  id: number | string;
+  data: any;
+  updated_at: string;
+}
 
-export const playlist = {
-  setPlaylist(id: number | string, data: any) {
-    return db
-      .table('playlist')
+abstract class DbTableBase {
+  abstract tableName: string;
+  abstract db: Dexie;
+  async add(id: string | number, data: any) {
+    const bool = await this.isExist(id);
+    if (bool) {
+      this.update(id, data);
+    }
+    return this.db
+      .table(this.tableName)
       .put({ id, data, updated_at: new Date().toISOString() });
-  },
-  getPlaylist(id: string | number) {
-    return db.table('playlist').where('id').equals(id).first();
-  },
-};
+  }
+  update(id: string | number, data: any) {
+    this.db.table(this.tableName).update(id, {
+      ...data,
+      updated_at: new Date().toISOString(),
+    });
+  }
+  findById(id: string | number): Promise<DataBase | undefined> {
+    return this.db.table(this.tableName).where('id').equals(id).first();
+  }
+  async isExist(id: string | number): Promise<boolean> {
+    const res = await this.db
+      .table(this.tableName)
+      .where('id')
+      .equals(id)
+      .first();
+    return res != null;
+  }
+  // 是否过期
+  isExpired(updated_at?: string): boolean {
+    if (!updated_at) return true;
+    return dayjs(updated_at).add(1, 'hour') > dayjs();
+  }
+}
+class DbTable implements DbTableBase {
+  tableName: string;
+  db: Dexie;
+  constructor(tableName: string, db: Dexie) {
+    this.tableName = tableName;
+    this.db = db;
+  }
 
-export const lyric = {
-  setLyric(id: number | string, data: any) {
-    return db
-      .table('lyric')
+  findById(id: string | number): Promise<DataBase | undefined> {
+    return this.db.table(this.tableName).where('id').equals(id).first();
+  }
+  async add(id: string | number, data: any) {
+    const bool = await this.isExist(id);
+    if (bool) {
+      this.update(id, data);
+    }
+    return this.db
+      .table(this.tableName)
       .put({ id, data, updated_at: new Date().toISOString() });
-  },
-  getLyric(id: string | number) {
-    return db.table('lyric').where('id').equals(id).first();
-  },
-};
+  }
+  update(id: string | number, data: any) {
+    this.db.table(this.tableName).update(id, {
+      ...data,
+      updated_at: new Date().toISOString(),
+    });
+  }
+  // 数据是否存在
+  async isExist(id: string | number) {
+    const res = await this.db
+      .table(this.tableName)
+      .where('id')
+      .equals(id)
+      .first();
+    return res != null;
+  }
+  // 是否过期
+  isExpired(updated_at?: string): boolean {
+    if (!updated_at) return true;
+    return dayjs(updated_at).add(1, 'hour') < dayjs();
+  }
+}
+
+export const lyric = new DbTable('lyric', db);
+export const playlist = new DbTable('playlist', db);
+export const user = new DbTable('user', db);

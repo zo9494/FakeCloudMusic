@@ -40,7 +40,6 @@
         <div class="text-overflow dt">{{ formatDuring(item.duration) }}</div>
       </div>
     </div>
-    <div></div>
   </div>
 </template>
 
@@ -134,7 +133,7 @@ function handleContextMenu(e: MouseEvent, track: Track) {
 
 <style scoped lang="scss">
 .result {
-  padding: 0 0 200px 0;
+  padding-bottom: variables.$listBottomSpace;
   &-title {
     margin: 0;
     font-size: 16px;

@@ -7,14 +7,19 @@ interface PlaylistDetailParams {
 }
 export async function getPlaylistDetail(
   params: PlaylistDetailParams
-): Promise<PlaylistDetail> {
-  const cache = await playlist.getPlaylist(params.id);
-  if (cache) return cache.data;
-  const data = await service.get<PlaylistDetail>('/playlist/detail', {
-    params,
-  });
-  playlist.setPlaylist(params.id, data);
-  return data;
+): Promise<PlaylistDetail | null> {
+  const cache = await playlist.findById(params.id);
+  if (!playlist.isExpired(cache?.updated_at)) return cache?.data;
+
+  try {
+    const data = await service.get<PlaylistDetail>('/playlist/detail', {
+      params,
+    });
+    playlist.add(params.id, data);
+    return data;
+  } catch {
+    return cache?.data;
+  }
 }
 export enum OP {
   add = 'add',
