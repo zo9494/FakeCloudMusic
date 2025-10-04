@@ -624,8 +624,9 @@ function handleContextMenu(e: MouseEvent, track: Track) {
           display: grid;
           grid-template-columns: auto 30px;
           align-items: center;
-
+          min-width: 100px;
           &-left {
+            padding-left: 4px;
             background-color: #eb002e;
             height: 100%;
             display: grid;

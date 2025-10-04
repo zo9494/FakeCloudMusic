@@ -11,13 +11,13 @@ export async function getPlaylistDetail(
   const cache = await playlist.findById(params.id);
   if (!playlist.isExpired(cache?.updated_at)) return cache?.data;
 
-  try {
-    const data = await service.get<PlaylistDetail>('/playlist/detail', {
-      params,
-    });
+  const data = await service.get<PlaylistDetail>('/playlist/detail', {
+    params,
+  });
+  if (data) {
     playlist.add(params.id, data);
     return data;
-  } catch {
+  } else {
     return cache?.data;
   }
 }

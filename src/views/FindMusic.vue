@@ -92,7 +92,7 @@ p {
       font-weight: bold;
       display: -webkit-box; /*将对象转为弹性盒模型展示*/
       -webkit-box-orient: vertical; /*设置弹性盒模型子元素的排列方式*/
-      -webkit-line-clamp: 2; /*限制文本行数*/
+      line-clamp: 2; /*限制文本行数*/
       overflow: hidden; /*超出隐藏*/
     }
   }

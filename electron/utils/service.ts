@@ -1,5 +1,6 @@
 import NCM, { song_url, song_url_v1 } from 'NeteaseCloudMusicApi';
 import match from '@unblockneteasemusic/server';
+import { net } from 'electron';
 export async function API(url: string, params: any): Promise<any> {
   try {
     // params.realIP = '116.25.146.179';
@@ -73,3 +74,40 @@ export async function getUnBlockSong(id: Id): Promise<UnblockResult | null> {
     return null;
   }
 }
+
+class NetHelper {
+  protected isOnline: boolean;
+  constructor() {
+    // this.checkInternetConnection();
+  }
+  async checkInternetConnection(
+    urls: Array<string> = [
+      'https://music.163.com',
+      'https://interface.music.163.com',
+      'https://www.baidu.com',
+    ],
+    timeout = 4000
+  ) {
+    for (const url of urls) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort, timeout);
+      try {
+        const response = await net.fetch(url, {
+          method: 'HEAD',
+          signal: controller.signal,
+        });
+        console.log('response.status:', response.status);
+        this.isOnline = true;
+        return true;
+      } catch (error) {
+        console.log(error);
+
+        clearTimeout(timer);
+        this.isOnline = false;
+        return false;
+      }
+    }
+  }
+}
+
+export const netHelper = new NetHelper();

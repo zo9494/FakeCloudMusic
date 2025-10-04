@@ -44,33 +44,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRaw } from 'vue';
+import { h, ref, toRaw } from 'vue';
 import { formatDate, formatDuring } from '@/utils/time';
 import { useRoute } from 'vue-router';
 import { service } from '@/utils/request';
 import { useDialog } from 'naive-ui';
 import { download } from '@/utils/utils';
 import { getSongDetail } from '@/api/song';
-const dialog = useDialog();
-
 const route = useRoute();
 const list = ref();
 
 import { useUserStore } from '@/store/user';
 const userStore = useUserStore();
-
-import { usePlayerStore } from '@/store/player';
 import { fcmAudioPlayer } from '@/utils/audio';
 import { ContextMenu } from '@/utils/contextmenu';
-const playerStore = usePlayerStore();
-
 service
   .get<Search.RootObject>('/search', {
     params: { keywords: route.params.keywords },
   })
   .then(res => {
-    console.log(res.result);
-    list.value = res.result.songs;
+    if (res) {
+      console.log(res.result);
+      list.value = res.result.songs;
+    }
   });
 
 function updateLike(song: Track, isDel = false) {
@@ -82,43 +78,55 @@ function handleDev() {
 }
 
 let loadingDetail = false;
-function handlePlay(id: number) {
+async function handlePlay(
+  id: number,
+  type: ContextMenuOptionType = ContextMenuOptionType.play
+) {
   if (loadingDetail) {
     return;
   }
   loadingDetail = true;
-  getSongDetail(id)
-    .then(res => {
-      console.log(res);
-      fcmAudioPlayer.insertTrack(res);
-    })
-    .finally(() => {
-      loadingDetail = false;
-    });
-  // fcmAudioPlayer.replacePlaylist(index, list as Track[]);
+  try {
+    const track = await getSongDetail(id);
+    if (type === ContextMenuOptionType.play) {
+      fcmAudioPlayer.insertTrack(track);
+    }
+    if (type === ContextMenuOptionType.addToNextPlay) {
+      fcmAudioPlayer.appendNextTrack(track);
+    }
+
+    loadingDetail = false;
+  } catch (error) {
+    loadingDetail = false;
+  }
 }
+
+enum ContextMenuOptionType {
+  play,
+  addToNextPlay,
+}
+const contextMenuOptionLabel = {
+  [ContextMenuOptionType.play]: '播放',
+  [ContextMenuOptionType.addToNextPlay]: '下一首播放',
+};
 
 function handleContextMenu(e: MouseEvent, track: Track) {
   const instance = ContextMenu.getInstance();
   instance.setItems([
     {
-      label: '播放',
-      id: 1,
+      label: contextMenuOptionLabel[ContextMenuOptionType.play],
+      type: ContextMenuOptionType.play,
     },
     {
-      label: '下一首播放',
-      id: 2,
+      label: contextMenuOptionLabel[ContextMenuOptionType.addToNextPlay],
+      type: ContextMenuOptionType.addToNextPlay,
     },
   ]);
   instance.show({
     x: e.clientX,
     y: e.clientY,
     onSelect(it) {
-      if (it.id === 1) {
-        fcmAudioPlayer.insertTrack(track);
-      } else {
-        fcmAudioPlayer.appendNextTrack(track);
-      }
+      handlePlay(track.id, it.type);
     },
   });
   document.addEventListener(

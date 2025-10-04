@@ -147,6 +147,11 @@ button {
   height: variables.$listBottomSpace;
 }
 
+// 底部message
+.n-message-container.n-message-container--bottom-right {
+  bottom: 80px;
+}
+
 //
 .slide-up-enter-active,
 .slide-up-leave-active {

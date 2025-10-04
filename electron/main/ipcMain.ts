@@ -4,6 +4,7 @@ import { API, UnblockAPI } from '../utils/service';
 import { createLogin } from './login';
 import { application } from './application';
 import { theme } from './theme';
+import { netHelper } from '../utils/service';
 function getWinFormWebContents(sender: Electron.WebContents) {
   return BrowserWindow.fromWebContents(sender);
 }
@@ -101,4 +102,8 @@ ipcMain.handle(EVENT.SET_TITLE, (e, title?: string) => {
 
 ipcMain.handle(EVENT.WEB_AUDIO_TOGGLE_PLAY, (e, play: boolean) => {
   application.thumbar.togglePlay(play);
+});
+
+ipcMain.handle(EVENT.APP_NET_STATUS, () => {
+  return netHelper.checkInternetConnection();
 });

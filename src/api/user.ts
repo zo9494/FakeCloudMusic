@@ -18,17 +18,16 @@ export async function getUserAccount() {
   // 登录用户的id为1
   const cache = await user.findById(1);
   if (!user.isExpired(cache?.updated_at)) return cache?.data;
-  try {
-    const data = await service.get<UserAccount>('/user/account', {
-      params: { timestamp: Date.now() },
-    });
-    if (data?.account.id != 14034830913) {
-      user.add(1, data);
-    }
-    return data;
-  } catch {
+  const data = await service.get<UserAccount>('/user/account', {
+    params: { timestamp: Date.now() },
+  });
+  if (!data) {
     return cache?.data;
   }
+  if (data?.account.id != 14034830913) {
+    user.add(1, data);
+  }
+  return data;
 }
 
 interface UserPlaylistParams {
@@ -48,13 +47,13 @@ export async function getSubCount(
   const cache = await user.findById(params.uid);
   if (!user.isExpired(cache?.updated_at)) return cache?.data;
 
-  try {
-    const data = await service.get<UserPlaylist>('/user/playlist', {
-      params,
-    });
+  const data = await service.get<UserPlaylist>('/user/playlist', {
+    params,
+  });
+  if (data) {
     user.add(params.uid, data?.playlist);
     return data?.playlist;
-  } catch {
+  } else {
     return cache?.data;
   }
 }

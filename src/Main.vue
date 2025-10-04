@@ -16,7 +16,7 @@ const { order } = storeToRefs(userStore);
 onBeforeMount(() => {
   refreshToken().then(res => {
     console.log(res);
-    if (res.code === 200) {
+    if (res?.code === 200) {
       localStorage.cookie = res.cookie;
     }
     userStore.getUserAccount();
