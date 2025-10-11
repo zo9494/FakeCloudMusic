@@ -57,6 +57,11 @@
                 :lyrics="props.lyrics"
                 :progress="props.progress"
               />
+              <!-- <LyricsCanvas
+                :is-show="show"
+                :lyrics="props.lyrics"
+                :progress="props.progress"
+              /> -->
             </div>
           </div>
         </div>
@@ -69,6 +74,8 @@
 import ImageComponent from '@/components/PlaylistImage.vue';
 import ProgressBar from '@/components/player/PlayerProgressBar.vue';
 import Lyrics from './Lyrics.vue';
+import LyricsCanvas from './LyricsCanvas.vue';
+
 interface Props {
   progress: number;
   duration: number;
@@ -126,6 +133,15 @@ function onProgressChange(val: number) {
   height: 100vh;
   width: 100vw;
   z-index: 100;
+  > canvas {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
 }
 @media (prefers-color-scheme: dark) {
   .f-lyrics {
@@ -171,7 +187,7 @@ function onProgressChange(val: number) {
 
   &-body {
     display: grid;
-    grid-template-columns: 2fr 2.4fr;
+    grid-template-columns: 1.4fr 2.4fr;
     height: 100%;
     gap: 60px;
 
@@ -183,8 +199,6 @@ function onProgressChange(val: number) {
 
       .cover {
         height: 240px;
-        width: 240px;
-
         img {
           border-radius: 10px;
         }
@@ -192,7 +206,7 @@ function onProgressChange(val: number) {
       // 进度条、控制按钮
 
       &-options {
-        width: 80%;
+        width: 300px;
         display: grid;
         grid-template-rows: repeat(2, 1fr);
         &-slider {

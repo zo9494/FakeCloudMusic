@@ -22,14 +22,30 @@ export async function getSongDetail(ids: Id | Ids) {
   return data?.songs[0];
 }
 
-export function getSongUrl(id: Id): Promise<SongUrl>;
-export function getSongUrl(ids: Ids): Promise<SongUrl[]>;
+type Level =
+  | 'standard'
+  | 'higher'
+  | 'exhigh'
+  | 'lossless'
+  | 'hires'
+  | 'jyeffect'
+  | 'sky'
+  | 'jymaster';
+export function getSongUrl(id: Id, level?: Level): Promise<SongUrl>;
+export function getSongUrl(ids: Ids, level?: Level): Promise<SongUrl[]>;
 
-export async function getSongUrl(ids: Id | Ids) {
+/**
+ *
+ * @param ids
+ * @param level 播放音质等级, 分为 standard => 标准,higher => 较高, exhigh=>极高, lossless=>无损, hires=>Hi-Res, jyeffect => 高清环绕声, sky => 沉浸环绕声, jymaster => 超清母带
+ * @returns
+ */
+export async function getSongUrl(ids: Id | Ids, level: Level = 'standard') {
   const f = isArray(ids);
-  const res = await service.get<{ data: SongUrl[] }>('/song/url', {
+  const res = await service.get<{ data: SongUrl[] }>('/song/url/v1', {
     params: {
       id: f ? ids.join(',') : ids,
+      level,
     },
   });
   if (!res?.data) {

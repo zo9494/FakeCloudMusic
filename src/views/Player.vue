@@ -14,6 +14,7 @@ import { useTextScroll } from '@/hooks/textOverflowScroll';
 import { Invoke, Listener } from '@/utils/ipcRenderer';
 import { getLyric } from '@/api/song';
 import { user } from '@/utils/database';
+import { lyricsBackground } from '@/utils/background';
 const userStore = useUserStore();
 
 onMounted(() => {
@@ -61,13 +62,13 @@ watch(
   }
 );
 
-function setBgColor(url: string) {
-  getImageColor(url + '?param=300y300').then(rgb => {
-    document.documentElement.style.cssText = `--bg-img:linear-gradient(0deg,rgb(${rgb.join(
-      ','
-    )}),rgb(245,245,245))`;
-  });
-}
+// function setBgColor(url: string) {
+//   getImageColor(url + '?param=300y300').then(rgb => {
+//     document.documentElement.style.cssText = `--bg-img:linear-gradient(0deg,rgb(${rgb.join(
+//       ','
+//     )}),rgb(245,245,245))`;
+//   });
+// }
 
 // dev
 function handleDev() {
@@ -122,7 +123,8 @@ function handleProgressChange(value: number) {
 fcmAudioPlayer.on('songchange', songInfo => {
   resetPlayerStatus();
   data.songInfo = songInfo || {};
-  setBgColor(songInfo?.pic || '');
+  // setBgColor(songInfo?.pic || '');
+  lyricsBackground.setAlImage(songInfo.pic, true);
   Invoke('SET_TITLE', songInfo ? `${songInfo.name}-${songInfo.ar}` : '');
   if (songInfo) {
     getLyric(songInfo.id).then(lyrics => {
@@ -135,12 +137,13 @@ fcmAudioPlayer.on('songchange', songInfo => {
 
 fcmAudioPlayer.on('play', () => {
   console.log('event:play');
-
+  lyricsBackground.resume();
   data.play = true;
   Invoke('WEB:AUDIO_TOGGLE_PLAY', true);
 });
 fcmAudioPlayer.on('pause', () => {
   data.play = false;
+  lyricsBackground.pause();
   Invoke('WEB:AUDIO_TOGGLE_PLAY', false);
 });
 fcmAudioPlayer.on('loadedmetadata', duration => {

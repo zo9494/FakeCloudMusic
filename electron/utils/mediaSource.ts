@@ -1,6 +1,7 @@
 import { net } from 'electron';
 import { getSongUrl, getUnBlockSong } from './service';
 
+type BR = 128 | 192 | 320 | 320 | 999;
 // 媒体源解析器
 
 class MediaSourceResolver {
@@ -22,10 +23,11 @@ class MediaSourceResolver {
     return res.url || null;
   }
 
-  private async fromUnblock(id: string): Promise<string | null> {
+  // br 可选128、192、320、740、999
+  private async fromUnblock(id: string, br: BR = 128): Promise<string | null> {
     const result = await net
       .fetch(
-        `https://music-api.gdstudio.xyz/api.php?types=url&source=netease&id=${id}&br=320`
+        `https://music-api.gdstudio.xyz/api.php?types=url&source=netease&id=${id}&br=${br}`
       )
       .then(res => res.json());
     console.info('unblock result:', result);

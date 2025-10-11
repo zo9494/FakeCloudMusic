@@ -6,6 +6,8 @@ interface UserAccount {
   code: number;
   account: {
     id: number;
+    // 是否为匿名用户
+    anonimousUser?: boolean;
   };
   profile: {
     nickname: string;
@@ -24,7 +26,8 @@ export async function getUserAccount() {
   if (!data) {
     return cache?.data;
   }
-  if (data?.account.id != 14034830913) {
+  // 如果不为匿名用户，则保存
+  if (!data?.account.anonimousUser) {
     user.add(1, data);
   }
   return data;
