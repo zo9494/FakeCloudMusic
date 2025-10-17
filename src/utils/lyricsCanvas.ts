@@ -144,11 +144,11 @@ class LyricConfig {
     this.darkHighlightColor = options.darkHighlightColor || '#ffffff';
 
     // 字体配置
-    this.fontSize = options.fontSize || 24;
+    this.fontSize = options.fontSize || 26;
     this.lineHeightRatio = options.lineHeightRatio || 1.2;
 
     // 翻译行配置（只配置字体大小）
-    this.translationFontSize = options.translationFontSize || 18;
+    this.translationFontSize = options.translationFontSize || 24;
   }
   // 设置主题
   setTheme(isDark: boolean): void {

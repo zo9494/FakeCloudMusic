@@ -150,15 +150,6 @@ function onProgressChange(val: number) {
   height: 100vh;
   width: 100vw;
   z-index: 100;
-  > canvas {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-  }
 }
 @media (prefers-color-scheme: dark) {
   .f-lyrics {
@@ -204,7 +195,7 @@ function onProgressChange(val: number) {
 
   &-body {
     display: grid;
-    grid-template-columns: 1.4fr 2.4fr;
+    grid-template-columns: minmax(240px, 1.8fr) 2.4fr;
     height: 100%;
     gap: 60px;
 
