@@ -52,16 +52,16 @@
               </div>
             </div>
             <div class="f-lyrics-body-right">
-              <Lyrics
-                :is-show="show"
-                :lyrics="props.lyrics"
-                :progress="props.progress"
-              />
-              <!-- <LyricsCanvas
+              <!-- <Lyrics
                 :is-show="show"
                 :lyrics="props.lyrics"
                 :progress="props.progress"
               /> -->
+              <LyricsCanvas
+                :is-show="show"
+                :lyrics="props.lyrics"
+                :progress="props.progress"
+              />
             </div>
           </div>
         </div>
@@ -75,6 +75,7 @@ import ImageComponent from '@/components/PlaylistImage.vue';
 import ProgressBar from '@/components/player/PlayerProgressBar.vue';
 import Lyrics from './Lyrics.vue';
 import LyricsCanvas from './LyricsCanvas.vue';
+import { watch } from 'vue';
 
 interface Props {
   progress: number;
@@ -99,6 +100,22 @@ const show = defineModel<boolean>('show', { default: false });
 function toggleShow() {
   show.value = !show.value;
 }
+watch(
+  () => show.value,
+  val => {
+    if (val) {
+      document.querySelectorAll('.no-drag-js').forEach(it => {
+        it.classList.remove('no-drag-js');
+        it.classList.add('drag-js');
+      });
+    } else {
+      document.querySelectorAll('.drag-js').forEach(it => {
+        it.classList.remove('drag-js');
+        it.classList.add('no-drag-js');
+      });
+    }
+  }
+);
 //#endregion
 
 //#region 处理媒体控制

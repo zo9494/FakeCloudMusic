@@ -30,10 +30,7 @@ function initLyricsRenderer() {
     return;
   }
   const canvas = document.getElementById('lyrics-canvas') as HTMLCanvasElement;
-  webglLyricsRenderer = new WebGLLyricRenderer(canvas, {
-    normalScale: 0.8,
-    highlightScale: 1,
-  });
+  webglLyricsRenderer = new WebGLLyricRenderer(canvas);
   webglLyricsRenderer.setLyric(props.lyrics);
 }
 // 只有歌词界面打开时，才处理歌词

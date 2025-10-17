@@ -75,53 +75,50 @@ export function isNotEmpty(str: string): boolean {
 
 export function getImageColor(url: string): Promise<[number, number, number]> {
   return new Promise<[number, number, number]>(resolve => {
-    let img = new Image();
-    img.src = url;
+    const img = new Image();
     img.crossOrigin = 'anonymous';
+    img.referrerPolicy = 'no-referrer';
     img.onload = () => {
+      // 低分辨率采样，降低像素处理量
+      const SAMPLE = 32;
+      const ratio = img.width && img.height ? Math.min(SAMPLE / img.width, SAMPLE / img.height) : 1;
+      const w = Math.max(1, Math.round(img.width * ratio));
+      const h = Math.max(1, Math.round(img.height * ratio));
+
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      let context = canvas.getContext('2d');
+      canvas.width = w;
+      canvas.height = h;
+      const context = canvas.getContext('2d');
       if (!context) {
-        return [245, 245, 245];
+        resolve([245, 245, 245]);
+        return;
+      }
+      context.drawImage(img, 0, 0, w, h);
+      const imageData = context.getImageData(0, 0, w, h).data;
+
+      let rSum = 0, gSum = 0, bSum = 0, count = 0;
+      // 正确的 RGBA 跨步遍历
+      for (let i = 0; i < imageData.length; i += 4) {
+        const a = imageData[i + 3];
+        if (a === 0) continue; // 跳过完全透明像素
+        rSum += imageData[i];
+        gSum += imageData[i + 1];
+        bSum += imageData[i + 2];
+        count++;
       }
 
-      context.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      // 获取像素数据
-      let data = context.getImageData(0, 0, img.width, img.height).data;
-      let r = 1,
-        g = 1,
-        b = 1;
-      // 取所有像素的平均值
-      for (var row = 0; row < img.height; row++) {
-        for (var col = 0; col < img.width; col++) {
-          if (row == 0) {
-            r += data[img.width * row + col];
-            g += data[img.width * row + col + 1];
-            b += data[img.width * row + col + 2];
-          } else {
-            r += data[(img.width * row + col) * 4];
-            g += data[(img.width * row + col) * 4 + 1];
-            b += data[(img.width * row + col) * 4 + 2];
-          }
-        }
+      if (count === 0) {
+        resolve([245, 245, 245]);
+        return;
       }
 
-      // 求取平均值
-      r /= img.width * img.height;
-      g /= img.width * img.height;
-      b /= img.width * img.height;
-
-      // 将最终的值取整
-      r = Math.round(r);
-      g = Math.round(g);
-      b = Math.round(b);
-      console.log(r, g, b);
+      const r = Math.round(rSum / count);
+      const g = Math.round(gSum / count);
+      const b = Math.round(bSum / count);
       resolve([r, g, b]);
     };
+    img.onerror = () => resolve([245, 245, 245]);
+    img.src = url;
   });
 }
 

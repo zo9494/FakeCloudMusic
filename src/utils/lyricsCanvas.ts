@@ -57,46 +57,7 @@ const utils = {
     };
   },
 
-  // 文本换行处理
-  wrapText: (
-    text: string,
-    maxWidth: number,
-    context: CanvasRenderingContext2D
-  ): string[] => {
-    const words = text.split('');
-    const lines: string[] = [];
-    let currentLine = '';
-
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const testLine = currentLine + word;
-      const metrics = context.measureText(testLine);
-
-      if (metrics.width > maxWidth && currentLine !== '') {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
-      }
-    }
-
-    if (currentLine) {
-      lines.push(currentLine);
-    }
-
-    return lines;
-  },
-
-  // 测量文本宽度
-  measureTextWidth: (text: string, font: string): number => {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (context) {
-      context.font = font;
-      return context.measureText(text).width;
-    }
-    return 0;
-  },
+  // 预留：可添加其他工具函数
 };
 
 // 动画状态枚举
@@ -150,6 +111,7 @@ class LyricConfig {
   normalColor: string;
   highlightColor: string;
   fontSize: number;
+  // 每行之间的间隔
   lineHeightRatio: number;
 
   // 主题颜色配置
@@ -166,7 +128,7 @@ class LyricConfig {
     this.SCALE_SMOOTH_FACTOR = options.scaleSmoothFactor || 0.1;
     this.JUMP_THRESHOLD = options.jumpThreshold || 50;
     this.FADE_DURATION = options.fadeDuration || 800;
-    this.HIGHLIGHT_SCALE = options.highlightScale || 1.0;
+    this.HIGHLIGHT_SCALE = options.highlightScale || 1;
     this.NORMAL_SCALE = options.normalScale || 0.8;
 
     // 颜色配置
@@ -183,7 +145,7 @@ class LyricConfig {
 
     // 字体配置
     this.fontSize = options.fontSize || 24;
-    this.lineHeightRatio = options.lineHeightRatio || 2.4;
+    this.lineHeightRatio = options.lineHeightRatio || 1.2;
 
     // 翻译行配置（只配置字体大小）
     this.translationFontSize = options.translationFontSize || 18;
@@ -210,6 +172,7 @@ class LyricRenderer {
   currentScale: number[]; // 每个歌词 Container 的缩放
   targetScale: number[];
   lyricLineContainers: Container[]; // 每行歌词的 Container
+  app: Application | null;
 
   constructor(config: LyricConfig) {
     this.config = config;
@@ -220,65 +183,163 @@ class LyricRenderer {
     this.currentScale = [];
     this.targetScale = [];
     this.lyricLineContainers = [];
+    this.app = null;
   }
 
-  setLyric(lyric: any[], app: Application): void {
+  setLyric(lyric: Partial<LyricItem>[], app: Application): void {
+    this.app = app;
     this.lyrics = lyric
-      .map((item: any, i: number) => ({
-        time: item.time,
-        lyric: item.lyric,
-        tlyric: item.tlyric,
+      .map((item: Partial<LyricItem>, i: number) => ({
+        time: item.time || 0,
+        lyric: item.lyric?.trim() || '',
+        tlyric: item.tlyric?.trim() || '',
         index: i,
       }))
       .sort((a: LyricItem, b: LyricItem) => a.time - b.time);
-
     this.highlightIndex = 0;
 
-    // 初始化位置和缩放
-    this.initializePositions(app);
-
+    // 初始化缩放与容器列表
     this.currentScale = this.lyrics.map(() => this.config.NORMAL_SCALE);
     this.targetScale = [...this.currentScale];
     this.lyricLineContainers = [];
+
+    // 先创建文本，以便拿到准确高度
+    // 初始化位置：稍后根据真实高度计算
+    // 注意：这里不再调用基于固定行高的初始化
+    // 文本创建会使用 this.currentY 现值（默认为 undefined），
+    // 随后会统一设置位置
+    // 为避免首次渲染前抖动，先以等距近似布局
+    // this.initializePositions(app);
   }
 
-  // 初始化位置（修复版）
-  initializePositions(app: Application): void {
-    const centerY = app.screen.height / 2;
-    const baseLineHeight = this.config.fontSize * this.config.lineHeightRatio;
-    const groupSpacing = baseLineHeight * 1.1; // 组间间距
+  // 初始化位置（先用等距占位，防止首次闪烁）
+  // initializePositions(app: Application): void {
+  //   const centerY = app.screen.height / 2;
+  //   const baseLineHeight = this.config.fontSize * this.config.lineHeightRatio;
+  //   const groupSpacing = baseLineHeight * 1.1; // 组间间距
 
-    // 计算初始位置：高亮行（第0行）居中
-    const scrollOffsetY = centerY - 0 * groupSpacing;
-    this.currentY = this.lyrics.map((_, i) => i * groupSpacing + scrollOffsetY);
-    this.targetY = [...this.currentY];
+  //   // 计算初始位置：高亮行（第0行）居中
+  //   const scrollOffsetY = centerY - 0 * groupSpacing;
+  //   this.currentY = this.lyrics.map((_, i) => i * groupSpacing + scrollOffsetY);
+  //   this.targetY = [...this.currentY];
+  // }
+
+  // 计算每一组（主歌词+翻译）的高度（按指定缩放模式）
+  private computeLineHeights(mode: 'current' | 'target'): number[] {
+    const groupGap = Math.max(
+      8,
+      this.config.fontSize * this.config.lineHeightRatio
+    ); // 组间额外间距
+    // 已创建：用文本自身高度（不受父容器缩放影响）计算基础高度，再乘以对应缩放
+    if (this.lyricLineContainers.length === this.lyrics.length) {
+      return this.lyricLineContainers.map((c, i) => {
+        const mainText = (c.children[0] as Text | undefined) || undefined;
+        const transText = (c.children[1] as Text | undefined) || undefined;
+        const baseMain = mainText
+          ? mainText.height
+          : this.config.fontSize * this.config.lineHeightRatio;
+        const baseTrans = transText
+          ? transText.height
+          : this.lyrics[i].tlyric
+          ? this.config.translationFontSize * this.config.lineHeightRatio
+          : 0;
+        const baseHeight =
+          baseMain + baseTrans + Math.max(6, this.config.fontSize * 0.2);
+        const scale =
+          mode === 'target'
+            ? this.targetScale[i] ?? this.config.NORMAL_SCALE
+            : this.currentScale[i] ?? this.config.NORMAL_SCALE;
+        return baseHeight * scale + groupGap;
+      });
+    }
+    // 回退：估算高度（未创建文本时）
+    return this.lyrics.map((item, i) => {
+      const baseMain = this.config.fontSize * 1.2;
+      const baseTrans = item.tlyric ? this.config.translationFontSize * 1.2 : 0;
+      const baseHeight =
+        baseMain + baseTrans + Math.max(6, this.config.fontSize * 0.2);
+      const scale =
+        mode === 'target'
+          ? this.targetScale[i] ?? this.config.NORMAL_SCALE
+          : this.currentScale[i] ?? this.config.NORMAL_SCALE;
+      return baseHeight * scale + groupGap;
+    });
   }
 
-  // 更新目标位置（修复版 - 确保被调用）
+  // 使用实际高度（按目标缩放）更新目标位置，使高亮组居中
   updateTargetPositions(app: Application, highlightIndex: number): void {
     const centerY = app.screen.height / 2;
-    const baseLineHeight = this.config.fontSize * this.config.lineHeightRatio;
-    const groupSpacing = baseLineHeight * 1.1;
+    const heights = this.computeLineHeights('target');
 
-    // 计算新的滚动偏移：让高亮行居中
-    const scrollOffsetY = centerY - highlightIndex * groupSpacing;
+    // 计算每组中心的累计位置
+    const centers: number[] = [];
+    let acc = 0;
+    for (let i = 0; i < heights.length; i++) {
+      const h = heights[i];
+      centers[i] = acc + h / 2;
+      acc += h;
+    }
 
-    // 更新所有行的目标位置
-    this.lyrics.forEach((_, i) => {
-      this.targetY[i] = i * groupSpacing + scrollOffsetY;
+    const scrollOffsetY = centerY - centers[highlightIndex];
+
+    // 更新目标 topY（使中心对齐 centerY）与缩放
+    for (let i = 0; i < heights.length; i++) {
+      const topY = centers[i] + scrollOffsetY - heights[i] / 2;
+      this.targetY[i] = topY;
       this.targetScale[i] =
         i === highlightIndex
           ? this.config.HIGHLIGHT_SCALE
           : this.config.NORMAL_SCALE;
-    });
+    }
+  }
 
-    // for (let i = 0; i < this.lyrics.length; i++) {
-    //   this.targetY[i] = i * groupSpacing + scrollOffsetY;
-    //   this.targetScale[i] =
-    //     i === highlightIndex
-    //       ? this.config.HIGHLIGHT_SCALE
-    //       : this.config.NORMAL_SCALE;
-    // }
+  // 使用当前缩放实时计算目标位置，防止缩放过渡期间的挤压/重叠
+  // updateTargetPositionsWithCurrentScale(
+  //   app: Application,
+  //   highlightIndex: number
+  // ): void {
+  //   const centerY = app.screen.height / 2;
+  //   const heights = this.computeLineHeights('current');
+
+  //   const centers: number[] = [];
+  //   let acc = 0;
+  //   for (let i = 0; i < heights.length; i++) {
+  //     const h = heights[i];
+  //     centers[i] = acc + h / 2;
+  //     acc += h;
+  //   }
+
+  //   const scrollOffsetY = centerY - centers[highlightIndex];
+
+  //   for (let i = 0; i < heights.length; i++) {
+  //     const topY = centers[i] + scrollOffsetY - heights[i] / 2;
+  //     this.targetY[i] = topY;
+  //     // 不改变 targetScale，这里只调整位置以维持间距
+  //   }
+  // }
+
+  // 基于真实高度（按当前缩放），立即设置当前位置（用于首次布局或大跳转后）
+  applyImmediateLayout(app: Application, highlightIndex: number): void {
+    const centerY = app.screen.height / 2;
+    const heights = this.computeLineHeights('current');
+    const centers: number[] = [];
+    let acc = 0;
+    for (let i = 0; i < heights.length; i++) {
+      const h = heights[i];
+      centers[i] = acc + h / 2;
+      acc += h;
+    }
+    const scrollOffsetY = centerY - centers[highlightIndex];
+    for (let i = 0; i < heights.length; i++) {
+      const topY = centers[i] + scrollOffsetY - heights[i] / 2;
+      this.currentY[i] = topY;
+      this.targetY[i] = topY;
+      this.currentScale[i] =
+        i === highlightIndex
+          ? this.config.HIGHLIGHT_SCALE
+          : this.config.NORMAL_SCALE;
+      this.targetScale[i] = this.currentScale[i];
+    }
   }
 
   createLyricTexts(app: Application, container: Container): void {
@@ -289,8 +350,11 @@ class LyricRenderer {
     // 为每行歌词创建 Container
     this.lyrics.forEach((item, i) => {
       const lineContainer = new Container();
-      lineContainer.position.set(30, this.currentY[i]); // 左边距 30px
+      lineContainer.position.set(10, this.currentY[i]); // 左边距 10px
       lineContainer.scale.set(this.currentScale[i]);
+
+      // 计算文本可用宽度（左右各留 20px）
+      const availableWidth = Math.max(0, app.screen.width - 20);
 
       const lyricText = new Text({
         text: item.lyric,
@@ -299,11 +363,14 @@ class LyricRenderer {
           fontSize: this.config.fontSize,
           fill: this.config.normalColor,
           align: 'left',
+          wordWrap: true,
+          wordWrapWidth: availableWidth,
+          breakWords: true,
           fontWeight: 'bold',
         },
       });
       lyricText.position.set(0, 0);
-      lyricText.anchor.set(0, 0.5); // 左中对齐
+      lyricText.anchor.set(0, 0); // 左上对齐，便于多行文本从顶部开始布局
       lineContainer.addChild(lyricText);
 
       if (item.tlyric) {
@@ -314,14 +381,18 @@ class LyricRenderer {
             fontSize: this.config.translationFontSize,
             fill: this.config.normalColor,
             align: 'left',
+            wordWrap: true,
+            wordWrapWidth: availableWidth,
+            breakWords: true,
             fontWeight: 'normal',
           },
         });
 
         // 翻译行位置（相对于 Container）
-        const lyricHeight = this.config.fontSize * 1.2; // 行高
+        const lyricHeight =
+          lyricText.height + Math.max(6, this.config.fontSize * 0.2);
         translationText.position.set(0, lyricHeight);
-        translationText.anchor.set(0, 0.5); // 左中对齐
+        translationText.anchor.set(0, 0); // 左上对齐
 
         lineContainer.addChild(translationText);
       }
@@ -330,6 +401,32 @@ class LyricRenderer {
       container.addChild(lineContainer);
       this.lyricLineContainers.push(lineContainer);
     });
+  }
+
+  // 更新所有文本的换行宽度以及翻译行的相对位置
+  updateWordWrapWidth(app: Application): void {
+    const availableWidth = Math.max(0, app.screen.width - 20);
+    for (let i = 0; i < this.lyricLineContainers.length; i++) {
+      const lineContainer = this.lyricLineContainers[i];
+      if (!lineContainer) continue;
+      // 第一个子元素为主歌词，第二个（如果存在）为翻译
+      const mainText = lineContainer.children[0] as Text | undefined;
+      const transText = lineContainer.children[1] as Text | undefined;
+      if (mainText instanceof Text) {
+        mainText.style.wordWrap = true;
+        mainText.style.wordWrapWidth = availableWidth;
+        mainText.style.breakWords = true;
+      }
+      if (transText instanceof Text) {
+        transText.style.wordWrap = true;
+        transText.style.wordWrapWidth = availableWidth;
+        transText.style.breakWords = true;
+        // 重新根据主行高度定位翻译行
+        const lyricHeight =
+          (mainText?.height || 0) + Math.max(6, this.config.fontSize * 0.2);
+        transText.position.y = lyricHeight;
+      }
+    }
   }
 
   update(
@@ -341,6 +438,10 @@ class LyricRenderer {
   ): void {
     // 更新歌词 Container 位置（带正确的双向延迟）
     if (animationState === AnimationState.NORMAL) {
+      // 在缩放过渡期间，基于当前缩放实时重算目标位置，避免相邻行挤压
+      if (this.app) {
+        this.updateTargetPositions(this.app, highlightIndex);
+      }
       for (let i = 0; i < this.lyrics.length; i++) {
         const progress = this.getLineProgress(
           i,
@@ -499,10 +600,10 @@ export class WebGLLyricRenderer {
       resizeTo: this.canvas,
       // width: rect.width,
       // height: rect.height,
-      // powerPreference: 'low-power',
+      //powerPreference: 'high-performance',
       antialias: true,
       // autoDensity: true,
-      resolution: window.devicePixelRatio || 1,
+      resolution: (window.devicePixelRatio || 1) * 1.4,
       // forceCanvas: false,
       // forceWebGL: true,
       backgroundAlpha: 0,
@@ -528,19 +629,14 @@ export class WebGLLyricRenderer {
   }
 
   private handleResize(): void {
-    // 窗口大小改变时，重新计算目标位置
-    this.lyricRenderer.updateTargetPositions(this.app!, this.highlightIndex);
-
-    // 设置所有文本的水平位置到屏幕中心
-    // for (let i = 0; i < this.lyricRenderer.lyricTexts.length; i++) {
-    //   if (this.lyricRenderer.lyricTexts[i]) {
-    //     this.lyricRenderer.lyricTexts[i].position.x =
-    //       this.app!.screen.width / 2;
-    //   }
-    // }
+    // 窗口大小改变时，同步更新换行宽度并重算目标位置
+    if (this.app) {
+      this.lyricRenderer.updateWordWrapWidth(this.app);
+      this.lyricRenderer.updateTargetPositions(this.app, this.highlightIndex);
+    }
   }
 
-  async setLyric(lyric: any[]): Promise<void> {
+  async setLyric(lyric: Partial<Omit<LyricItem, 'index'>>[]): Promise<void> {
     console.log('📝 Setting lyrics, count:', lyric.length);
     if (this.initialized === null) {
       this.initialized = this.init();
@@ -551,8 +647,11 @@ export class WebGLLyricRenderer {
     this.animationState = AnimationState.NORMAL;
     this.isAnimating = false;
 
-    this.lyricRenderer.updateTargetPositions(this.app!, this.highlightIndex);
+    // 先创建文本，获取真实高度
     this.lyricRenderer.createLyricTexts(this.app!, this.lyricsContainer!);
+    // 基于真实高度进行一次即时布局（避免换行导致的组间距异常）
+    this.lyricRenderer.updateWordWrapWidth(this.app!);
+    this.lyricRenderer.applyImmediateLayout(this.app!, this.highlightIndex);
 
     this.animationStartTime = performance.now();
 
@@ -595,8 +694,9 @@ export class WebGLLyricRenderer {
       // 小范围变化，使用平滑动画
       this.lastHighlightIndex = this.highlightIndex;
       this.highlightIndex = newIndex;
-
-      this.lyricRenderer.updateTargetPositions(this.app!, this.highlightIndex);
+      if (this.app) {
+        this.lyricRenderer.updateTargetPositions(this.app, this.highlightIndex);
+      }
       this.animationStartTime = performance.now();
     }
   }

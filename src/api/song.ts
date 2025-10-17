@@ -70,6 +70,7 @@ export async function getLyric(id: Id) {
   const cache = await lyric.findById(id);
 
   if (!lyric.isExpired(cache?.updated_at)) return cache?.data;
+  // api:/lyric似乎没有api:/lyric/new准
   const data = await service.get<lyrics>('/lyric', {
     params: { id },
   });

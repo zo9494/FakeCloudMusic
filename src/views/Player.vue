@@ -124,7 +124,7 @@ fcmAudioPlayer.on('songchange', songInfo => {
   resetPlayerStatus();
   data.songInfo = songInfo || {};
   // setBgColor(songInfo?.pic || '');
-  lyricsBackground.setAlImage(songInfo.pic, true);
+  lyricsBackground.setAlImage(songInfo.pic, false);
   Invoke('SET_TITLE', songInfo ? `${songInfo.name}-${songInfo.ar}` : '');
   if (songInfo) {
     getLyric(songInfo.id).then(lyrics => {

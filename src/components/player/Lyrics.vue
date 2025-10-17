@@ -93,6 +93,7 @@ function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
   return index;
 }
 function startAutoScroll() {
+  let items = document.querySelectorAll<HTMLDivElement>('.item');
   return watch(
     () => data.currentIndex,
     () => {
