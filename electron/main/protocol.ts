@@ -136,7 +136,7 @@ class AudioStreamHandler {
     });
 
     const totalSize = fs.statSync(cachePath).size; // 单次同步读取元数据，代价低
-    const effectiveEnd = (range.end ?? (totalSize - 1));
+    const effectiveEnd = range.end ?? totalSize - 1;
     const contentLength = effectiveEnd - range.start + 1;
     const contentRange = RangeRequestHandler.createContentRangeHeader(
       { start: range.start, end: effectiveEnd },
@@ -144,7 +144,9 @@ class AudioStreamHandler {
     );
 
     return {
-      stream: Readable.toWeb(readStream) as unknown as ReadableStream<Uint8Array>,
+      stream: Readable.toWeb(
+        readStream
+      ) as unknown as ReadableStream<Uint8Array>,
       contentLength,
       contentRange,
       totalSize,
@@ -161,17 +163,10 @@ class AudioStreamHandler {
       const passThrough = new PassThrough();
 
       // 确保临时文件存在
-      const ensureTemp = async () => {
-        try {
-          await fsp.mkdir(path.dirname(tempPath), { recursive: true });
-          await fsp.access(tempPath, fs.constants.F_OK).catch(async () => {
-            await fsp.writeFile(tempPath, Buffer.alloc(0));
-          });
-        } catch (e) {
-          // 忽略创建临时文件失败，后续写入会报错
-        }
-      };
-      ensureTemp();
+      // 确保临时文件存在
+      if (!fs.existsSync(tempPath)) {
+        fs.writeFileSync(tempPath, Buffer.alloc(0));
+      }
 
       // 根据是否有范围请求决定写入模式
       const writeStream = range
@@ -213,7 +208,9 @@ class AudioStreamHandler {
               isCompleteDownloadFlag = true;
             } else if (upstreamContentRange) {
               // bytes a-b/total
-              const m = upstreamContentRange.match(/bytes\s+(\d+)-(\d+)\/(\d+)/);
+              const m = upstreamContentRange.match(
+                /bytes\s+(\d+)-(\d+)\/(\d+)/
+              );
               if (m) {
                 const b = parseInt(m[2], 10);
                 const t = parseInt(m[3], 10);
@@ -241,7 +238,9 @@ class AudioStreamHandler {
                 try {
                   if (isCompleteDownloadFlag) {
                     await fsp.rename(tempPath, cachePath).catch(() => {});
-                    console.log('Audio fully downloaded and cached successfully.');
+                    console.log(
+                      'Audio fully downloaded and cached successfully.'
+                    );
                   }
                 } catch (renameError) {
                   console.error('Error renaming temp file:', renameError);
@@ -251,7 +250,9 @@ class AudioStreamHandler {
 
             const lengthFromRange = (() => {
               if (!upstreamContentRange) return undefined;
-              const m = upstreamContentRange.match(/bytes\s+(\d+)-(\d+)\/(\d+)/);
+              const m = upstreamContentRange.match(
+                /bytes\s+(\d+)-(\d+)\/(\d+)/
+              );
               if (!m) return undefined;
               const s = parseInt(m[1], 10);
               const e = parseInt(m[2], 10);
@@ -263,7 +264,9 @@ class AudioStreamHandler {
             const contentRange = upstreamContentRange;
 
             resolve({
-              stream: Readable.toWeb(passThrough) as unknown as ReadableStream<Uint8Array>,
+              stream: Readable.toWeb(
+                passThrough
+              ) as unknown as ReadableStream<Uint8Array>,
               contentLength,
               contentRange,
               totalSize: totalSize || undefined,
@@ -382,7 +385,9 @@ class ProtocolHandler {
     url: URL,
     rangeHeader: string
   ): Promise<Response> {
-    const totalSize = await CacheManager.getFileSize(CacheManager.getCachePath(url));
+    const totalSize = await CacheManager.getFileSize(
+      CacheManager.getCachePath(url)
+    );
     const range = RangeRequestHandler.parseRangeHeader(rangeHeader, totalSize);
 
     if (!range) {
@@ -393,7 +398,6 @@ class ProtocolHandler {
       start: range.start,
       end: range.end,
     });
-
 
     return ResponseBuilder.createRangeResponse(
       Readable.toWeb(readStream) as unknown as ReadableStream<Uint8Array>,

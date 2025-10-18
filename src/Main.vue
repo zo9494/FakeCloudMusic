@@ -134,7 +134,7 @@ window.electron.ipcRenderer.on('APP:SEND_MESSAGE', (_, val) => {
   height: 100%;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 200px auto;
+  grid-template-columns: minmax(200px, 1fr) 4fr;
   &-left-nav {
     overflow: hidden;
     display: grid;
@@ -157,6 +157,8 @@ window.electron.ipcRenderer.on('APP:SEND_MESSAGE', (_, val) => {
 
   &-player {
     width: 95vw;
+    min-height: 60px;
+    height: 9vh;
     position: fixed;
     bottom: 20px;
     left: 50%;

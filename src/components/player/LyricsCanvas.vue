@@ -26,6 +26,8 @@ function initLyricsRenderer() {
   if (webglLyricsRenderer) {
     if (!webglLyricsRenderer.getLyric().length) {
       webglLyricsRenderer.setLyric(props.lyrics);
+    } else {
+      webglLyricsRenderer.resize();
     }
     return;
   }

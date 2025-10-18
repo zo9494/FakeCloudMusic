@@ -195,18 +195,19 @@ function onProgressChange(val: number) {
 
   &-body {
     display: grid;
-    grid-template-columns: minmax(240px, 1.8fr) 2.4fr;
+    grid-template-columns: 50vh auto;
     height: 100%;
     gap: 60px;
+    padding-left: 10vw;
 
     &-left {
-      display: grid;
-      grid-template-rows: 240px auto;
-      gap: 40px;
-      justify-items: center;
-
+      display: flex;
+      flex-direction: column;
+      gap: 4vh;
+      align-items: center;
       .cover {
-        height: 240px;
+        height: 50vh;
+        width: 50vh;
         img {
           border-radius: 10px;
         }
@@ -214,14 +215,16 @@ function onProgressChange(val: number) {
       // 进度条、控制按钮
 
       &-options {
-        width: 300px;
+        width: 100%;
         display: grid;
-        grid-template-rows: repeat(2, 1fr);
+        grid-template-rows: 40px 10vh;
+        justify-items: center;
         &-slider {
           // 进度条
           width: 100%;
         }
         &-btn {
+          width: 100%;
           display: grid;
           grid-template-columns: repeat(3, 1fr);
         }
