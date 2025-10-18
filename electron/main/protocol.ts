@@ -1,8 +1,9 @@
 import { app, protocol } from 'electron';
 import * as fs from 'fs';
+import { promises as fsp } from 'fs';
 import * as path from 'path';
 import { createWriteStream, createReadStream } from 'fs';
-import { Readable } from 'stream';
+import { Readable, PassThrough } from 'stream';
 import { net } from 'electron';
 import { mediaSourceResolver } from '../utils/mediaSource';
 
@@ -42,14 +43,19 @@ class CacheManager {
     return path.join(CACHE_DIR, `${hash}.mp3`);
   }
 
-  static isFullyCached(url: URL): boolean {
+  static async isFullyCached(url: URL): Promise<boolean> {
     const cachePath = this.getCachePath(url);
-    return fs.existsSync(cachePath);
+    try {
+      await fsp.access(cachePath, fs.constants.F_OK);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
-  static getFileSize(filePath: string): number {
+  static async getFileSize(filePath: string): Promise<number> {
     try {
-      const stats = fs.statSync(filePath);
+      const stats = await fsp.stat(filePath);
       return stats.size;
     } catch {
       return 0;
@@ -107,13 +113,13 @@ class RangeRequestHandler {
 class AudioStreamHandler {
   static async createAudioStreamWithRange(
     url: URL,
-    range?: { start: number; end: number }
+    range?: { start: number; end?: number }
   ): Promise<AudioStreamResult> {
     const cachePath = CacheManager.getCachePath(url);
     const tempPath = `${cachePath}.tmp`;
 
     // 如果是范围请求且文件已完全缓存，直接从缓存文件读取
-    if (range && CacheManager.isFullyCached(url)) {
+    if (range && (await CacheManager.isFullyCached(url))) {
       return this.createStreamFromCache(cachePath, range);
     }
 
@@ -122,22 +128,23 @@ class AudioStreamHandler {
 
   private static createStreamFromCache(
     cachePath: string,
-    range: { start: number; end: number }
+    range: { start: number; end?: number }
   ): AudioStreamResult {
     const readStream = createReadStream(cachePath, {
       start: range.start,
       end: range.end,
     });
 
-    const totalSize = CacheManager.getFileSize(cachePath);
-    const contentLength = range.end - range.start + 1;
+    const totalSize = fs.statSync(cachePath).size; // 单次同步读取元数据，代价低
+    const effectiveEnd = (range.end ?? (totalSize - 1));
+    const contentLength = effectiveEnd - range.start + 1;
     const contentRange = RangeRequestHandler.createContentRangeHeader(
-      range,
+      { start: range.start, end: effectiveEnd },
       totalSize
     );
 
     return {
-      stream: readStream as unknown as ReadableStream<Uint8Array>,
+      stream: Readable.toWeb(readStream) as unknown as ReadableStream<Uint8Array>,
       contentLength,
       contentRange,
       totalSize,
@@ -146,19 +153,25 @@ class AudioStreamHandler {
 
   private static createStreamFromNetwork(
     url: URL,
-    range: { start: number; end: number } | undefined,
+    range: { start: number; end?: number } | undefined,
     cachePath: string,
     tempPath: string
   ): Promise<AudioStreamResult> {
     return new Promise((resolve, reject) => {
-      const readable = new Readable({
-        read() {},
-      });
+      const passThrough = new PassThrough();
 
       // 确保临时文件存在
-      if (!fs.existsSync(tempPath)) {
-        fs.writeFileSync(tempPath, Buffer.alloc(0));
-      }
+      const ensureTemp = async () => {
+        try {
+          await fsp.mkdir(path.dirname(tempPath), { recursive: true });
+          await fsp.access(tempPath, fs.constants.F_OK).catch(async () => {
+            await fsp.writeFile(tempPath, Buffer.alloc(0));
+          });
+        } catch (e) {
+          // 忽略创建临时文件失败，后续写入会报错
+        }
+      };
+      ensureTemp();
 
       // 根据是否有范围请求决定写入模式
       const writeStream = range
@@ -172,89 +185,97 @@ class AudioStreamHandler {
 
           // 如果是范围请求，设置请求头
           if (range) {
-            request.setHeader('Range', `bytes=${range.start}-${range.end}`);
+            const endPart = typeof range.end === 'number' ? range.end : '';
+            request.setHeader('Range', `bytes=${range.start}-${endPart}`);
           }
 
           let totalSize = 0;
-          let downloadedSize = 0;
           let isCompleteDownloadFlag = false;
+          let upstreamContentRange: string | undefined;
 
           request.on('response', response => {
-            // 获取总大小
             const contentLengthHeader = response.headers['content-length'];
+            const contentRangeHeader = response.headers['content-range'];
+            if (Array.isArray(contentRangeHeader)) {
+              upstreamContentRange = contentRangeHeader[0] as string;
+            } else if (typeof contentRangeHeader === 'string') {
+              upstreamContentRange = contentRangeHeader as string;
+            }
             if (contentLengthHeader) {
-              totalSize = parseInt(contentLengthHeader as string);
+              const len = Array.isArray(contentLengthHeader)
+                ? parseInt(contentLengthHeader[0] as string)
+                : parseInt(contentLengthHeader as string);
+              if (!Number.isNaN(len)) totalSize = len;
             }
 
             // 检查是否是完整下载
-            isCompleteDownloadFlag =
-              !range ||
-              (range.start === 0 && range.end >= (totalSize - 1 || Infinity));
+            if (!range) {
+              isCompleteDownloadFlag = true;
+            } else if (upstreamContentRange) {
+              // bytes a-b/total
+              const m = upstreamContentRange.match(/bytes\s+(\d+)-(\d+)\/(\d+)/);
+              if (m) {
+                const b = parseInt(m[2], 10);
+                const t = parseInt(m[3], 10);
+                totalSize = t || totalSize;
+                isCompleteDownloadFlag = range.start === 0 && b === t - 1;
+              }
+            }
 
+            // 将上游数据写入内存与磁盘（避免类型问题，不直接使用 pipe）
             response.on('data', (chunk: Buffer) => {
-              // 将数据推送到流中
-              readable.push(chunk);
-
-              // 同时写入临时文件进行缓存
+              passThrough.write(chunk);
               writeStream.write(chunk);
-              downloadedSize += chunk.length;
+            });
+            response.on('error', err => {
+              passThrough.destroy(err);
+              writeStream.destroy(err as any);
+              reject(err);
             });
 
             response.on('end', () => {
-              readable.push(null);
-              writeStream.end(() => {
-                // 如果是完整下载，重命名临时文件
-                if (isCompleteDownloadFlag) {
-                  try {
-                    fs.renameSync(tempPath, cachePath);
-                    console.log(
-                      'Audio fully downloaded and cached successfully.'
-                    );
-                  } catch (renameError) {
-                    console.error('Error renaming temp file:', renameError);
+              passThrough.end();
+              writeStream.end();
+              // 如果是完整下载，重命名临时文件
+              (async () => {
+                try {
+                  if (isCompleteDownloadFlag) {
+                    await fsp.rename(tempPath, cachePath).catch(() => {});
+                    console.log('Audio fully downloaded and cached successfully.');
                   }
-                } else {
-                  console.log(
-                    'Audio partial download completed, kept in temp file.'
-                  );
+                } catch (renameError) {
+                  console.error('Error renaming temp file:', renameError);
                 }
-              });
+              })();
             });
 
-            response.on('error', err => {
-              console.error('Response stream error:', err);
-              readable.destroy(err);
-              writeStream.destroy();
-              reject(err);
+            const lengthFromRange = (() => {
+              if (!upstreamContentRange) return undefined;
+              const m = upstreamContentRange.match(/bytes\s+(\d+)-(\d+)\/(\d+)/);
+              if (!m) return undefined;
+              const s = parseInt(m[1], 10);
+              const e = parseInt(m[2], 10);
+              return e - s + 1;
+            })();
+
+            // 计算内容长度和范围（尽量透传上游）
+            const contentLength = lengthFromRange ?? totalSize;
+            const contentRange = upstreamContentRange;
+
+            resolve({
+              stream: Readable.toWeb(passThrough) as unknown as ReadableStream<Uint8Array>,
+              contentLength,
+              contentRange,
+              totalSize: totalSize || undefined,
             });
           });
 
           request.on('error', err => {
             console.error('Request error:', err);
-            readable.destroy(err);
             reject(err);
           });
 
           request.end();
-
-          // 计算内容长度和范围
-          let contentLength = totalSize;
-          let contentRange = undefined;
-
-          if (range) {
-            contentLength = range.end - range.start + 1;
-            contentRange = RangeRequestHandler.createContentRangeHeader(
-              range,
-              totalSize
-            );
-          }
-
-          resolve({
-            stream: readable as unknown as ReadableStream<Uint8Array>,
-            contentLength,
-            contentRange,
-            totalSize: totalSize || undefined,
-          });
         })
         .catch(reject);
     });
@@ -348,7 +369,7 @@ class ProtocolHandler {
     rangeHeader: string
   ): Promise<Response> {
     // 检查是否已完全缓存
-    if (CacheManager.isFullyCached(url)) {
+    if (await CacheManager.isFullyCached(url)) {
       console.log('file is cached get from cache');
       return await ProtocolHandler.handleCachedRangeRequest(url, rangeHeader);
     } else {
@@ -361,7 +382,7 @@ class ProtocolHandler {
     url: URL,
     rangeHeader: string
   ): Promise<Response> {
-    const totalSize = CacheManager.getFileSize(CacheManager.getCachePath(url));
+    const totalSize = await CacheManager.getFileSize(CacheManager.getCachePath(url));
     const range = RangeRequestHandler.parseRangeHeader(rangeHeader, totalSize);
 
     if (!range) {
@@ -373,8 +394,9 @@ class ProtocolHandler {
       end: range.end,
     });
 
+
     return ResponseBuilder.createRangeResponse(
-      readStream as unknown as ReadableStream<Uint8Array>,
+      Readable.toWeb(readStream) as unknown as ReadableStream<Uint8Array>,
       RangeRequestHandler.createContentRangeHeader(range, totalSize),
       range.end - range.start + 1
     );
@@ -384,64 +406,30 @@ class ProtocolHandler {
     url: URL,
     rangeHeader: string
   ): Promise<Response> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const neteaseUrl = await mediaSourceResolver.resolve(
-          url.searchParams.get('id'),
-          url.searchParams.get('cookie')
-        );
+    // 直接解析 Range 起始位置（不依赖总大小），透传给上游
+    const match = rangeHeader.match(/bytes=(\d+)-(?:(\d+))?/);
+    if (!match) {
+      return ResponseBuilder.createRangeNotSatisfiableResponse();
+    }
+    const start = parseInt(match[1], 10);
+    const end = match[2] ? parseInt(match[2], 10) : undefined;
 
-        // 创建一个临时请求来获取大小
-        const sizeRequest = net.request({
-          method: 'HEAD',
-          url: neteaseUrl,
-        });
+    const { stream, contentLength, contentRange } =
+      await AudioStreamHandler.createAudioStreamWithRange(url, { start, end });
 
-        sizeRequest.on('response', response => {
-          const contentLength = response.headers['content-length'];
-          const totalSize = contentLength
-            ? parseInt(contentLength as string)
-            : 0;
-
-          // 解析范围请求
-          const range = RangeRequestHandler.parseRangeHeader(
-            rangeHeader,
-            totalSize
-          );
-
-          if (!range) {
-            resolve(ResponseBuilder.createRangeNotSatisfiableResponse());
-            return;
-          }
-
-          // 创建带范围的音频流
-          AudioStreamHandler.createAudioStreamWithRange(url, range)
-            .then(({ stream, contentLength, contentRange }) => {
-              resolve(
-                ResponseBuilder.createRangeResponse(
-                  stream,
-                  contentRange!,
-                  contentLength
-                )
-              );
-            })
-            .catch(reject);
-        });
-
-        sizeRequest.on('error', reject);
-        sizeRequest.end();
-      } catch (error) {
-        reject(error);
-      }
-    });
+    return ResponseBuilder.createRangeResponse(
+      stream,
+      contentRange || `bytes ${start}-${end ?? ''}/*`,
+      contentLength
+    );
   }
 
   private static async handleFullRequest(url: URL): Promise<Response> {
     // 检查是否已完全缓存（非范围请求）
-    if (CacheManager.isFullyCached(url)) {
+    if (await CacheManager.isFullyCached(url)) {
       const fileStream = createReadStream(CacheManager.getCachePath(url));
       return ResponseBuilder.createSuccessResponse(
-        fileStream as unknown as ReadableStream<Uint8Array>,
+        Readable.toWeb(fileStream) as unknown as ReadableStream<Uint8Array>,
         {
           'Content-Type': 'audio/mpeg',
           'Accept-Ranges': 'bytes',

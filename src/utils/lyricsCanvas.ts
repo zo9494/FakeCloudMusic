@@ -811,4 +811,7 @@ export class WebGLLyricRenderer {
     this.canvas = null!;
     this.lyricRenderer = null!;
   }
+  resize(): void {
+    this.app?.resize();
+  }
 }
