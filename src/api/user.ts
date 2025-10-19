@@ -4,12 +4,12 @@ import dayjs from 'dayjs';
 
 interface UserAccount {
   code: number;
-  account: {
+  account?: {
     id: number;
     // 是否为匿名用户
     anonimousUser?: boolean;
   };
-  profile: {
+  profile?: {
     nickname: string;
     avatarUrl: string;
     userId: number;
@@ -27,7 +27,7 @@ export async function getUserAccount() {
     return cache?.data;
   }
   // 如果不为匿名用户，则保存
-  if (!data?.account.anonimousUser) {
+  if (!data?.account?.anonimousUser) {
     user.add(1, data);
   }
   return data;

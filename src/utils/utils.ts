@@ -51,12 +51,6 @@ export function transformLyric(lyric: string, tlyric?: string) {
   console.table(lyrics);
   return lyrics;
 }
-export interface DynamicLyricWord {
-  time: number;
-  duration: number;
-  flag: number;
-  word: string;
-}
 
 export function getArName(Ar?: Base[]) {
   if (!Ar) {
@@ -81,7 +75,10 @@ export function getImageColor(url: string): Promise<[number, number, number]> {
     img.onload = () => {
       // 低分辨率采样，降低像素处理量
       const SAMPLE = 32;
-      const ratio = img.width && img.height ? Math.min(SAMPLE / img.width, SAMPLE / img.height) : 1;
+      const ratio =
+        img.width && img.height
+          ? Math.min(SAMPLE / img.width, SAMPLE / img.height)
+          : 1;
       const w = Math.max(1, Math.round(img.width * ratio));
       const h = Math.max(1, Math.round(img.height * ratio));
 
@@ -96,7 +93,10 @@ export function getImageColor(url: string): Promise<[number, number, number]> {
       context.drawImage(img, 0, 0, w, h);
       const imageData = context.getImageData(0, 0, w, h).data;
 
-      let rSum = 0, gSum = 0, bSum = 0, count = 0;
+      let rSum = 0,
+        gSum = 0,
+        bSum = 0,
+        count = 0;
       // 正确的 RGBA 跨步遍历
       for (let i = 0; i < imageData.length; i += 4) {
         const a = imageData[i + 3];
