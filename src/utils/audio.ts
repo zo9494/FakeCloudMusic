@@ -354,7 +354,7 @@ export class FCMAudioPlayer {
       'timeupdate',
       throttle(() => {
         self.triggerEvent('timeupdate', round(self.currentTime, 3));
-      }, 800)
+      }, 500)
     );
     self.audio.addEventListener('loadedmetadata', () => {
       self.triggerEvent('loadedmetadata', round(self.duration, 3));

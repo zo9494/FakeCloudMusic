@@ -126,7 +126,7 @@ class LyricConfig {
     this.ANIM_DELAY_PER_LINE = options.animDelayPerLine || 90;
     this.SMOOTH_FACTOR = options.smoothFactor || 0.15;
     this.SCALE_SMOOTH_FACTOR = options.scaleSmoothFactor || 0.1;
-    this.JUMP_THRESHOLD = options.jumpThreshold || 50;
+    this.JUMP_THRESHOLD = options.jumpThreshold || 100;
     this.FADE_DURATION = options.fadeDuration || 800;
     this.HIGHLIGHT_SCALE = options.highlightScale || 1;
     this.NORMAL_SCALE = options.normalScale || 0.8;

@@ -61,9 +61,16 @@ interface lyric {
   lyric: string;
 }
 interface lyrics {
+  // 主歌词
   lrc: lyric;
+  // 翻译歌词
   tlyric: lyric;
+  // 逐字歌词
   yrc: lyric;
+  // 罗马注音歌词
+  romalrc: lyric;
+  // 逐字歌词翻译
+  ytlrc: lyric;
 }
 
 export async function getLyric(id: Id) {
