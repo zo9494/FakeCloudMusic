@@ -7,8 +7,8 @@
         :key="item.time"
         :class="[data.currentIndex === index ? 'item-active' : null, 'item']"
       >
-        <div class="item-lyric">{{ item.lyric }}</div>
-        <div class="item-tlyric">{{ item.tlyric }}</div>
+        <div class="item-lyric">{{ item.text }}</div>
+        <div class="item-tlyric">{{ item.translateText }}</div>
       </div>
       <div
         v-if="props.lyrics.length > 1"
@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { LyricLine } from '@/utils/parseLyric';
 import {
   reactive,
   ref,
@@ -29,7 +30,7 @@ import {
 } from 'vue';
 
 const props = defineProps<{
-  lyrics: Lyric[];
+  lyrics: LyricLine[];
   progress: number;
   isShow: boolean;
 }>();
@@ -80,7 +81,7 @@ function startProcessLyric() {
   );
 }
 
-function processLyricsIndex(process: number, lyrics: Lyric[] = []): number {
+function processLyricsIndex(process: number, lyrics: LyricLine[] = []): number {
   if (!process || lyrics.length === 0) {
     return -1;
   }
@@ -133,7 +134,7 @@ function handleScroll() {
     box-sizing: border-box;
     font-size: 24px;
     color: var(--lyrics-font-color);
-    margin: 12px 0;
+    margin: 20px 0;
     transition: all ease-in-out 200ms;
     font-weight: bolder;
     line-height: 1.4;

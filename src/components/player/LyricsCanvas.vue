@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { WebGLLyricRenderer } from '@/utils/lyricsCanvas';
+import { LyricLine } from '@/utils/parseLyric';
 import {
   reactive,
   ref,
@@ -16,7 +17,7 @@ import {
 } from 'vue';
 
 const props = defineProps<{
-  lyrics: Lyric[];
+  lyrics: LyricLine[];
   progress: number;
   isShow: boolean;
 }>();

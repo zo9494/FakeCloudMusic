@@ -3,6 +3,7 @@ import { isArray } from 'lodash';
 import { transformLyric } from '@/utils/utils';
 import { Invoke } from '@/utils/ipcRenderer';
 import { lyric } from '@/utils/database';
+import { parseLyric } from '@/utils/parseLyric';
 type Id = number | string;
 type Ids = string[] | number[];
 
@@ -78,12 +79,19 @@ export async function getLyric(id: Id) {
 
   if (!lyric.isExpired(cache?.updated_at)) return cache?.data;
   // api:/lyric似乎没有api:/lyric/new准
-  const data = await service.get<lyrics>('/lyric', {
+  const data = await service.get<lyrics>('/lyric/new', {
     params: { id },
   });
 
   if (data?.lrc) {
-    const lyrics = transformLyric(data.lrc.lyric, data?.tlyric?.lyric);
+    const lyrics = parseLyric(
+      data.lrc.lyric,
+      data?.tlyric?.lyric,
+      data?.romalrc?.lyric,
+      data?.yrc?.lyric,
+      data?.ytlrc?.lyric
+    );
+    console.info('歌词:', lyrics);
     lyric.add(id, lyrics);
     return lyrics;
   } else {

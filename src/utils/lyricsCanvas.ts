@@ -1,5 +1,6 @@
 import { Application, Text, Container } from 'pixi.js';
 import 'pixi.js/unsafe-eval';
+import { LyricLine } from './parseLyric';
 
 // 工具函数
 const utils = {
@@ -90,13 +91,9 @@ interface LyricConfigOptions {
   translationFontSize?: number;
 }
 
-interface LyricItem {
-  time: number;
-  lyric: string;
-  // 翻译
-  tlyric: string;
+type LyricItem = {
   index: number;
-}
+} & LyricLine;
 
 // 配置类
 class LyricConfig {
@@ -188,14 +185,11 @@ class LyricRenderer {
 
   setLyric(lyric: Partial<LyricItem>[], app: Application): void {
     this.app = app;
-    this.lyrics = lyric
-      .map((item: Partial<LyricItem>, i: number) => ({
-        time: item.time || 0,
-        lyric: item.lyric?.trim() || '',
-        tlyric: item.tlyric?.trim() || '',
-        index: i,
-      }))
-      .sort((a: LyricItem, b: LyricItem) => a.time - b.time);
+
+    this.lyrics = lyric.map((item: Partial<LyricItem>, i: number) => {
+      item.index = i;
+      return item as LyricItem;
+    });
     this.highlightIndex = 0;
 
     // 初始化缩放与容器列表
@@ -240,7 +234,7 @@ class LyricRenderer {
           : this.config.fontSize * this.config.lineHeightRatio;
         const baseTrans = transText
           ? transText.height
-          : this.lyrics[i].tlyric
+          : this.lyrics[i].translateText
           ? this.config.translationFontSize * this.config.lineHeightRatio
           : 0;
         const baseHeight =
@@ -255,7 +249,9 @@ class LyricRenderer {
     // 回退：估算高度（未创建文本时）
     return this.lyrics.map((item, i) => {
       const baseMain = this.config.fontSize * 1.2;
-      const baseTrans = item.tlyric ? this.config.translationFontSize * 1.2 : 0;
+      const baseTrans = item.translateText
+        ? this.config.translationFontSize * 1.2
+        : 0;
       const baseHeight =
         baseMain + baseTrans + Math.max(6, this.config.fontSize * 0.2);
       const scale =
@@ -357,7 +353,7 @@ class LyricRenderer {
       const availableWidth = Math.max(0, app.screen.width - 20);
 
       const lyricText = new Text({
-        text: item.lyric,
+        text: item.text,
         style: {
           fontFamily: 'system-ui, -apple-system, sans-serif',
           fontSize: this.config.fontSize,
@@ -373,9 +369,9 @@ class LyricRenderer {
       lyricText.anchor.set(0, 0); // 左上对齐，便于多行文本从顶部开始布局
       lineContainer.addChild(lyricText);
 
-      if (item.tlyric) {
+      if (item.translateText) {
         const translationText = new Text({
-          text: item.tlyric,
+          text: item.translateText,
           style: {
             fontFamily: 'system-ui, -apple-system, sans-serif',
             fontSize: this.config.translationFontSize,

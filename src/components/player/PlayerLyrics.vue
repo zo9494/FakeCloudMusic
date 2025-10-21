@@ -76,11 +76,12 @@ import ProgressBar from '@/components/player/PlayerProgressBar.vue';
 import Lyrics from './Lyrics.vue';
 import LyricsCanvas from './LyricsCanvas.vue';
 import { watch } from 'vue';
+import { LyricLine } from '@/utils/parseLyric';
 
 interface Props {
   progress: number;
   duration: number;
-  lyrics?: Lyric[];
+  lyrics?: LyricLine[];
   song: {
     id: string | number | null;
     pic: string;

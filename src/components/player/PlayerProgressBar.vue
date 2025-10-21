@@ -1,6 +1,6 @@
 <template>
   <div class="progress-bar">
-    <span>{{ formatDuringMS(props.progress) }}</span>
+    <span>{{ formatMillisecondsToMMSS(props.progress) }}</span>
     <div class="progress-bar-slider">
       <VueSlider
         :modelValue="props.progress"
@@ -8,7 +8,7 @@
         :lazy="true"
         :height="5"
         :min="0"
-        :max="props.duration || 1"
+        :max="props.duration * 1000 || 1"
         :duration="0"
         :interval="0.001"
         tooltip="none"
@@ -16,15 +16,17 @@
       >
       </VueSlider>
     </div>
-    <span>{{ formatDuringMS(props.duration) }}</span>
+    <span>{{ formatSecondsToMMSS(props.duration) }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import VueSlider from 'vue-slider-component';
-import { formatDuringMS } from '@/utils/time';
+import { formatMillisecondsToMMSS, formatSecondsToMMSS } from '@/utils/time';
 interface PropsType {
+  // 毫秒
   progress: number;
+  // 毫秒
   duration: number;
 }
 interface EmitsType {

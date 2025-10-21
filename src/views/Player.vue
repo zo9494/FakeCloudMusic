@@ -15,6 +15,7 @@ import { Invoke, Listener } from '@/utils/ipcRenderer';
 import { getLyric } from '@/api/song';
 import { user } from '@/utils/database';
 import { lyricsBackground } from '@/utils/background';
+import { LyricLine } from '@/utils/parseLyric';
 const userStore = useUserStore();
 
 onMounted(() => {
@@ -35,7 +36,7 @@ interface Data {
     name: string;
     ar: string;
   };
-  lyrics?: Lyric[];
+  lyrics?: LyricLine[];
 }
 
 const data = reactive<Data>({
@@ -117,7 +118,7 @@ function handlePlay(index: number) {
 
 function handleProgressChange(value: number) {
   data.currentTime = value;
-  fcmAudioPlayer.currentTime = value;
+  fcmAudioPlayer.currentTime = value / 1000;
 }
 
 fcmAudioPlayer.on('songchange', songInfo => {
