@@ -25,7 +25,7 @@
                   <ProgressBar
                     @change="onProgressChange"
                     :progress="props.progress"
-                    :duration="props.duration"
+                    :duration="props.duration * 1000"
                   />
                 </div>
                 <div class="f-lyrics-body-left-options-btn">
@@ -39,7 +39,7 @@
                     @click="togglePlay"
                     class="f-player-control-pau-pla f-player-control-btn"
                   >
-                    <i v-if="props.isPlay" class="iconfont icon-pause" />
+                    <i v-if="props.playing" class="iconfont icon-pause" />
                     <i v-else class="iconfont icon-play" />
                   </button>
                   <button
@@ -60,6 +60,7 @@
               <LyricsCanvas
                 :is-show="show"
                 :lyrics="props.lyrics"
+                :playing="props.playing"
                 :progress="props.progress"
               />
             </div>
@@ -77,7 +78,7 @@ import Lyrics from './Lyrics.vue';
 import LyricsCanvas from './LyricsCanvas.vue';
 import { watch } from 'vue';
 import { LyricLine } from '@/utils/parseLyric';
-
+import { fcmAudioPlayer } from '@/utils/audio';
 interface Props {
   progress: number;
   duration: number;
@@ -88,7 +89,7 @@ interface Props {
     name: string;
     ar: string;
   };
-  isPlay: boolean;
+  playing: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   progress: 0,
@@ -216,7 +217,7 @@ function onProgressChange(val: number) {
       // 进度条、控制按钮
 
       &-options {
-        width: 100%;
+        width: calc(100% + 28px);
         display: grid;
         grid-template-rows: 40px 10vh;
         justify-items: center;

@@ -1,26 +1,27 @@
 <template>
   <div class="progress-bar">
-    <span>{{ formatMillisecondsToMMSS(props.progress) }}</span>
+    <span>{{ formatMillisecondsToMMSS(progress) }}</span>
     <div class="progress-bar-slider">
       <VueSlider
-        :modelValue="props.progress"
+        :modelValue="progress"
         @change="onChange"
         :lazy="true"
         :height="5"
         :min="0"
-        :max="props.duration * 1000 || 1"
         :duration="0"
-        :interval="0.001"
+        :max="duration"
+        :interval="1"
         tooltip="none"
         :dot-size="12"
       >
       </VueSlider>
     </div>
-    <span>{{ formatSecondsToMMSS(props.duration) }}</span>
+    <span>{{ formatMillisecondsToMMSS(duration) }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import VueSlider from 'vue-slider-component';
 import { formatMillisecondsToMMSS, formatSecondsToMMSS } from '@/utils/time';
 interface PropsType {
@@ -35,7 +36,8 @@ interface EmitsType {
 const emits = defineEmits<EmitsType>();
 
 const props = defineProps<PropsType>();
-
+const progress = computed(() => props.progress | 0);
+const duration = computed(() => props.duration | 0);
 function onChange(val: number) {
   emits('change', val);
 }

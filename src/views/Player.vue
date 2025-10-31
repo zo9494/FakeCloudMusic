@@ -237,7 +237,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
       <div class="f-player-progress">
         <ProgressBar
           :progress="data.currentTime"
-          :duration="data.duration"
+          :duration="data.duration * 1000"
           @change="handleProgressChange"
         />
       </div>
@@ -258,7 +258,7 @@ Listener('APP:AUDIO_PREVIOUS', previous);
 
   <PlayerLyrics
     v-model:show="data.showLyric"
-    :is-play="data.play"
+    :playing="data.play"
     @next="next"
     @previous="previous"
     @toggle-play="togglePlay"
