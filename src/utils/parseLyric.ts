@@ -11,11 +11,11 @@ export interface LyricLine {
   // 持续时长
   duration: number;
   // 如果不为空，则表示有逐字歌词
-  children?: Text[];
+  children?: LyricLineChild[];
 }
 
 // 单个字符
-export interface Text {
+export interface LyricLineChild {
   time: number;
   text: string;
   duration: number;
