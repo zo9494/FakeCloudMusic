@@ -57,7 +57,13 @@
                 :lyrics="props.lyrics"
                 :progress="props.progress"
               /> -->
-              <LyricsCanvas
+              <!-- <LyricsCanvas
+                :is-show="show"
+                :lyrics="props.lyrics"
+                :playing="props.playing"
+                :progress="props.progress"
+              /> -->
+              <LyricPlayer
                 :is-show="show"
                 :lyrics="props.lyrics"
                 :playing="props.playing"
@@ -76,6 +82,7 @@ import ImageComponent from '@/components/PlaylistImage.vue';
 import ProgressBar from '@/components/player/PlayerProgressBar.vue';
 import Lyrics from './Lyrics.vue';
 import LyricsCanvas from './LyricsCanvas.vue';
+import LyricPlayer from './LyricsRenderer.vue';
 import { watch } from 'vue';
 import { LyricLine } from '@/utils/parseLyric';
 import { fcmAudioPlayer } from '@/utils/audio';

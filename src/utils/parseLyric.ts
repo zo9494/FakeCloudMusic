@@ -182,7 +182,7 @@ function parseYrcFormat(ylyric: string): LyricLine[] {
       const lineStartTime = parseInt(startTime);
       const lineDuration = parseInt(duration);
 
-      const children: Text[] = [];
+      const children: LyricLineChild[] = [];
       let fullText = '';
 
       // 解析逐字内容 (startTime,duration,unknown)text
