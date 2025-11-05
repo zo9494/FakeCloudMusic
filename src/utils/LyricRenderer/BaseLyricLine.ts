@@ -1,4 +1,4 @@
-import type { Application, TextStyle } from 'pixi.js';
+import type { Application, Sprite, TextStyle } from 'pixi.js';
 import type { LyricLine } from '../parseLyric';
 import type { FontStyle } from './interface';
 
@@ -15,6 +15,14 @@ export abstract class BaseLyricLineWord {
    * 清除高亮
    */
   abstract clearHighlight(): void;
+  /**
+   * 更新遮罩
+   */
+  abstract updateMask(): void;
+  /**
+   * 移除遮罩
+   */
+  abstract removeMask(): void;
 }
 
 export abstract class BaseLyricLine extends BaseLyricLineWord {

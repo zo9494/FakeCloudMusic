@@ -31,6 +31,7 @@ export class NormalLyricLine extends Container implements BaseLyricLine {
     this.createLyricLine(options.line);
   }
 
+
   createLyricLine(lyric: LyricLine) {
     const text = TextUtils.getTextWrap(
       lyric.text,
@@ -60,9 +61,9 @@ export class NormalLyricLine extends Container implements BaseLyricLine {
       height: mask.height,
       width: mask.width,
       graphics,
+      mask,
     };
-    //
-    graphics.mask = mask;
+
     this.addChild(graphics, mask);
 
     if (lyric.translateText) {
@@ -72,6 +73,9 @@ export class NormalLyricLine extends Container implements BaseLyricLine {
         style: {
           fill: this.style.normal.color,
           fontSize: this.style.fontSize,
+          wordWrap: true,
+          wordWrapWidth: this.maxWidth,
+          breakWords: true,
         },
         alpha: this.style.normal.alpha,
       });
@@ -104,5 +108,17 @@ export class NormalLyricLine extends Container implements BaseLyricLine {
 
   clearHighlight(): void {
     this.highlight(0);
+  }
+  updateMask() {
+    if (!this.word) {
+      return;
+    }
+    this.word.graphics.mask = this.word.mask;
+  }
+  removeMask() {
+    if (!this.word) {
+      return;
+    }
+    this.word.graphics.mask = null;
   }
 }

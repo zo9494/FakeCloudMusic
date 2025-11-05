@@ -64,10 +64,9 @@
                 :progress="props.progress"
               /> -->
               <LyricPlayer
+       
                 :is-show="show"
                 :lyrics="props.lyrics"
-                :playing="props.playing"
-                :progress="props.progress"
               />
             </div>
           </div>

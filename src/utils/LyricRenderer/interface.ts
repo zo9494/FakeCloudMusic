@@ -2,6 +2,7 @@ import type {
   Application,
   ColorSource,
   Graphics,
+  Sprite,
   TextStyleFontWeight,
 } from 'pixi.js';
 import type { LyricLine } from '../parseLyric';
@@ -10,6 +11,7 @@ export interface LyricLineWordType {
   height: number;
   width: number;
   graphics: Graphics;
+  mask: Sprite;
 }
 
 export interface LyricLineOptions {

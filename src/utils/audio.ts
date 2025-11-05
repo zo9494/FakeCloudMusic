@@ -168,6 +168,8 @@ export class FCMAudioPlayer {
   // 播放模式管理器
   private playModeManager: PlayModeManager;
 
+  playing: boolean = false;
+
   // 播放模式
   private mode: number = 0;
   constructor(options?: Partial<Options>) {
@@ -317,9 +319,11 @@ export class FCMAudioPlayer {
   private bindEvents() {
     const self = this;
     self.audio.addEventListener('play', () => {
+      self.playing = true;
       self.triggerEvent('play');
     });
     self.audio.addEventListener('pause', () => {
+      self.playing = false;
       self.triggerEvent('pause');
     });
     self.audio.addEventListener('ended', () => {

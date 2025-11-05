@@ -97,29 +97,40 @@ export class TextUtils {
   }
 
   /**
-   * 将文本分割为片段，保持英文单词完整性（包括使用英文或中文撇号的单词）
+   * 将文本分割为片段，保持英文单词完整性，中文按字符分割
    */
   private static splitTextIntoSegments(text: string): string[] {
     const segments: string[] = [];
+    let i = 0;
 
-    // 使用正则表达式匹配：
-    // 1. 英文单词（包括使用英文撇号'或中文撇号’的缩写如 can't, I'm, can’t, I’m）
-    // 2. 连续的非英文字符（包括中文、数字、标点等）
-    // 3. 连续的空白字符
-    const regex = /([a-zA-Z]+(?:['’][a-zA-Z]+)*)|([^a-zA-Z\s]+)|(\s+)/g;
-    let match;
-
-    while ((match = regex.exec(text)) !== null) {
-      if (match[1]) {
-        // 英文单词（包括使用英文或中文撇号的缩写）
-        segments.push(match[1]);
-      } else if (match[2]) {
-        // 非英文字符序列（中文、数字、标点等）
-        segments.push(match[2]);
-      } else if (match[3]) {
-        // 空白字符序列
-        segments.push(match[3]);
+    while (i < text.length) {
+      const char = text[i];
+      
+      // 检查是否是英文字母或撇号
+      if (/[a-zA-Z]/.test(char)) {
+        // 匹配英文单词（包括使用英文撇号'或中文撇号’的缩写）
+        const wordMatch = text.slice(i).match(/^[a-zA-Z]+(?:['’][a-zA-Z]+)*/);
+        if (wordMatch) {
+          segments.push(wordMatch[0]);
+          i += wordMatch[0].length;
+          continue;
+        }
       }
+      
+      // 检查是否是空白字符
+      if (/\s/.test(char)) {
+        // 匹配连续的空白字符
+        const spaceMatch = text.slice(i).match(/^\s+/);
+        if (spaceMatch) {
+          segments.push(spaceMatch[0]);
+          i += spaceMatch[0].length;
+          continue;
+        }
+      }
+      
+      // 其他字符（包括中文、数字、标点等）按单个字符处理
+      segments.push(char);
+      i++;
     }
 
     return segments;
@@ -139,7 +150,7 @@ export class TextUtils {
     // 检查是否是英文单词（包括使用英文或中文撇号的缩写）
     const isEnglishWord = /^[a-zA-Z]+(?:['’][a-zA-Z]+)*$/.test(segment);
 
-    // 如果是英文单词，尽量在合理位置分割
+    // 如果是英文单词且长度大于3，尽量在合理位置分割
     if (isEnglishWord && segment.length > 3) {
       // 尝试在单词中间分割，但避免在撇号附近分割
       for (let i = 0; i < segment.length; i++) {
@@ -171,7 +182,7 @@ export class TextUtils {
         }
       }
     } else {
-      // 非英文单词或短单词，按字符分割
+      // 非英文单词（包括中文、短单词等），按字符分割
       for (let i = 0; i < segment.length; i++) {
         const char = segment[i];
         const testPart = currentPart + char;

@@ -4,6 +4,7 @@ import {
   Graphics,
   Sprite,
   Text,
+  type Mask,
   type Renderer,
 } from 'pixi.js';
 import type { BaseLyricLine, BaseLyricLineWord } from './BaseLyricLine';
@@ -39,15 +40,17 @@ class LyricLineWord extends Container implements BaseLyricLineWord {
 
     const mask = new Sprite(textTexture);
 
+
     const graphics = new Graphics();
     graphics.rect(0, 0, mask.width, mask.height).fill(this.style.normal);
     this.word = {
       height: mask.height,
       width: mask.width,
       graphics,
+      mask,
     };
-    //
-    graphics.mask = mask;
+    //大量的mask会导致性能问题
+    // graphics.mask = mask;
     this.addChild(graphics, mask);
   }
   /**
@@ -70,6 +73,18 @@ class LyricLineWord extends Container implements BaseLyricLineWord {
 
   clearHighlight(): void {
     this.highlight(0);
+  }
+  updateMask() {
+    if (!this.word) {
+      return;
+    }
+    this.word.graphics.mask = this.word.mask;
+  }
+  removeMask() {
+    if (!this.word) {
+      return;
+    }
+    this.word.graphics.mask = null;
   }
 }
 /**
@@ -144,6 +159,9 @@ export class PreciseLyricLine extends Container implements BaseLyricLine {
           style: {
             fill: this.style.normal.color,
             fontSize: this.style.fontSize * 0.6,
+            wordWrap: true,
+            wordWrapWidth: this.maxWidth,
+            breakWords: true,
           },
           alpha: this.style.normal.alpha,
         });
@@ -156,6 +174,16 @@ export class PreciseLyricLine extends Container implements BaseLyricLine {
   clearHighlight(): void {
     this.words.forEach((char) => {
       char.clearHighlight();
+    });
+  }
+  updateMask() {
+    this.words.forEach((char) => {
+      char.updateMask();
+    });
+  }
+  removeMask() {
+    this.words.forEach((char) => {
+      char.removeMask();
     });
   }
 }
