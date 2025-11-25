@@ -6,6 +6,7 @@ import { createWriteStream, createReadStream } from 'fs';
 import { Readable, PassThrough } from 'stream';
 import { net } from 'electron';
 import { mediaSourceResolver } from '../utils/mediaSource';
+import { cacheManager } from '../utils/cacheManager';
 
 // 配置常量
 const CACHE_DIR = path.join(app.getPath('userData'), 'audio-cache');
@@ -29,48 +30,6 @@ protocol.registerSchemesAsPrivileged([
     },
   },
 ]);
-
-/**
- * 缓存管理器
- */
-class CacheManager {
-  static getCachePath(url: URL): string {
-    const value = `${url.host}/${url.searchParams.get('id')}`;
-    const hash = require('crypto')
-      .createHash('md5')
-      .update(value)
-      .digest('hex');
-    return path.join(CACHE_DIR, `${hash}.mp3`);
-  }
-
-  static async isFullyCached(url: URL): Promise<boolean> {
-    const cachePath = this.getCachePath(url);
-    try {
-      await fsp.access(cachePath, fs.constants.F_OK);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  static async getFileSize(filePath: string): Promise<number> {
-    try {
-      const stats = await fsp.stat(filePath);
-      return stats.size;
-    } catch {
-      return 0;
-    }
-  }
-
-  static clearCache(): void {
-    if (fs.existsSync(CACHE_DIR)) {
-      const files = fs.readdirSync(CACHE_DIR);
-      files.forEach(file => {
-        fs.unlinkSync(path.join(CACHE_DIR, file));
-      });
-    }
-  }
-}
 
 /**
  * 范围请求处理器
@@ -115,11 +74,11 @@ class AudioStreamHandler {
     url: URL,
     range?: { start: number; end?: number }
   ): Promise<AudioStreamResult> {
-    const cachePath = CacheManager.getCachePath(url);
+    const cachePath = cacheManager.getCachePath(url);
     const tempPath = `${cachePath}.tmp`;
 
     // 如果是范围请求且文件已完全缓存，直接从缓存文件读取
-    if (range && (await CacheManager.isFullyCached(url))) {
+    if (range && (await cacheManager.isFullyCached(url))) {
       return this.createStreamFromCache(cachePath, range);
     }
 
@@ -372,7 +331,7 @@ class ProtocolHandler {
     rangeHeader: string
   ): Promise<Response> {
     // 检查是否已完全缓存
-    if (await CacheManager.isFullyCached(url)) {
+    if (await cacheManager.isFullyCached(url)) {
       console.log('file is cached get from cache');
       return await ProtocolHandler.handleCachedRangeRequest(url, rangeHeader);
     } else {
@@ -385,8 +344,8 @@ class ProtocolHandler {
     url: URL,
     rangeHeader: string
   ): Promise<Response> {
-    const totalSize = await CacheManager.getFileSize(
-      CacheManager.getCachePath(url)
+    const totalSize = await cacheManager.getFileSize(
+      cacheManager.getCachePath(url)
     );
     const range = RangeRequestHandler.parseRangeHeader(rangeHeader, totalSize);
 
@@ -394,7 +353,7 @@ class ProtocolHandler {
       return ResponseBuilder.createRangeNotSatisfiableResponse();
     }
 
-    const readStream = createReadStream(CacheManager.getCachePath(url), {
+    const readStream = createReadStream(cacheManager.getCachePath(url), {
       start: range.start,
       end: range.end,
     });
@@ -430,8 +389,8 @@ class ProtocolHandler {
 
   private static async handleFullRequest(url: URL): Promise<Response> {
     // 检查是否已完全缓存（非范围请求）
-    if (await CacheManager.isFullyCached(url)) {
-      const fileStream = createReadStream(CacheManager.getCachePath(url));
+    if (await cacheManager.isFullyCached(url)) {
+      const fileStream = createReadStream(cacheManager.getCachePath(url));
       return ResponseBuilder.createSuccessResponse(
         Readable.toWeb(fileStream) as unknown as ReadableStream<Uint8Array>,
         {
@@ -478,5 +437,5 @@ export function unregisterProtocol(): void {
 
 // 便捷的缓存清理函数
 export function clearCache(): void {
-  CacheManager.clearCache();
+  cacheManager.clearCache();
 }

@@ -281,26 +281,16 @@ export class FCMAudioPlayer {
   }
 
   private whenEnded() {
-    switch (this.mode) {
-      // case PlayMode.repeat:
-      //   // 单曲循环，重新播放当前歌曲
-      //   this.audio.currentTime = 0;
-      //   this.play();
-      //   break;
-      case PlayMode.order:
-        // 顺序播放结束
-        if (
-          this.currentIndex !== null &&
-          this.currentIndex + 1 < this.list.length
-        ) {
-          this.next();
-        } else {
-          this.currentIndex = null;
-        }
-        break;
-      default:
-        this.next();
-        break;
+    // 使用 playModeManager 来处理播放结束逻辑
+    if (this.currentIndex === null) return;
+
+    const nextIndex = this.playModeManager.getNextIndex(this.currentIndex);
+    if (nextIndex !== null) {
+      this.currentIndex = nextIndex;
+    } else {
+      // 顺序播放且到达末尾
+      this.pause();
+      this.triggerEvent('ended');
     }
   }
   togglePlayMode(mode?: number) {
@@ -335,7 +325,7 @@ export class FCMAudioPlayer {
     });
     self.audio.addEventListener('error', err => {
       self.triggerEvent('error');
-      console.dir(err);
+      console.log('error', err);
       console.dir(self.audio);
       switch (self.audio.error?.code) {
         case 1:
@@ -353,6 +343,8 @@ export class FCMAudioPlayer {
         default:
           console.log('未知错误');
       }
+      // 播放下一首
+      self.next();
     });
     self.audio.addEventListener(
       'timeupdate',

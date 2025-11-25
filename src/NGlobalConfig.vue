@@ -26,9 +26,7 @@ const themeOverrides: GlobalThemeOverrides = {
     textColor: 'var(--font-color)',
     borderRadius: '9px',
   },
-  Button: {
-    color: '#000',
-  },
+
   Radio: {
     textColor: 'var(--font-color)',
   },

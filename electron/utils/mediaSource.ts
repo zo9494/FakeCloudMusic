@@ -17,7 +17,7 @@ class MediaSourceResolver {
     const res = await getSongUrl(id, cookie);
 
     if (res.freeTrialInfo) {
-      console.info(`歌曲 ${id} 为试听版本`);
+      console.log(`song ${id} is a trial version`);
       return null;
     }
     return res.url || null;

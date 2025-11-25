@@ -5,6 +5,7 @@ import { createLogin } from './login';
 import { application } from './application';
 import { theme } from './theme';
 import { netHelper } from '../utils/service';
+import { CacheManager } from '../utils/cacheManager';
 function getWinFormWebContents(sender: Electron.WebContents) {
   return BrowserWindow.fromWebContents(sender);
 }
@@ -107,3 +108,20 @@ ipcMain.handle(EVENT.WEB_AUDIO_TOGGLE_PLAY, (e, play: boolean) => {
 ipcMain.handle(EVENT.APP_NET_STATUS, () => {
   return netHelper.checkInternetConnection();
 });
+
+//#region 缓存
+ipcMain.handle(EVENT.APP_MAX_CACHE_SIZE, async () => {
+  const size = await CacheManager.getInstance().getMaxCacheSize();
+  return size;
+});
+ipcMain.handle(EVENT.APP_CACHE_SIZE, async () => {
+  const usedSize = await CacheManager.getInstance().getCacheSize();
+  const maxSize = await CacheManager.getInstance().getMaxCacheSize();
+  return { usedSize, maxSize };
+});
+
+ipcMain.handle(EVENT.APP_CACHE_CLEAR, async () => {
+  await CacheManager.getInstance().clearCache();
+});
+
+//#endregion

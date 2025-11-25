@@ -138,13 +138,12 @@ fcmAudioPlayer.on('songchange', songInfo => {
 
 fcmAudioPlayer.on('play', () => {
   console.log('event:play');
-  lyricsBackground.resume();
+
   data.play = true;
   Invoke('WEB:AUDIO_TOGGLE_PLAY', true);
 });
 fcmAudioPlayer.on('pause', () => {
   data.play = false;
-  lyricsBackground.pause();
   Invoke('WEB:AUDIO_TOGGLE_PLAY', false);
 });
 fcmAudioPlayer.on('loadedmetadata', duration => {
