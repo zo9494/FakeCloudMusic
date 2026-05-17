@@ -6,20 +6,14 @@
 
 <script setup lang="ts">
 import { LyricRenderer } from '@/utils/LyricRenderer/LyricRenderer';
-import { fcmAudioPlayer } from "@/utils/audio";
+import { fcmAudioPlayer } from '@/utils/audio';
 import { LyricLine } from '@/utils/parseLyric';
-import {
-  ref,
-  watch,
-  onMounted,
-  nextTick,
-} from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
 
 const props = defineProps<{
   lyrics: LyricLine[];
   isShow: boolean;
 }>();
-
 
 let lyricPlayer: LyricRenderer | null = null;
 const canvasRef = ref<HTMLCanvasElement>();
@@ -58,7 +52,7 @@ watch(
           animation();
         }
       });
-    } 
+    }
   },
   {
     immediate: true,

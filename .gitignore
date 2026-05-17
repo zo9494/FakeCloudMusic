@@ -23,5 +23,5 @@ release
 *.njsproj
 *.sln
 *.sw?
-
+.trae
 # lockfile
