@@ -1,5 +1,5 @@
 import { service } from '@/utils/request';
-import { isArray } from 'lodash';
+import { isArray } from 'lodash-es';
 import { transformLyric } from '@/utils/utils';
 import { Invoke } from '@/utils/ipcRenderer';
 import { lyric } from '@/utils/database';

@@ -1,5 +1,5 @@
 import { getSongUrl, getUnblockSong } from '@/api/song';
-import { throttle, round, random } from 'lodash';
+import { throttle, round, random } from 'lodash-es';
 import { getArName } from './utils';
 
 interface Options {

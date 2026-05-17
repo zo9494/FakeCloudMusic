@@ -229,7 +229,7 @@ import {
 } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
-import { cloneDeep, throttle } from 'lodash';
+import { cloneDeep, throttle } from 'lodash-es';
 
 import { getPlaylistDetail } from '@/api/playlist';
 import { useUserStore } from '@/store/user';

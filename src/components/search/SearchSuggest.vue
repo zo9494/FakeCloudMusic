@@ -14,7 +14,7 @@
 import SearchSuggestList from '@/components/search/SearchSuggestList.vue';
 import { getSearchSuggest, getSearch } from '@/api/search';
 import { onBeforeMount, watch, reactive } from 'vue';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 
 interface PropsType {
   keywords?: string;

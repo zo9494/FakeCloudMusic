@@ -4,12 +4,12 @@
     <div class="content">
       <div
         v-for="(item, index) in list"
-        :class="{ 'playlist-list-item': true, color: index % 2 }"
+        :class="{ 'playlist-list-item': true, color: Number(index) % 2 }"
         :key="item.id"
         @dblclick="handlePlay(item.id)"
         @contextmenu="e => handleContextMenu(e, item)"
       >
-        <div class="index">{{ index + 1 }}</div>
+        <div class="index">{{ Number(index) + 1 }}</div>
         <div class="opt">
           <i
             v-if="userStore.hasLike(item.id)"

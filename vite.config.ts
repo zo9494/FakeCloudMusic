@@ -133,7 +133,7 @@ export default defineConfig(({ command }) => {
         output: {
           manualChunks: {
             'naive-ui': ['naive-ui'],
-            lodash: ['lodash'],
+            "lodash-es": ['lodash-es'],
             'music-metadata': ['music-metadata'],
           },
         },
